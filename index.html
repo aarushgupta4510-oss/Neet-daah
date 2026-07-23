@@ -920,8 +920,7 @@
             const maxVal = exam === "JEE" ? 100 : 180;
 
             let currentStr = `<div class="score-inputs-vertical-stack">`;
-            for(let i=0; i < su
-                    bs.length; i+=2) {
+            for(let i=0; i < subs.length; i+=2) {
                 currentStr += `<div class="score-inputs-row">`;
                 currentStr += `<input type="number" id="score-sub-${subs[i].toLowerCase()}" placeholder="${subs[i]} (${maxVal})" max="${maxVal}">`;
                 if(subs[i+1]) {
