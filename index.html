@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arush's NEET Dashboard</title>
+    <title>Arush's NEET Premium Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <style>
         * {
@@ -42,16 +42,16 @@
             font-weight: 600;
         }
 
-        /* Three Column Layout with Solid Aesthetic Colors */
+        /* Responsive Grid Setup */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
             max-width: 1400px;
-            margin: 0 auto;
+            margin: 0 auto 30px auto;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 1100px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
@@ -63,10 +63,10 @@
             gap: 30px;
             border-radius: 24px;
             padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
         }
 
-        /* Solid Color System */
+        /* Three Solid Colors Style */
         .blue-column { background-color: #2563EB; }
         .yellow-column { background-color: #EAB308; }
         .red-column { background-color: #DC2626; }
@@ -80,7 +80,7 @@
             color: #ffffff;
         }
 
-        /* Aesthetic Input Styling */
+        /* Inputs and Select Custom Overlays */
         input[type="text"], input[type="number"], select {
             width: 100%;
             padding: 14px 16px;
@@ -93,21 +93,20 @@
             transition: all 0.3s ease;
         }
 
+        select option {
+            color: #333;
+        }
+
         input::placeholder {
             color: rgba(255, 255, 255, 0.7);
         }
 
-        input:focus {
+        input:focus, select:focus {
             background: rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.6);
         }
 
-        /* Custom Beautiful Calendar Picker */
-        .date-picker-container {
-            position: relative;
-            width: 100%;
-        }
-
+        /* Modern Calendar Interface */
         input[type="date"] {
             width: 100%;
             padding: 14px 16px;
@@ -118,20 +117,18 @@
             color: white;
             outline: none;
             appearance: none;
-            -webkit-appearance: none;
             cursor: pointer;
         }
 
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1);
             scale: 1.2;
-            cursor: pointer;
         }
 
-        /* Lists Styling */
+        /* Component Lists */
         .item-list {
             list-style: none;
-            max-height: 250px;
+            max-height: 220px;
             overflow-y: auto;
         }
 
@@ -143,11 +140,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s ease;
         }
 
-        /* Buttons matching the premium glass feel */
+        /* Premium Buttons */
         .action-btn {
             background: white;
             color: #1a1a1a;
@@ -155,15 +150,13 @@
             padding: 14px 24px;
             border-radius: 12px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 1rem;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .action-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
             opacity: 0.95;
         }
 
@@ -174,19 +167,14 @@
             padding: 6px 12px;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
         }
 
-        .delete-btn:hover {
-            background: rgba(255, 255, 255, 0.4);
-        }
-
-        /* Modern Clock Launcher Block */
+        /* Interactive Clock Launch Pad */
         .timer-box {
             background: rgba(255, 255, 255, 0.12);
             border: 2px dashed rgba(255, 255, 255, 0.3);
             border-radius: 16px;
-            padding: 30px;
+            padding: 40px 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -198,16 +186,16 @@
         }
 
         .timer-box i {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 3rem;
+            margin-bottom: 15px;
         }
 
-        /* Full Screen Flip Clock Overlay */
+        /* Premium Dark Mode Flip Clock Screen */
         .clock-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.98);
+            background: rgba(10, 15, 30, 0.99);
             z-index: 2000;
             justify-content: center;
             align-items: center;
@@ -217,52 +205,76 @@
 
         .flip-clock-container {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             margin-bottom: 40px;
         }
 
         .flip-card {
-            background: #27272a;
-            padding: 30px 25px;
-            border-radius: 16px;
-            font-size: 6rem;
+            background: #1e293b;
+            padding: 35px 25px;
+            border-radius: 20px;
+            font-size: 6.5rem;
             font-family: 'Share Tech Mono', monospace;
-            min-width: 140px;
+            min-width: 150px;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            border-bottom: 6px solid #18181b;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+            border-bottom: 8px solid #0f172a;
             position: relative;
         }
 
-        .flip-card::after {
-            content: '';
-            position: absolute;
-            left: 0; top: 50%; width: 100%; height: 2px;
-            background: rgba(0,0,0,0.3);
-        }
-
-        .clock-controls {
-            display: flex;
-            gap: 20px;
-        }
-
-        .clock-btn {
-            padding: 15px 35px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-        }
-
-        /* Graph Box Styling */
-        .graph-container {
-            background: rgba(255, 255, 255, 0.95);
+        /* Analytics Sub-Containers */
+        .white-card {
+            background: rgba(255, 255, 255, 0.96);
             border-radius: 16px;
-            padding: 20px;
-            margin-top: 15px;
+            padding: 16px;
+            color: #1a1a1a;
+            margin-top: 10px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Premium Minimalist Table */
+        .table-wrapper {
+            max-height: 180px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .score-table th {
+            background: #f1f5f9;
+            padding: 10px;
+            font-weight: 700;
+        }
+
+        .score-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        /* Additional Aesthetics Feature Box */
+        .premium-footer-box {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #1e293b;
+            border-radius: 24px;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .flashcard-title {
+            color: #38bdf8;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
         }
     </style>
 </head>
@@ -285,71 +297,105 @@
                 <ul id="todo-list" class="item-list"></ul>
             </div>
             
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2); margin: 10px 0;">
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2); margin: 5px 0;">
 
             <div>
-                <h2><i class="fa-solid fa-graduation-cap"></i> Syllabus Tracker</h2>
+                <h2><i class="fa-solid fa-graduation-cap"></i> Core Syllabus Tracker</h2>
                 <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-                    <input type="text" id="task-title" placeholder="Chapter (e.g., Plant Physiology)">
+                    <input type="text" id="task-title" placeholder="Chapter (e.g., Photosynthesis)">
                     <select id="task-subject">
                         <option value="Physics">Physics</option>
                         <option value="Chemistry">Chemistry</option>
-                        <option value="Biology">Biology</option>
+                        <option value="Botany">Botany</option>
+                        <option value="Zoology">Zoology</option>
                     </select>
-                    <button class="action-btn" onclick="addTask()">Log Chapter</button>
+                    <button class="action-btn" onclick="addTask()">Log Chapter Status</button>
                 </div>
                 <ul id="task-list" class="item-list" style="margin-top: 15px;"></ul>
             </div>
         </div>
 
-        <div class="column yellow-column">
+        <div class="column yellow-column" style="justify-content: flex-start;">
             <h2><i class="fa-solid fa-hourglass-start"></i> Focus Engine</h2>
-            <p style="font-weight: 600; margin-top: -10px; opacity: 0.9;">Click the board below to trigger full screen study mode.</p>
+            <p style="font-weight: 600; margin-top: -10px; opacity: 0.9;">Maximize concentration metrics inside custom environment.</p>
             
             <div class="timer-box" onclick="openClockOverlay()">
                 <i class="fa-solid fa-expand-arrows-alt"></i>
-                <h3 style="font-size: 1.4rem; margin-bottom: 5px;">Launch Exam Clock</h3>
-                <p style="opacity: 0.8; font-size: 0.9rem;">Immersive Full-Screen Minimalist Counter</p>
+                <h3 style="font-size: 1.5rem; margin-bottom: 5px;">Launch Immersive Counter</h3>
+                <p style="opacity: 0.8; font-size: 0.95rem;">Clean Full-Screen Minimalist Study Clock</p>
             </div>
         </div>
 
         <div class="column red-column">
-            <h2><i class="fa-solid fa-chart-line"></i> Score Analytics</h2>
+            <h2><i class="fa-solid fa-chart-pie"></i> Score Analytics Suite</h2>
             
-            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-                <div class="date-picker-container">
-                    <input type="date" id="score-date">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                <input type="date" id="score-date">
+                <input type="text" id="score-name" placeholder="Mock Test Title">
+            </div>
+            <input type="number" id="score-value" placeholder="Score Obtained (Max 720)" max="720">
+            <button class="action-btn" onclick="addScore()">Update Performance Hub</button>
+
+            <div class="white-card">
+                <div style="position: relative; height: 160px; width: 100%;">
+                    <canvas id="performanceChart"></canvas>
                 </div>
-                <input type="text" id="score-name" placeholder="Test Name (e.g., Grand Test 3)">
-                <input type="number" id="score-value" placeholder="Score Obtained (Max 720)" max="720">
-                <button class="action-btn" onclick="addScore()">Update Timeline</button>
             </div>
 
-            <div class="graph-container">
-                <div style="position: relative; height: 230px; width: 100%;">
-                    <canvas id="performanceChart"></canvas>
+            <div class="white-card">
+                <div style="position: relative; height: 150px; width: 100%;">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+
+            <div class="white-card" style="padding: 10px;">
+                <div class="table-wrapper">
+                    <table class="score-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Test Name</th>
+                                <th>Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="score-table-body">
+                            <tr>
+                                <td>2026-07-15</td>
+                                <td>Grand Diagnostic Mock</td>
+                                <td>590/720</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
     </div>
 
+    <div class="premium-footer-box">
+        <div>
+            <div class="flashcard-title"><i class="fa-solid fa-bolt"></i> High-Yield NEET Flash Formula</div>
+            <p id="formula-text" style="color: #cbd5e1; font-size: 0.95rem;">Loading high-yield target formula...</p>
+        </div>
+        <button class="action-btn" style="padding: 10px 20px; font-size: 0.9rem; background: #334155; color: white;" onclick="rotateFormula()">Next Formula</button>
+    </div>
+
     <div id="clock-overlay" class="clock-overlay">
-        <h2 style="font-size: 2.5rem; margin-bottom: 30px; letter-spacing: 2px;"><i class="fa-solid fa-brain"></i> DEEP WORK SESSION</h2>
+        <h2 style="font-size: 2.5rem; margin-bottom: 30px; letter-spacing: 2px;"><i class="fa-solid fa-brain"></i> DEEP STUDY STREAM</h2>
         <div class="flip-clock-container">
             <div class="flip-card" id="flip-hr">00</div>
             <div class="flip-card" id="flip-min">00</div>
             <div class="flip-card" id="flip-sec">00</div>
         </div>
-        <div class="clock-controls">
-            <button class="action-btn clock-btn" style="background: #22c55e; color: white;" onclick="toggleClock()" id="start-pause-btn">Start Session</button>
-            <button class="action-btn clock-btn" style="background: #ef4444; color: white;" onclick="resetClock()">Reset</button>
-            <button class="action-btn clock-btn" style="background: #3f3f46; color: white;" onclick="closeClockOverlay()">Exit View</button>
+        <div class="clock-controls" style="display: flex; gap: 20px;">
+            <button class="action-btn" style="background: #22c55e; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="toggleClock()" id="start-pause-btn">Start Session</button>
+            <button class="action-btn" style="background: #ef4444; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="resetClock()">Reset</button>
+            <button class="action-btn" style="background: #3f3f46; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="closeClockOverlay()">Exit View</button>
         </div>
     </div>
 
     <script>
-        // --- TO DO LIST FUNCTIONS ---
+        // --- TODO CONTROLLER ---
         function addTodo() {
             const input = document.getElementById('todo-input');
             if (!input.value.trim()) return;
@@ -360,7 +406,7 @@
             input.value = '';
         }
 
-        // --- CHAPTER MANAGER FUNCTIONS ---
+        // --- CORE SYLLABUS CONTROLLER (UPDATED CHANNELS) ---
         function addTask() {
             const title = document.getElementById('task-title');
             const subject = document.getElementById('task-subject');
@@ -372,29 +418,18 @@
             title.value = '';
         }
 
-        // --- FLIP CLOCK CONTROLLER ---
-        let clockInterval;
-        let running = false;
-        let totalSeconds = 0;
-
-        function openClockOverlay() {
-            document.getElementById('clock-overlay').style.display = 'flex';
-        }
-
-        function closeClockOverlay() {
-            document.getElementById('clock-overlay').style.display = 'none';
-        }
-
+        // --- FLIP CLOCK TRACKER ENGINE ---
+        let clockInterval, running = false, totalSeconds = 0;
+        function openClockOverlay() { document.getElementById('clock-overlay').style.display = 'flex'; }
+        function closeClockOverlay() { document.getElementById('clock-overlay').style.display = 'none'; }
+        
         function toggleClock() {
             const btn = document.getElementById('start-pause-btn');
             if (!running) {
                 running = true;
                 btn.innerText = "Pause Study";
                 btn.style.backgroundColor = "#eab308";
-                clockInterval = setInterval(() => {
-                    totalSeconds++;
-                    updateFlipDisplay();
-                }, 1000);
+                clockInterval = setInterval(() => { totalSeconds++; updateFlipDisplay(); }, 1000);
             } else {
                 running = false;
                 btn.innerText = "Resume Study";
@@ -404,73 +439,93 @@
         }
 
         function resetClock() {
-            running = false;
-            clearInterval(clockInterval);
-            totalSeconds = 0;
-            updateFlipDisplay();
+            running = false; clearInterval(clockInterval); totalSeconds = 0; updateFlipDisplay();
             const btn = document.getElementById('start-pause-btn');
-            btn.innerText = "Start Session";
-            btn.style.backgroundColor = "#22c55e";
+            btn.innerText = "Start Session"; btn.style.backgroundColor = "#22c55e";
         }
 
         function updateFlipDisplay() {
-            const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-            const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-            const secs = String(totalSeconds % 60).padStart(2, '0');
-            
-            document.getElementById('flip-hr').innerText = hrs;
-            document.getElementById('flip-min').innerText = mins;
-            document.getElementById('flip-sec').innerText = secs;
+            document.getElementById('flip-hr').innerText = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            document.getElementById('flip-min').innerText = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            document.getElementById('flip-sec').innerText = String(totalSeconds % 60).padStart(2, '0');
         }
 
-        // --- CHART ENGINE ---
-        const chartData = {
-            labels: ['2026-07-15', '2026-07-20'],
-            datasets: [{
-                label: 'Score (Max 720)',
-                data: [590, 625],
-                borderColor: '#DC2626',
-                backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                borderWidth: 3,
-                tension: 0.3,
-                fill: true
-            }]
-        };
+        // --- PREMIUM ANALYTICS ENGINE (CHARTS & ENTRIES) ---
+        const timelineLabels = ['2026-07-15'];
+        const scoreDataPoints = [590];
+        let targetRangeCounts = [0, 0, 1]; // [ <500, 500-600, 600+ ]
 
-        const ctx = document.getElementById('performanceChart').getContext('2d');
-        const performanceChart = new Chart(ctx, {
+        const ctxLine = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctxLine, {
             type: 'line',
-            data: chartData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: { min: 0, max: 720, grid: { color: '#f1f5f9' } },
-                    x: { grid: { display: false } }
-                }
-            }
+            data: {
+                labels: timelineLabels,
+                datasets: [{
+                    label: 'Score Timeline',
+                    data: scoreDataPoints,
+                    borderColor: '#DC2626',
+                    borderWidth: 2.5,
+                    tension: 0.2,
+                    fill: false
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        const pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['<500', '500-600', '600+ Target'],
+                datasets: [{
+                    data: targetRangeCounts,
+                    backgroundColor: ['#ef4444', '#f59e0b', '#10b981']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
         });
 
         function addScore() {
-            const dateInput = document.getElementById('score-date').value;
-            const nameInput = document.getElementById('score-name').value;
-            const valueInput = document.getElementById('score-value').value;
+            const date = document.getElementById('score-date').value;
+            const name = document.getElementById('score-name').value || "Unnamed Mock";
+            const score = parseInt(document.getElementById('score-value').value);
 
-            if (!dateInput || !valueInput) {
-                alert("Please pick a date and fill your score.");
-                return;
-            }
+            if (!date || isNaN(score)) { alert("Enter proper Date and Score metric values."); return; }
 
-            chartData.labels.push(dateInput);
-            chartData.datasets[0].data.push(Number(valueInput));
+            // 1. Update Charts
+            timelineLabels.push(date);
+            scoreDataPoints.push(score);
+            
+            if(score < 500) targetRangeCounts[0]++;
+            else if(score <= 600) targetRangeCounts[1]++;
+            else targetRangeCounts[2]++;
+
             performanceChart.update();
+            pieChart.update();
+
+            // 2. Update Entry History Table
+            const tbody = document.getElementById('score-table-body');
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${date}</td><td>${name}</td><td><strong>${score}/720</strong></td>`;
+            tbody.appendChild(row);
 
             document.getElementById('score-name').value = '';
             document.getElementById('score-value').value = '';
         }
+
+        // --- PREMIUM FEATURE: FORMULA ROTATOR INTERACTION ---
+        const formulas = [
+            "Physics: De Broglie Wavelength: λ = h / p = h / √(2mK)",
+            "Chemistry: Ideal Gas Law Equation: PV = nRT (R = 0.0821 L atm / mol K)",
+            "Botany: Photosynthesis Light Reaction Product Yield: 12 NADPH + 18 ATP per Glucose molecule",
+            "Zoology: Cardiac Output Assessment Equation: Stroke Volume × Heart Rate = ~5 Liters/min",
+            "Physics: Electrostatics Force Equation: F = k * (|q1 * q2|) / r²"
+        ];
+        function rotateFormula() {
+            const randomIdx = Math.floor(Math.random() * formulas.length);
+            document.getElementById('formula-text').innerText = formulas[randomIdx];
+        }
+        window.onload = rotateFormula;
     </script>
 </body>
 </html>
