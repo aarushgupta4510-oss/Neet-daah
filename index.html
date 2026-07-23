@@ -23,6 +23,7 @@
             color: #ffffff;
         }
 
+        /* PREMIUM AUTH SCENE */
         .auth-container {
             display: flex;
             justify-content: center;
@@ -69,6 +70,7 @@
             font-weight: 600;
         }
 
+        /* MAIN DASHBOARD SCENE */
         #dashboard-view {
             display: none;
         }
@@ -77,7 +79,7 @@
             text-align: center;
             margin-bottom: 40px;
             position: relative;
-            padding-top: 50px;
+            padding-top: 50px; /* Dynamic breathing room for absolute elements */
         }
 
         header h1 {
@@ -98,7 +100,7 @@
             position: absolute;
             top: 0; 
             right: 50%;
-            transform: translateX(50%);
+            transform: translateX(50%); /* Centered layout on tiny viewports */
             background: #334155;
             color: white;
             border: none;
@@ -403,17 +405,11 @@
             color: #fdba74;
         }
 
-        /* LIVE CAMERA DESK ELEMENT */
-        .camera-box-workspace {
-            background: rgba(255,255,255,0.15);
-            border-radius: 16px;
-            padding: 15px;
-            margin-top: 15px;
-            text-align: center;
-        }
-
+        /* SCREEN SPECIFIC MEDIA QUERIES TO FIX MOBILE COLLISION & BREAKAGE */
         @media (min-width: 600px) {
-            header { padding-top: 0; }
+            header {
+                padding-top: 0;
+            }
             .logout-link {
                 top: 0; 
                 right: 20px;
@@ -422,27 +418,47 @@
         }
 
         @media (max-width: 600px) {
-            body { padding: 20px 10px; }
-            header h1 { font-size: 2.1rem; }
-            header p { font-size: 0.95rem; }
-            .column { padding: 20px 15px; }
-            .premium-footer-box { flex-direction: column; text-align: center; }
-            .premium-footer-box .action-btn { width: 100%; }
-            .flip-clock-container { gap: 8px; }
+            body {
+                padding: 20px 10px;
+            }
+            header h1 {
+                font-size: 2.1rem;
+            }
+            header p {
+                font-size: 0.95rem;
+            }
+            .column {
+                padding: 20px 15px;
+            }
+            .premium-footer-box {
+                flex-direction: column;
+                text-align: center;
+            }
+            .premium-footer-box .action-btn {
+                width: 100%;
+            }
+            .flip-clock-container {
+                gap: 8px;
+            }
             .flip-card {
                 font-size: 2.5rem;
                 padding: 20px 10px;
                 min-width: 75px;
                 border-bottom-width: 4px;
             }
-            #clock-overlay-title { font-size: 1.5rem !important; text-align: center; }
-            .clock-controls { flex-direction: column; gap: 12px; }
+            #clock-overlay-title {
+                font-size: 1.5rem !important;
+                text-align: center;
+            }
+            .clock-controls {
+                flex-direction: column;
+                gap: 12px;
+            }
             .clock-controls .action-btn {
                 width: 100%;
                 padding: 12px 20px !important;
                 font-size: 0.95rem !important;
             }
-            .child-only-action { display: none !important; }
         }
     </style>
 </head>
@@ -451,12 +467,12 @@
     <div id="auth-view" class="auth-container">
         <div class="auth-card">
             <h2 id="auth-title" style="color:#38bdf8; text-align:center;"><i class="fa-solid fa-lock"></i> Account Sign In</h2>
-            <p id="auth-desc">Enter credentials to sync workspace.</p>
+            <p id="auth-desc">Enter your credentials to sync secure cloud workspace.</p>
             
             <div id="signup-only-fields" style="display:none;">
-                <input type="text" id="auth-name" placeholder="Enter Child's Full Name">
+                <input type="text" id="auth-name" placeholder="Enter Your Full Name">
                 <select id="auth-class">
-                    <option value="">Select Child's Class</option>
+                    <option value="">Select Your Current Class</option>
                     <option value="Class 11">Class 11 (Plus One Syllabus)</option>
                     <option value="Class 12">Class 12 (Plus Two Syllabus)</option>
                 </select>
@@ -464,19 +480,6 @@
                     <option value="">Select Target Exam</option>
                     <option value="NEET">NEET (Medical Stream)</option>
                     <option value="JEE">JEE (Engineering Stream)</option>
-                </select>
-                
-                <hr style="border:0; border-top:1px dashed rgba(255,255,255,0.3); margin:15px 0;">
-                <p style="color:#fdba74; margin-bottom:10px; text-align:left; font-size:0.85rem;">Parent Authentication Configuration Setup:</p>
-                <input type="email" id="auth-parent-email" placeholder="Parent's Email Address ID">
-                <input type="password" id="auth-parent-password" placeholder="Parent's Security Password">
-            </div>
-            
-            <div id="login-role-selector-block" style="margin-bottom:15px;">
-                <label style="font-size:0.85rem; color:#94a3b8; display:block; margin-bottom:5px;">Sign In As Profile Role:</label>
-                <select id="auth-login-role">
-                    <option value="child">Student Account Login</option>
-                    <option value="parent">Parent Account Monitor Portal</option>
                 </select>
             </div>
             
@@ -509,7 +512,7 @@
                         <div class="streak-num" id="streak-counter-ui">0 Days</div>
                     </div>
 
-                    <div id="todo-input-pane" class="child-only-action" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
                         <input type="text" id="todo-input" placeholder="Task Name (e.g., Solve Mock Problems)">
                         <div style="display: flex; gap: 10px;">
                             <input type="number" id="todo-time" placeholder="Target Time (Mins)" min="1">
@@ -523,7 +526,7 @@
 
                 <div>
                     <h2><i class="fa-solid fa-square-poll-vertical"></i> Custom Chapter Tracker</h2>
-                    <div id="chapter-input-pane" class="child-only-action" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
                         <input type="text" id="task-title" placeholder="Topic details...">
                         <select id="task-subject"></select>
                         <button class="action-btn" onclick="addTask()">Log Progress</button>
@@ -535,34 +538,23 @@
             <div class="column yellow-column">
                 <h2><i class="fa-solid fa-hourglass-start"></i> Focus Engine</h2>
                 
-                <div class="timer-box child-only-action" onclick="openClockOverlay()">
+                <div class="timer-box" onclick="openClockOverlay()">
                     <i class="fa-solid fa-expand-arrows-alt"></i>
                     <h3 style="font-size: 1.3rem; margin-bottom: 5px;">Launch Study Clock</h3>
                     <p id="clock-status-text" style="opacity: 0.8; font-size: 0.85rem;">Mode: Free Flow Stopwatch</p>
                 </div>
 
-                <div class="camera-box-workspace">
-                    <h3><i class="fa-solid fa-video"></i> On-Demand Cam Desk</h3>
-                    <div id="child-cam-activation-zone" class="child-only-action" style="margin-top: 10px;">
-                        <button id="self-study-toggle-btn" class="action-btn" style="background:#22c55e; color:white; width:100%;" onclick="toggleSelfStudyCameraMode()">Activate Self-Study Desk Feed</button>
-                        <video id="workspace-local-video" autoplay muted playsinline style="width:100%; max-height:150px; background:black; border-radius:12px; margin-top:10px; display:none; object-fit: cover;"></video>
-                        <canvas id="hidden-video-canvas" style="display:none;"></canvas>
-                    </div>
-                    
-                    <div id="parent-cam-monitoring-zone" style="display:none; margin-top:10px;">
-                        <p style="font-size:0.85rem; color:#cbd5e1; margin-bottom:5px;">Live Parent Visual Verification Frame:</p>
-                        <img id="parent-monitor-img-frame" src="" style="width:100%; min-height:140px; max-height:200px; background:#0f172a; border-radius:12px; object-fit:contain; border:2px dashed #38bdf8;">
-                    </div>
-                </div>
-
-                <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px; margin-top:15px;">
+                <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px;">
                     <h3 style="font-size: 1.15rem; margin-bottom: 5px;"><i class="fa-solid fa-graduation-cap"></i> AI Auto-Syllabus Test Planner</h3>
+                    <p style="font-size: 0.75rem; opacity: 0.9; margin-bottom: 10px;">Select chapters below to generate a phase strategy blueprint.</p>
                     
-                    <div id="planner-input-pane" class="child-only-action" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
                         <input type="text" id="planner-test-title" placeholder="Test Name (e.g., Major Mock Test-1)">
                         <input type="date" id="planner-test-date">
+                        
                         <label style="font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: block;">Select Chapters to Include:</label>
                         <div class="syllabus-scroll-box" id="syllabus-checklist-container"></div>
+
                         <button class="action-btn" style="margin-top: 10px;" onclick="calculateDynamicSyllabusPlan()">Generate Live Blueprint</button>
                     </div>
                     <div id="planner-output-card" class="white-card" style="display: none; font-size: 0.85rem; color:#334155;"></div>
@@ -572,7 +564,7 @@
             <div class="column red-column">
                 <h2><i class="fa-solid fa-chart-pie"></i> Marks Performance Hub</h2>
                 
-                <div id="score-input-pane" class="child-only-action" class="score-inputs-vertical-stack">
+                <div class="score-inputs-vertical-stack">
                     <div class="score-inputs-row">
                         <input type="date" id="score-date">
                         <input type="text" id="score-name" placeholder="Test Label">
@@ -592,7 +584,7 @@
                                     <th>Test Metric</th>
                                     <th>Subject Breakdown</th>
                                     <th>Sum</th>
-                                    <th class="child-only-action">Action</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="score-table-body"></tbody>
@@ -607,7 +599,7 @@
                 <div class="flashcard-title"><i class="fa-solid fa-bolt"></i> High-Yield Hybrid Formula Desk</div>
                 <p id="formula-text" style="color: #cbd5e1; font-size: 0.95rem;">Loading targeted study pointers...</p>
             </div>
-            <button class="action-btn child-only-action" style="padding: 10px 20px; font-size: 0.9rem; background: #334155; color: white;" onclick="rotateFormula()">Next Formula</button>
+            <button class="action-btn" style="padding: 10px 20px; font-size: 0.9rem; background: #334155; color: white;" onclick="rotateFormula()">Next Formula</button>
         </div>
     </div>
 
@@ -628,8 +620,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Firebase Configuration
         const firebaseConfig = {
           apiKey: "AIzaSyDtgU2S6fN2NFVzq9bhebydipumwUnAEhQ",
           authDomain: "hybrid-study-workspace-1.firebaseapp.com",
@@ -643,13 +636,10 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Global State
         window.isSignUpMode = false;
         window.activeUserMeta = null;
-        window.currentUserRole = "child";
-        window.selectedChildUidForParent = null;
         window.state = { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 };
-        let liveCamStreamInstance = null;
-        let camSnapshotIntervalTimer = null;
 
         const MASTER_SYLLABUS = {
             "NEET": {
@@ -687,20 +677,17 @@
             const extraFields = document.getElementById('signup-only-fields');
             const submitBtn = document.getElementById('auth-submit-btn');
             const toggleBtn = document.getElementById('auth-toggle-btn');
-            const roleSelectorBlock = document.getElementById('login-role-selector-block');
 
             if(window.isSignUpMode) {
                 title.innerHTML = `<i class="fa-solid fa-user-plus"></i> Student Registration`;
-                desc.innerText = "Create centralized student + parent profile vault link.";
+                desc.innerText = "Create your centralized cloud profile data vault.";
                 extraFields.style.display = "block";
-                roleSelectorBlock.style.display = "none";
                 submitBtn.innerText = "Register & Launch Dashboard";
                 toggleBtn.innerText = "Already registered? Login here";
             } else {
                 title.innerHTML = `<i class="fa-solid fa-lock"></i> Account Sign In`;
                 desc.innerText = "Enter your credentials to sync secure cloud workspace.";
                 extraFields.style.display = "none";
-                roleSelectorBlock.style.display = "block";
                 submitBtn.innerText = "Login to Workspace";
                 toggleBtn.innerText = "New student? Create an account (Sign Up)";
             }
@@ -711,7 +698,7 @@
             const password = document.getElementById('auth-password').value;
 
             if(!email || !password) {
-                alert("Please fill required inputs.");
+                alert("Please fill all required Email and Password inputs.");
                 return;
             }
 
@@ -719,57 +706,42 @@
                 const name = document.getElementById('auth-name').value.trim();
                 const className = document.getElementById('auth-class').value;
                 const targetExam = document.getElementById('auth-exam').value;
-                const pEmail = document.getElementById('auth-parent-email').value.trim();
-                const pPassword = document.getElementById('auth-parent-password').value;
 
-                if(!name || !className || !targetExam || !pEmail || !pPassword) {
-                    alert("Registration requires Child details and Parent Security profiles.");
+                if(!name || !className || !targetExam) {
+                    alert("Registration requires Name, Class, and Target Exam setups.");
                     return;
                 }
 
                 try {
-                    const childRes = await createUserWithEmailAndPassword(auth, email, password);
-                    const childUid = childRes.user.uid;
-                    
-                    const userMeta = { name, className, targetExam, email, role: "child", parentEmail: pEmail };
-                    await setDoc(doc(db, "users", childUid), userMeta);
-                    await setDoc(doc(db, "userData", childUid), { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 });
-                    
-                    const customParentUid = "parent_" + childUid;
-                    const parentMeta = { name: name + "'s Parent Monitoring", email: pEmail, role: "parent", childUid: childUid };
-                    await setDoc(doc(db, "users", customParentUid), parentMeta);
-                    
-                    alert("Account setup with custom parent monitor portal created successfully! Please re-login.");
-                    location.reload();
+                    const res = await createUserWithEmailAndPassword(auth, email, password);
+                    const userMeta = { name, className, targetExam, email };
+                    await setDoc(doc(db, "users", res.user.uid), userMeta);
+                    await setDoc(doc(db, "userData", res.user.uid), { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 });
+                    alert("Account Created successfully!");
                 } catch (err) {
-                    alert("Registration System Error: " + err.message);
+                    alert("Registration Error: " + err.message);
                 }
             } else {
-                const selectedRole = document.getElementById('auth-login-role').value;
-                window.currentUserRole = selectedRole;
                 try {
                     await signInWithEmailAndPassword(auth, email, password);
                 } catch (err) {
-                    alert("Authentication Failure: Check credentials or dashboard configuration type.");
+                    alert("Login Failed: Invalid Email or Password configuration.");
                 }
             }
         }
 
         window.handleLogout = function() {
-            if(liveCamStreamInstance) {
-                liveCamStreamInstance.getTracks().forEach(track => track.stop());
-            }
-            clearInterval(camSnapshotIntervalTimer);
-            signOut(auth).then(() => { location.reload(); });
+            signOut(auth).then(() => {
+                location.reload();
+            });
         }
 
         async function saveStateToCloud() {
-            if(window.currentUserRole === "parent") return; 
             if(auth.currentUser) {
                 try {
                     await setDoc(doc(db, "userData", auth.currentUser.uid), window.state);
                 } catch (e) {
-                    console.error("Cloud data payload sync exception: ", e);
+                    console.error("Cloud sync error: ", e);
                 }
             }
         }
@@ -779,49 +751,23 @@
                 document.getElementById('auth-view').style.display = 'none';
                 document.getElementById('dashboard-view').style.display = 'block';
 
-                let lookupUid = user.uid;
-                if(window.currentUserRole === "parent") {
-                    lookupUid = "parent_" + user.uid;
-                }
-
-                const metaSnap = await getDoc(doc(doc(db, "users", lookupUid)));
+                const metaSnap = await getDoc(doc(db, "users", user.uid));
                 if(metaSnap.exists()) {
                     window.activeUserMeta = metaSnap.data();
-                    window.currentUserRole = window.activeUserMeta.role || "child";
-                    
-                    if(window.currentUserRole === "parent") {
-                        window.selectedChildUidForParent = window.activeUserMeta.childUid;
-                        document.getElementById('welcome-heading').innerText = `Parent Watch: ${window.activeUserMeta.name} 👁️`;
-                        document.getElementById('class-tagline').innerText = `Central Analytical Read-Only Child Monitoring Portal Feed`;
-                        
-                        applyParentReadOnlyUIRestrictions();
-                        
-                        onSnapshot(doc(db, "userData", window.selectedChildUidForParent), (docSnap) => {
-                            if(docSnap.exists()) {
-                                syncRealtimeDashboardState(docSnap.data());
-                            }
-                        });
-                        
-                        document.getElementById('parent-cam-monitoring-zone').style.display = "block";
-                        onSnapshot(doc(db, "liveStreams", window.selectedChildUidForParent), (streamSnap) => {
-                            if(streamSnap.exists() && streamSnap.data().frameURL) {
-                                document.getElementById('parent-monitor-img-frame').src = streamSnap.data().frameURL;
-                            } else {
-                                document.getElementById('parent-monitor-img-frame').src = "";
-                            }
-                        });
-
-                    } else {
-                        document.getElementById('welcome-heading').innerText = `Hello ${window.activeUserMeta.name}! 👋`;
-                        document.getElementById('class-tagline').innerText = `Strategic Cloud Hub • Exam: ${window.activeUserMeta.targetExam} • Class Status: ${window.activeUserMeta.className}`;
-                        
-                        const dataSnap = await getDoc(doc(db, "userData", user.uid));
-                        if(dataSnap.exists()) {
-                            syncRealtimeDashboardState(dataSnap.data());
-                        }
-                    }
+                    document.getElementById('welcome-heading').innerText = `Hello ${window.activeUserMeta.name}! 👋`;
+                    document.getElementById('class-tagline').innerText = `Strategic Cloud Hub • Exam: ${window.activeUserMeta.targetExam} • Class Status: ${window.activeUserMeta.className}`;
                 }
-                
+
+                const dataSnap = await getDoc(doc(db, "userData", user.uid));
+                if(dataSnap.exists()) {
+                    const cloudData = dataSnap.data();
+                    window.state.todos = cloudData.todos || [];
+                    window.state.chapters = cloudData.chapters || [];
+                    window.state.tests = cloudData.tests || [];
+                    window.state.activeStrategicPlan = cloudData.activeStrategicPlan || null;
+                    window.state.streak = cloudData.streak || 0;
+                }
+
                 configureSubjectSelectors();
                 configureScoreInputsLayout();
                 buildAutoSyllabusChecklist();
@@ -833,77 +779,11 @@
             }
         });
 
-        function applyParentReadOnlyUIRestrictions() {
-            const targetElements = document.querySelectorAll('.child-only-action');
-            targetElements.forEach(elem => {
-                elem.style.setProperty('display', 'none', 'important');
-            });
-        }
-
-        function syncRealtimeDashboardState(data) {
-            window.state.todos = data.todos || [];
-            window.state.chapters = data.chapters || [];
-            window.state.tests = data.tests || [];
-            window.state.activeStrategicPlan = data.activeStrategicPlan || null;
-            window.state.streak = data.streak || 0;
-            
-            renderTodos();
-            renderChapters();
-            renderStrategicPlan();
-            renderTable();
-            updateChartsData();
-            updateStreakUI();
-        }
-
-        window.toggleSelfStudyCameraMode = async function() {
-            const btn = document.getElementById('self-study-toggle-btn');
-            const videoElem = document.getElementById('workspace-local-video');
-            const canvas = document.getElementById('hidden-video-canvas');
-            const ctx = canvas.getContext('2d');
-
-            if(!liveCamStreamInstance) {
-                try {
-                    liveCamStreamInstance = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 }, audio: false });
-                    videoElem.srcObject = liveCamStreamInstance;
-                    videoElem.style.display = "block";
-                    btn.innerText = "Terminate Self-Study Feed Session";
-                    btn.style.backgroundColor = "#ef4444";
-
-                    camSnapshotIntervalTimer = setInterval(async () => {
-                        if(videoElem.videoWidth > 0) {
-                            canvas.width = videoElem.videoWidth;
-                            canvas.height = videoElem.videoHeight;
-                            ctx.drawImage(videoElem, 0, 0, canvas.width, canvas.height);
-                            const base64Frame = canvas.toDataURL('image/jpeg', 0.5);
-                            
-                            if(auth.currentUser) {
-                                await setDoc(doc(db, "liveStreams", auth.currentUser.uid), { frameURL: base64Frame, timestamp: Date.now() });
-                            }
-                        }
-                    }, 4000);
-                } catch (e) {
-                    alert("Media streaming capture access error: " + e.message);
-                }
-            } else {
-                liveCamStreamInstance.getTracks().forEach(track => track.stop());
-                liveCamStreamInstance = null;
-                clearInterval(camSnapshotIntervalTimer);
-                videoElem.style.display = "none";
-                btn.innerText = "Activate Self-Study Desk Feed";
-                btn.style.backgroundColor = "#22c55e";
-                
-                if(auth.currentUser) {
-                    await setDoc(doc(db, "liveStreams", auth.currentUser.uid), { frameURL: "", timestamp: Date.now() });
-                }
-            }
-        }
-
         function configureSubjectSelectors() {
             const selectObj = document.getElementById('task-subject');
             if(!selectObj || !window.activeUserMeta) return;
             selectObj.innerHTML = '';
-            const exam = window.currentUserRole === "parent" ? "JEE" : window.activeUserMeta.targetExam; 
-            const subs = exam === "JEE" ? ["Physics", "Chemistry", "Mathematics"] : ["Physics", "Chemistry", "Botany", "Zoology"];
+            const subs = window.activeUserMeta.targetExam === "JEE" ? ["Physics", "Chemistry", "Mathematics"] : ["Physics", "Chemistry", "Botany", "Zoology"];
             subs.forEach(s => {
                 let opt = document.createElement('option');
                 opt.value = s; opt.innerText = s;
@@ -915,9 +795,8 @@
             const container = document.getElementById('dynamic-score-inputs-container');
             if(!container || !window.activeUserMeta) return;
             container.innerHTML = '';
-            const exam = window.currentUserRole === "parent" ? "JEE" : window.activeUserMeta.targetExam;
-            const subs = exam === "JEE" ? ["Physics", "Chemistry", "Mathematics"] : ["Physics", "Chemistry", "Botany", "Zoology"];
-            const maxVal = exam === "JEE" ? 100 : 180;
+            const subs = window.activeUserMeta.targetExam === "JEE" ? ["Physics", "Chemistry", "Mathematics"] : ["Physics", "Chemistry", "Botany", "Zoology"];
+            const maxVal = window.activeUserMeta.targetExam === "JEE" ? 100 : 180;
 
             let currentStr = `<div class="score-inputs-vertical-stack">`;
             for(let i=0; i < subs.length; i+=2) {
@@ -938,8 +817,8 @@
             const box = document.getElementById('syllabus-checklist-container');
             if(!box || !window.activeUserMeta) return;
             box.innerHTML = '';
-            const exam = window.currentUserRole === "parent" ? "JEE" : window.activeUserMeta.targetExam;
-            const targetClass = window.currentUserRole === "parent" ? "Class 11" : window.activeUserMeta.className;
+            const exam = window.activeUserMeta.targetExam;
+            const targetClass = window.activeUserMeta.className;
             const syllabusData = MASTER_SYLLABUS[exam] ? MASTER_SYLLABUS[exam][targetClass] : null;
 
             if(!syllabusData) return;
@@ -1078,17 +957,11 @@
             window.state.todos.forEach((todo, idx) => {
                 const li = document.createElement('li');
                 const timeStr = todo.timeLimit ? ` (${todo.timeLimit}m)` : '';
-                
-                let checkBtnMarkup = (window.currentUserRole === "parent") ? '' : 
-                    `<button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="completeTask(${idx})"><i class="fa-solid fa-check"></i></button>`;
-                let loadBtnMarkup = (todo.timeLimit && window.currentUserRole !== "parent") ? 
-                    `<button class="badge-clock-btn" onclick="loadTaskToClock(${idx})"><i class="fa-solid fa-clock"></i> Load</button>` : '';
-
                 li.innerHTML = `
                     <div><span>${todo.text}${timeStr}</span></div>
                     <div>
-                        ${loadBtnMarkup}
-                        ${checkBtnMarkup}
+                        ${todo.timeLimit ? `<button class="badge-clock-btn" onclick="loadTaskToClock(${idx})"><i class="fa-solid fa-clock"></i> Load</button>` : ''}
+                        <button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="completeTask(${idx})"><i class="fa-solid fa-check"></i></button>
                     </div>
                 `;
                 ul.appendChild(li);
@@ -1100,10 +973,7 @@
             if(!ul) return; ul.innerHTML = '';
             window.state.chapters.forEach((ch, idx) => {
                 const li = document.createElement('li');
-                let deleteMarkup = (window.currentUserRole === "parent") ? '' : 
-                    `<button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
-                
-                li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> ${deleteMarkup}`;
+                li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> <button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
                 ul.appendChild(li);
             });
         }
@@ -1113,16 +983,12 @@
             if(!window.state.activeStrategicPlan) { targetBox.style.display = 'none'; return; }
             targetBox.style.display = 'block';
             const plan = window.state.activeStrategicPlan;
-            
-            let closeIconMarkup = (window.currentUserRole === "parent") ? '' : 
-                `<i class="fa-solid fa-square-xmark" style="cursor:pointer; color:#ef4444; margin-left:auto; font-size:1.15rem;" onclick="clearStrategicPlan()"></i>`;
-
             targetBox.innerHTML = `
                 <div style="display:flex; justify-content:between; align-items:center; margin-bottom: 8px;">
                     <strong style="color:#1e3a8a;">🎯 Strategy: ${plan.title}</strong>
-                    ${closeIconMarkup}
+                    <i class="fa-solid fa-square-xmark" style="cursor:pointer; color:#ef4444; margin-left:auto; font-size:1.15rem;" onclick="clearStrategicPlan()"></i>
                 </div>
-                <p style="font-weight:bold; margin-bottom:5px;">⏳ ${plan.diffDays} Days Remaining for ${plan.count} Topics</p>
+                <p style="font-weight:bold; margin-bottom:5px;">⏳ ${plan.diffDays} Days Remaining for ${plan.count} Selected Topics</p>
                 <div class="phase-box" style="border-left-color: #2563eb;">
                     <strong>Phase 1: Deep Core Study (${plan.p1Days} Days)</strong><br>
                     Load: ~${(plan.count / plan.p1Days).toFixed(1)} chapters/day.
@@ -1141,28 +1007,22 @@
         function renderTable() {
             const tbody = document.getElementById('score-table-body');
             if (!tbody || !window.activeUserMeta) return; tbody.innerHTML = '';
-            
-            const exam = (window.currentUserRole === "parent") ? "JEE" : window.activeUserMeta.targetExam;
-
             window.state.tests.forEach((t, idx) => {
                 const row = document.createElement('tr');
-                let breakDownStr = exam === "JEE" ? 
+                let breakDownStr = window.activeUserMeta.targetExam === "JEE" ? 
                     `P:${t.physics} C:${t.chemistry} M:${t.mathematics}` : 
                     `P:${t.physics} C:${t.chemistry}<br>B:${t.botany} Z:${t.zoology}`;
                 
-                let maxPossible = exam === "JEE" ? 300 : 720;
-                let sumScore = exam === "JEE" ? 
+                let maxPossible = window.activeUserMeta.targetExam === "JEE" ? 300 : 720;
+                let sumScore = window.activeUserMeta.targetExam === "JEE" ? 
                     (t.physics + t.chemistry + t.mathematics) : 
                     (t.physics + t.chemistry + t.botany + t.zoology);
-
-                let deleteBtnMarkup = (window.currentUserRole === "parent") ? '' : 
-                    `<td><button class="delete-btn" onclick="deleteScore(${idx})"><i class="fa-solid fa-trash"></i></button></td>`;
 
                 row.innerHTML = `
                     <td><strong>${t.date}</strong><br><small style="color:#64748b;">${t.name}</small></td>
                     <td>${breakDownStr}</td>
                     <td><strong>${sumScore}</strong>/${maxPossible}</td>
-                    ${deleteBtnMarkup}
+                    <td><button class="delete-btn" onclick="deleteScore(${idx})"><i class="fa-solid fa-trash"></i></button></td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1170,9 +1030,7 @@
 
         let performanceChart = null, pieChart = null;
         function initCharts() {
-            const exam = (window.currentUserRole === "parent") ? "JEE" : window.activeUserMeta.targetExam;
-            const maxRange = exam === "JEE" ? 100 : 180;
-            
+            const maxRange = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? 100 : 180;
             const ctxLine = document.getElementById('performanceChart').getContext('2d');
             if(performanceChart) performanceChart.destroy();
             performanceChart = new Chart(ctxLine, {
@@ -1183,8 +1041,8 @@
 
             const ctxPie = document.getElementById('pieChart').getContext('2d');
             if(pieChart) pieChart.destroy();
-            const pieLabels = exam === "JEE" ? ['Physics', 'Chemistry', 'Mathematics'] : ['Physics', 'Chemistry', 'Botany', 'Zoology'];
-            const pieColors = exam === "JEE" ? ['#3b82f6', '#eab308', '#a855f7'] : ['#3b82f6', '#eab308', '#10b981', '#ec4899'];
+            const pieLabels = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? ['Physics', 'Chemistry', 'Mathematics'] : ['Physics', 'Chemistry', 'Botany', 'Zoology'];
+            const pieColors = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? ['#3b82f6', '#eab308', '#a855f7'] : ['#3b82f6', '#eab308', '#10b981', '#ec4899'];
             
             pieChart = new Chart(ctxPie, {
                 type: 'pie',
@@ -1199,9 +1057,7 @@
             performanceChart.data.labels = labels;
 
             let datasets = [];
-            const exam = (window.currentUserRole === "parent") ? "JEE" : window.activeUserMeta.targetExam;
-
-            if(exam === "JEE") {
+            if(window.activeUserMeta.targetExam === "JEE") {
                 datasets = [
                     { label: 'Physics', data: window.state.tests.map(t => t.physics), borderColor: '#3b82f6', fill: false, tension: 0.2 },
                     { label: 'Chemistry', data: window.state.tests.map(t => t.chemistry), borderColor: '#eab308', fill: false, tension: 0.2 },
@@ -1239,11 +1095,9 @@
             updateChartsData();
             rotateFormula();
             renderStrategicPlan();
-            if(window.currentUserRole === "parent") {
-                applyParentReadOnlyUIRestrictions();
-            }
         }
 
+        // Clock Global Mappings
         let clockInterval, running = false, totalSeconds = 0, isCountdownMode = false;
         window.openClockOverlay = function() { document.getElementById('clock-overlay').style.display = 'flex'; }
         window.closeClockOverlay = function() { document.getElementById('clock-overlay').style.display = 'none'; }
@@ -1303,17 +1157,7 @@
             const randomIdx = Math.floor(Math.random() * formulas.length);
             document.getElementById('formula-text').innerText = formulas[randomIdx];
         }
-        window.processAuthAction = processAuthAction;
-        window.toggleAuthMode = toggleAuthMode;
-        window.handleLogout = handleLogout;
-        window.addTodo = addTodo;
-        window.completeTask = completeTask;
-        window.addTask = addTask;
-        window.deleteChapter = deleteChapter;
-        window.calculateDynamicSyllabusPlan = calculateDynamicSyllabusPlan;
-        window.clearStrategicPlan = clearStrategicPlan;
-        window.addScore = addScore;
-        window.deleteScore = deleteScore;
     </script>
 </body>
 </html>
+
