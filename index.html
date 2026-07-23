@@ -671,7 +671,7 @@
                     <div class="flashcard-title"><i class="fa-solid fa-bolt"></i> High-Yield Hybrid Formula Desk</div>
                     <p id="formula-text" style="color: #cbd5e1; font-size: 0.95rem;">Loading targeted study pointers...</p>
                 </div>
-                <button class="action-btn" style="padding: 10px 20px; font-size: 0.9rem; background: #334155; color: white;" onclick="rotateFormula()">Next Formula</button>
+                <button class="action-btn" style="padding: 10px 20px; font-size: 0.9 Mail; background: #334155; color: white;" onclick="rotateFormula()">Next Formula</button>
             </div>
         </div>
     </div>
@@ -699,7 +699,7 @@
                     
                     <div class="cctv-container">
                         <div class="cctv-badge"><span></span> LIVE WORKSPACE FEED</div>
-                        <video id="parent-cctv-viewport" class="cctv-video" autoplay playsinline></video>
+                        <video id="parent-cctv-viewport" class="cctv-video" autoplay muted playsinline></video>
                     </div>
                     
                     <div class="white-card" style="background: rgba(255,255,255,0.05); color:#94a3b8; font-size:0.85rem;">
@@ -762,7 +762,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -908,21 +908,24 @@
             }
         }
 
-        // AUTOMATED WEBRTC STREAM HANDLER FOR STUDENT
+        // CORRECTED ICE-TRICKLE WEBRTC HANDLER FOR STUDENT DESK
         async function setupAutomatedStudentCCTV(uid) {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 const videoEl = document.getElementById('student-hidden-cam');
                 if(videoEl) videoEl.srcObject = localStream;
 
-                peerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+                peerConnection = new RTCPeerConnection({ 
+                    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] 
+                });
+
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
+                // Save discovered ICE candidates via array trickling instead of overwriting structural objects
                 peerConnection.onicecandidate = async (event) => {
                     if (event.candidate) {
                         await setDoc(doc(db, "cctv_signals", uid), {
-                            candidate: JSON.stringify(event.candidate),
-                            timestamp: Date.now()
+                            studentCandidates: arrayUnion(JSON.stringify(event.candidate))
                         }, { merge: true });
                     }
                 };
@@ -932,15 +935,25 @@
 
                 await setDoc(doc(db, "cctv_signals", uid), {
                     offer: JSON.stringify(offer),
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    parentCandidates: [] // Clear last session arrays
                 }, { merge: true });
 
-                // Listen for parent response answers
+                // Watch structural components live
                 onSnapshot(doc(db, "cctv_signals", uid), async (snapshot) => {
                     const data = snapshot.data();
-                    if (data && data.answer && peerConnection.signalingState === "have-local-offer") {
-                        const answer = JSON.parse(data.answer);
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+                    if (data) {
+                        if (data.answer && peerConnection.signalingState === "have-local-offer") {
+                            const answer = JSON.parse(data.answer);
+                            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+                        }
+                        if (data.parentCandidates && data.parentCandidates.length > 0) {
+                            data.parentCandidates.forEach(async (candStr) => {
+                                try {
+                                    await peerConnection.addIceCandidate(new RTCIceCandidate(JSON.parse(candStr)));
+                                } catch(e){}
+                            });
+                        }
                     }
                 });
 
@@ -996,7 +1009,6 @@
                 return;
             }
 
-            // Fetch Meta Data to display target popup badge details
             const metaSnap = await getDoc(doc(db, "users", syncKey));
             if(!metaSnap.exists()) {
                 alert("Synchronization Key invalid. No linked account identified inside cloud cluster.");
@@ -1008,11 +1020,9 @@
             document.getElementById('pop-student-meta').innerText = `${metaData.className} • ${metaData.targetExam} Track`;
             document.getElementById('parent-badge-popup').style.display = "block";
 
-            // Open up dashboard workspace
             document.getElementById('parent-sync-panel').style.display = "none";
             document.getElementById('parent-dashboard').style.display = "block";
 
-            // Listen to student database nodes live
             onSnapshot(doc(db, "userData", syncKey), (snapshot) => {
                 if(snapshot.exists()) {
                     const data = snapshot.data();
@@ -1023,31 +1033,50 @@
             setupParentCCTVStream(syncKey);
         }
 
-        // PARENT WEBRTC RECEIVER FEED SETUP
+        // CORRECTED ICE-TRICKLE WEBRTC HANDLER FOR PARENT VIEWPORT
         async function setupParentCCTVStream(uid) {
-            const parentPC = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+            const parentPC = new RTCPeerConnection({ 
+                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] 
+            });
             
             parentPC.ontrack = (event) => {
                 const remoteVideo = document.getElementById('parent-cctv-viewport');
                 if (remoteVideo && event.streams[0]) {
                     remoteVideo.srcObject = event.streams[0];
+                    remoteVideo.play().catch(err => console.log("Video track load deferred: ", err));
+                }
+            };
+
+            parentPC.onicecandidate = async (event) => {
+                if (event.candidate) {
+                    await setDoc(doc(db, "cctv_signals", uid), {
+                        parentCandidates: arrayUnion(JSON.stringify(event.candidate))
+                    }, { merge: true });
                 }
             };
 
             onSnapshot(doc(db, "cctv_signals", uid), async (snapshot) => {
                 const data = snapshot.data();
-                if (data && data.offer && parentPC.signalingState === "stable") {
-                    const offer = JSON.parse(data.offer);
-                    await parentPC.setRemoteDescription(new RTCSessionDescription(offer));
-                    const answer = await parentPC.createAnswer();
-                    await parentPC.setLocalDescription(answer);
-                    await setDoc(doc(db, "cctv_signals", uid), { answer: JSON.stringify(answer) }, { merge: true });
+                if (data) {
+                    if (data.offer && parentPC.signalingState === "stable") {
+                        const offer = JSON.parse(data.offer);
+                        await parentPC.setRemoteDescription(new RTCSessionDescription(offer));
+                        const answer = await parentPC.createAnswer();
+                        await parentPC.setLocalDescription(answer);
+                        await setDoc(doc(db, "cctv_signals", uid), { answer: JSON.stringify(answer) }, { merge: true });
+                    }
+                    if (data.studentCandidates && data.studentCandidates.length > 0) {
+                        data.studentCandidates.forEach(async (candStr) => {
+                            try {
+                                await parentPC.addIceCandidate(new RTCIceCandidate(JSON.parse(candStr)));
+                            } catch(e){}
+                        });
+                    }
                 }
             });
         }
 
         function renderParentDeskViews(data, metaData) {
-            // Task List mapping
             const todoUl = document.getElementById('p-todo-list');
             todoUl.innerHTML = '';
             (data.todos || []).forEach(todo => {
@@ -1056,7 +1085,6 @@
                 todoUl.appendChild(li);
             });
 
-            // Logged progress list mapping
             const chUl = document.getElementById('p-task-list');
             chUl.innerHTML = '';
             (data.chapters || []).forEach(ch => {
@@ -1071,7 +1099,6 @@
             if(data.streak >= 7) badge = "Elite Scholar 🎓";
             document.getElementById('p-badge-label').innerText = badge;
 
-            // Score Table
             const tbody = document.getElementById('p-score-table-body');
             tbody.innerHTML = '';
             (data.tests || []).forEach(t => {
@@ -1083,7 +1110,6 @@
                 tbody.appendChild(row);
             });
 
-            // Initialize/Update Parent Desk Analytics Charts
             const maxRange = metaData.targetExam === "JEE" ? 100 : 180;
             if(!parentPerformanceChart) {
                 const ctxLine = document.getElementById('pPerformanceChart').getContext('2d');
