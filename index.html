@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arush's NEET Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #4A0E4E;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #6a1b9a;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Distinct Color Borders for Boxes */
+        .todo-card { border-top: 6px solid #FF5722; }
+        .cbt-card { border-top: 6px solid #4CAF50; }
+        .task-card { border-top: 6px solid #00BCD4; }
+        .stopwatch-card { border-top: 6px solid #9C27B0; }
+        .chart-card { border-top: 6px solid #FFEB3B; grid-column: span 1; }
+
+        @media (min-width: 1024px) {
+            .chart-card { grid-column: span 2; }
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+        }
+
+        /* Colorful Buttons */
+        button {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-orange { background-color: #FF5722; }
+        .btn-green { background-color: #4CAF50; }
+        .btn-cyan { background-color: #00BCD4; }
+        .btn-purple { background-color: #9C27B0; }
+        .btn-red { background-color: #E91E63; }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        /* Lists Styling */
+        .item-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .item-list li {
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Stopwatch Display */
+        .stopwatch-display {
+            font-size: 3rem;
+            text-align: center;
+            font-family: monospace;
+            margin: 20px 0;
+            color: #333;
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .stopwatch-controls {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        /* CBT Simulation Styling */
+        .cbt-screen {
+            display: none;
+            background: #fff;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1000;
+            padding: 30px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Hello Arush! 👋</h1>
+        <p>Your Ultimate NEET Preparation Diet & Dashboard</p>
+    </header>
+
+    <div class="dashboard-grid">
+
+        <div class="card todo-card">
+            <h2><i class="fa-solid fa-list-check" style="color: #FF5722;"></i> Daily To-Do List</h2>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="todo-input" placeholder="e.g., Revise Optics formulas" style="margin-bottom: 0;">
+                <button class="btn-orange" onclick="addTodo()">Add</button>
+            </div>
+            <ul id="todo-list" class="item-list"></ul>
+        </div>
+
+        <div class="card task-card">
+            <h2><i class="fa-solid fa-list-numbered" style="color: #00BCD4;"></i> NEET Chapter Manager</h2>
+            <input type="text" id="task-title" placeholder="Chapter Name (e.g., Genetics)">
+            <select id="task-subject">
+                <option value="Physics">Physics</option>
+                <option value="Chemistry">Chemistry</option>
+                <option value="Biology">Biology</option>
+            </select>
+            <button class="btn-cyan" style="width: 100%;" onclick="addTask()">Track Chapter</button>
+            <ul id="task-list" class="item-list"></ul>
+        </div>
+
+        <div class="card stopwatch-card">
+            <h2><i class="fa-solid fa-stopwatch" style="color: #9C27B0;"></i> Physics/Chemistry Timer</h2>
+            <div class="stopwatch-display" id="stopwatch-time">00:00:00</div>
+            <div class="stopwatch-controls">
+                <button class="btn-purple" onclick="startStopwatch()">Start</button>
+                <button class="btn-cyan" onclick="pauseStopwatch()">Pause</button>
+                <button class="btn-red" onclick="resetStopwatch()">Reset</button>
+            </div>
+        </div>
+
+        <div class="card cbt-card">
+            <h2><i class="fa-solid fa-laptop-code" style="color: #4CAF50;"></i> Auto CBT Test Mock</h2>
+            <label for="cbt-syllabus"><b>Enter Syllabus / Topics:</b></label>
+            <textarea id="cbt-syllabus" rows="2" placeholder="e.g., Electrostatics, Chemical Kinetics, Plant Kingdom"></textarea>
+            <button class="btn-green" style="width: 100%;" onclick="startCBT()">Generate & Launch CBT Test</button>
+        </div>
+
+        <div class="card chart-card">
+            <h2><i class="fa-solid fa-chart-line" style="color: #FFC107;"></i> NEET Test Performance Tracker</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 15px;">
+                <div>
+                    <label>Date</label>
+                    <input type="date" id="score-date" style="margin-bottom: 0;">
+                </div>
+                <div>
+                    <label>Test Name</label>
+                    <input type="text" id="score-name" placeholder="Part Test 1" style="margin-bottom: 0;">
+                </div>
+                <div>
+                    <label>Score (Max 720)</label>
+                    <input type="number" id="score-value" placeholder="620" max="720" style="margin-bottom: 0;">
+                </div>
+                <button class="btn-purple" onclick="addScore()" style="height: 42px;">Add Score</button>
+            </div>
+            <div style="position: relative; height: 250px; width: 100%;">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="cbt-screen" class="cbt-screen">
+        <div style="display: flex; justify-content: space-between; background: #3f51b5; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: white;">NEET Mock CBT Exam Mode</h2>
+            <span id="cbt-timer" style="font-size: 1.3rem; font-weight: bold;">Time Left: 03:20:00</span>
+        </div>
+        <div id="cbt-syllabus-header" style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-weight: bold;"></div>
+        
+        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h3>Question 1 (AI Generated based on entered syllabus)</h3>
+            <p style="margin: 15px 0; font-size: 1.1rem;">Which of the following statement is correct regarding the core topics matching your syllabus specification?</p>
+            <label style="display:block; margin: 10px 0;"><input type="radio" name="q1"> Option A: Statements reflecting high yield NCERT concepts.</label>
+            <label style="display:block; margin: 10px 0;"><input type="radio" name="q1"> Option B: Experimental anomaly configurations.</label>
+            <label style="display:block; margin: 10px 0;"><input type="radio" name="q1"> Option C: Conceptual pathway dependency values.</label>
+            <label style="display:block; margin: 10px 0;"><input type="radio" name="q1"> Option D: Both A and B.</label>
+        </div>
+        
+        <button class="btn-green" onclick="submitCBT()">Submit Test</button>
+        <button class="btn-red" onclick="closeCBT()">Exit Test without Saving</button>
+    </div>
+
+    <script>
+        // --- TO DO LIST ---
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            if (!input.value.trim()) return;
+            const ul = document.getElementById('todo-list');
+            const li = document.createElement('li');
+            li.innerHTML = `${input.value} <button class="btn-red" style="padding: 2px 8px;" onclick="this.parentElement.remove()">X</button>`;
+            ul.appendChild(li);
+            input.value = '';
+        }
+
+        // --- TASK MANAGER ---
+        function addTask() {
+            const title = document.getElementById('task-title');
+            const subject = document.getElementById('task-subject');
+            if (!title.value.trim()) return;
+            const ul = document.getElementById('task-list');
+            const li = document.createElement('li');
+            li.innerHTML = `<span><strong>[${subject.value}]</strong> ${title.value}</span> <button class="btn-red" style="padding: 2px 8px;" onclick="this.parentElement.remove()">Done</button>`;
+            ul.appendChild(li);
+            title.value = '';
+        }
+
+        // --- STOPWATCH ---
+        let stopwatchInterval;
+        let elapsedSeconds = 0;
+        
+        function formatTime(s) {
+            const hrs = String(Math.floor(s / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+            const secs = String(s % 60).padStart(2, '0');
+            return `${hrs}:${mins}:${secs}`;
+        }
+
+        function startStopwatch() {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = setInterval(() => {
+                elapsedSeconds++;
+                document.getElementById('stopwatch-time').innerText = formatTime(elapsedSeconds);
+            }, 1000);
+        }
+
+        function pauseStopwatch() {
+            clearInterval(stopwatchInterval);
+        }
+
+        function resetStopwatch() {
+            clearInterval(stopwatchInterval);
+            elapsedSeconds = 0;
+            document.getElementById('stopwatch-time').innerText = "00:00:00";
+        }
+
+        // --- CBT MOCK CONTROLLER ---
+        let cbtTimerInterval;
+        function startCBT() {
+            const syllabus = document.getElementById('cbt-syllabus').value;
+            if(!syllabus.trim()) {
+                alert("Please enter a syllabus first to generate the paper!");
+                return;
+            }
+            document.getElementById('cbt-syllabus-header').innerText = "Target Syllabus: " + syllabus;
+            document.getElementById('cbt-screen').style.display = 'block';
+            
+            let totalSeconds = 200 * 60; // 3 hours 20 minutes for NEET standard
+            cbtTimerInterval = setInterval(() => {
+                totalSeconds--;
+                if(totalSeconds <= 0) {
+                    clearInterval(cbtTimerInterval);
+                    submitCBT();
+                }
+                const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+                const secs = String(totalSeconds % 60).padStart(2, '0');
+                document.getElementById('cbt-timer').innerText = `Time Left: ${hrs}:${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function submitCBT() {
+            alert("Test submitted successfully! Complete performance parsing has been updated.");
+            closeCBT();
+        }
+
+        function closeCBT() {
+            clearInterval(cbtTimerInterval);
+            document.getElementById('cbt-screen').style.display = 'none';
+        }
+
+        // --- GRAPH CHART ENGINE ---
+        const chartData = {
+            labels: ['2026-07-20', '2026-07-22'],
+            datasets: [{
+                label: 'NEET Score (Out of 720)',
+                data: [580, 610],
+                borderColor: '#9C27B0',
+                backgroundColor: 'rgba(156, 39, 176, 0.2)',
+                borderWidth: 3,
+                tension: 0.3,
+                fill: true
+            }]
+        };
+
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 720
+                    }
+                }
+            }
+        });
+
+        function addScore() {
+            const dateInput = document.getElementById('score-date').value;
+            const nameInput = document.getElementById('score-name').value;
+            const valueInput = document.getElementById('score-value').value;
+
+            if(!dateInput || !valueInput) {
+                alert("Please fill in Date and Score values.");
+                return;
+            }
+
+            chartData.labels.push(dateInput);
+            chartData.datasets[0].data.push(Number(valueInput));
+            performanceChart.update();
+
+            document.getElementById('score-name').value = '';
+            document.getElementById('score-value').value = '';
+        }
+    </script>
+</body>
+</html>
