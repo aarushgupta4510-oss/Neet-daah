@@ -525,4 +525,253 @@
             }
 
             const pace = (chaptersCount / (diffDays > 0 ? diffDays : 1)).toFixed(2);
-            state.activePlan = { name, dateVal, chaptersCount, diff
+            state.activePlan = { name, dateVal, chaptersCount, diffDays, pace };
+            saveState();
+            renderActivePlan();
+        }
+
+        function renderActivePlan() {
+            const outputCard = document.getElementById('planner-output-card');
+            if(!state.activePlan) {
+                outputCard.style.display = "none";
+                return;
+            }
+            outputCard.style.display = "block";
+            outputCard.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                    <strong style="color:#1e3a8a;">⚡ Strategy: ${state.activePlan.name}</strong>
+                    <i class="fa-solid fa-circle-xmark" style="cursor:pointer; color:#ef4444;" onclick="clearActivePlan()"></i>
+                </div>
+                📅 Days Remaining: <strong>${state.activePlan.diffDays} Days</strong><br>
+                📚 Target Pace: <strong>${state.activePlan.pace} Chapters / Day</strong><br>
+                <small style="color:#475569; font-weight:600; display:block; margin-top:5px;">AI Advice: Prioritize high-weightage NCERT topics first.</small>
+            `;
+        }
+
+        function clearActivePlan() {
+            state.activePlan = null;
+            saveState();
+            renderActivePlan();
+        }
+
+        // --- CORE SYLLABUS MANAGER ---
+        function renderChapters() {
+            const ul = document.getElementById('task-list');
+            if(!ul) return;
+            ul.innerHTML = '';
+            state.chapters.forEach((ch, idx) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> <button class="delete-btn" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
+                ul.appendChild(li);
+            });
+        }
+
+        function addTask() {
+            const title = document.getElementById('task-title');
+            const subject = document.getElementById('task-subject');
+            if (!title || !title.value.trim()) return;
+            state.chapters.push({ title: title.value.trim(), subject: subject.value });
+            saveState(); renderChapters();
+            title.value = '';
+        }
+
+        function deleteChapter(idx) {
+            state.chapters.splice(idx, 1);
+            saveState(); renderChapters();
+        }
+
+        // --- NCERT ELEMENTS TRACKER ---
+        function updateNCERTWidget() {
+            if(document.getElementById('ncert-b')) {
+                document.getElementById('ncert-b').value = state.ncertGoal.biology || 0;
+                document.getElementById('ncert-p').value = state.ncertGoal.physics || 0;
+                document.getElementById('ncert-c').value = state.ncertGoal.chemistry || 0;
+            }
+        }
+
+        function saveNcertGoals() {
+            state.ncertGoal.biology = parseInt(document.getElementById('ncert-b').value) || 0;
+            state.ncertGoal.physics = parseInt(document.getElementById('ncert-p').value) || 0;
+            state.ncertGoal.chemistry = parseInt(document.getElementById('ncert-c').value) || 0;
+            saveState();
+        }
+
+        // --- IMMERSIVE RETRO FLIP COUNTER ENGINE ---
+        function openClockOverlay() { document.getElementById('clock-overlay').style.display = 'flex'; }
+        function closeClockOverlay() { document.getElementById('clock-overlay').style.display = 'none'; }
+        
+        function toggleClock() {
+            const btn = document.getElementById('start-pause-btn');
+            if (!running) {
+                running = true; btn.innerText = "Pause Study"; btn.style.backgroundColor = "#eab308";
+                clockInterval = setInterval(() => { 
+                    if(isCountdownMode) {
+                        if(totalSeconds > 0) {
+                            totalSeconds--;
+                        } else {
+                            clearInterval(clockInterval);
+                            running = false;
+                            alert("Task Target Complete! Step back from screen.");
+                            resetClock();
+                            return;
+                        }
+                    } else {
+                        totalSeconds++;
+                    }
+                    updateFlipDisplay(); 
+                }, 1000);
+            } else {
+                running = false; btn.innerText = "Resume Study"; btn.style.backgroundColor = "#22c55e";
+                clearInterval(clockInterval);
+            }
+        }
+
+        function resetClock() {
+            running = false; clearInterval(clockInterval); totalSeconds = 0; isCountdownMode = false;
+            updateFlipDisplay();
+            document.getElementById('clock-status-text').innerText = `Mode: Free Flow Stopwatch`;
+            document.getElementById('clock-overlay-title').innerHTML = `<i class="fa-solid fa-brain"></i> DEEP STUDY STREAM`;
+            const btn = document.getElementById('start-pause-btn');
+            btn.innerText = "Start Session"; btn.style.backgroundColor = "#22c55e";
+        }
+
+        function updateFlipDisplay() {
+            document.getElementById('flip-hr').innerText = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            document.getElementById('flip-min').innerText = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            document.getElementById('flip-sec').innerText = String(totalSeconds % 60).padStart(2, '0');
+        }
+
+        // --- ADVANCED GRAPH & PIE HUB ---
+        let performanceChart = null;
+        let pieChart = null;
+
+        function initCharts() {
+            const ctxLine = document.getElementById('performanceChart').getContext('2d');
+            performanceChart = new Chart(ctxLine, {
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 180 } }
+                }
+            });
+
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: ['Physics', 'Chemistry', 'Botany', 'Zoology'],
+                    datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#3b82f6', '#eab308', '#10b981', '#ec4899'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function updateChartsData() {
+            if (!performanceChart || !pieChart) return;
+            const labels = state.tests.map(t => t.date);
+            
+            const datasets = [
+                { label: 'Physics', data: state.tests.map(t => t.p), borderColor: '#3b82f6', backgroundColor: '#3b82f6', fill: false, tension: 0.2 },
+                { label: 'Chemistry', data: state.tests.map(t => t.c), borderColor: '#eab308', backgroundColor: '#eab308', fill: false, tension: 0.2 },
+                { label: 'Botany', data: state.tests.map(t => t.b), borderColor: '#10b981', backgroundColor: '#10b981', fill: false, tension: 0.2 },
+                { label: 'Zoology', data: state.tests.map(t => t.z), borderColor: '#ec4899', backgroundColor: '#ec4899', fill: false, tension: 0.2 }
+            ];
+
+            performanceChart.data.labels = labels;
+            performanceChart.data.datasets = datasets;
+            performanceChart.update();
+
+            let totalP = 0, totalC = 0, totalB = 0, totalZ = 0;
+            state.tests.forEach(t => { totalP += t.p; totalC += t.c; totalB += t.b; totalZ += t.z; });
+            
+            pieChart.data.datasets[0].data = [totalP, totalC, totalB, totalZ];
+            pieChart.update();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('score-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            state.tests.forEach((t, idx) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${t.date}</strong><br><small>${t.name}</small></td>
+                    <td>P:${t.p}<br>C:${t.c}<br>B:${t.b}<br>Z:${t.z}</td>
+                    <td><strong>${t.p + t.c + t.b + t.z}</strong>/720</td>
+                    <td><button class="delete-btn" onclick="deleteScore(${idx})"><i class="fa-solid fa-trash"></i></button></td>
+                `;
+                
+                let startX = 0;
+                row.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
+                row.addEventListener('touchend', (e) => {
+                    let diffX = startX - e.changedTouches[0].clientX;
+                    if (diffX > 50) { 
+                        row.classList.add('swipe-left-active');
+                        setTimeout(() => {
+                            if(confirm(`Delete ${t.name || 'this test'} data?`)) {
+                                deleteScore(idx);
+                            } else {
+                                row.classList.remove('swipe-left-active');
+                            }
+                        }, 100);
+                    }
+                });
+                tbody.appendChild(row);
+            });
+        }
+
+        function addScore() {
+            const date = document.getElementById('score-date').value;
+            const name = document.getElementById('score-name').value || "Mock Test";
+            const p = parseInt(document.getElementById('score-p').value) || 0;
+            const c = parseInt(document.getElementById('score-c').value) || 0;
+            const b = parseInt(document.getElementById('score-b').value) || 0;
+            const z = parseInt(document.getElementById('score-z').value) || 0;
+
+            if (!date) { alert("Please choose a valid test date."); return; }
+            if (p>180 || c>180 || b>180 || z>180) { alert("Max marks for individual subject can't exceed 180."); return; }
+
+            state.tests.push({ date, name, p, c, b, z });
+            saveState(); renderTable(); updateChartsData();
+
+            document.getElementById('score-name').value = '';
+            document.getElementById('score-p').value = '';
+            document.getElementById('score-c').value = '';
+            document.getElementById('score-b').value = '';
+            document.getElementById('score-z').value = '';
+        }
+
+        function deleteScore(idx) {
+            state.tests.splice(idx, 1);
+            saveState(); renderTable(); updateChartsData();
+        }
+
+        // --- FLASH FORMULAS ---
+        const formulas = [
+            "Physics: De Broglie Wavelength: λ = h / p = h / √(2mK)",
+            "Chemistry: Ideal Gas Law Equation: PV = nRT",
+            "Botany: C4 pathway first stable compound: Oxaloacetic Acid (OAA - 4C Carbon compound)",
+            "Zoology: GFR Rate in dynamic healthy individual: ~125 mL/min or 180 Liters per day",
+            "Physics: Electrostatics Force Equation: F = k * (|q1 * q2|) / r²"
+        ];
+        function rotateFormula() {
+            const randomIdx = Math.floor(Math.random() * formulas.length);
+            document.getElementById('formula-text').innerText = formulas[randomIdx];
+        }
+
+        // LIFECYCLE INITIALIZER Wrapper
+        document.addEventListener("DOMContentLoaded", function() {
+            renderTodos();
+            renderChapters();
+            initCharts();
+            renderTable();
+            updateChartsData();
+            rotateFormula();
+            updateNCERTWidget();
+            renderActivePlan();
+        });
+    </script>
+</body>
+</html>
