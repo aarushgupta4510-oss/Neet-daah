@@ -42,7 +42,6 @@
             font-weight: 600;
         }
 
-        /* Responsive Grid Setup */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -66,7 +65,6 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
         }
 
-        /* Three Solid Colors Style */
         .blue-column { background-color: #2563EB; }
         .yellow-column { background-color: #EAB308; }
         .red-column { background-color: #DC2626; }
@@ -80,43 +78,34 @@
             color: #ffffff;
         }
 
-        /* Inputs and Select Custom Overlays */
         input[type="text"], input[type="number"], select {
             width: 100%;
-            padding: 14px 16px;
+            padding: 12px 14px;
             background: rgba(255, 255, 255, 0.15);
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: white;
             outline: none;
             transition: all 0.3s ease;
         }
 
-        select option {
-            color: #333;
-        }
-
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
+        select option { color: #333; }
+        input::placeholder { color: rgba(255, 255, 255, 0.7); }
         input:focus, select:focus {
             background: rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.6);
         }
 
-        /* Modern Calendar Interface */
         input[type="date"] {
             width: 100%;
-            padding: 14px 16px;
+            padding: 12px 14px;
             background: rgba(255, 255, 255, 0.15);
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: white;
             outline: none;
-            appearance: none;
             cursor: pointer;
         }
 
@@ -125,7 +114,6 @@
             scale: 1.2;
         }
 
-        /* Component Lists */
         .item-list {
             list-style: none;
             max-height: 220px;
@@ -142,7 +130,6 @@
             align-items: center;
         }
 
-        /* Premium Buttons */
         .action-btn {
             background: white;
             color: #1a1a1a;
@@ -169,7 +156,8 @@
             cursor: pointer;
         }
 
-        /* Interactive Clock Launch Pad */
+        .delete-btn:hover { background: rgba(255, 255, 255, 0.4); }
+
         .timer-box {
             background: rgba(255, 255, 255, 0.12);
             border: 2px dashed rgba(255, 255, 255, 0.3);
@@ -185,12 +173,8 @@
             border-color: white;
         }
 
-        .timer-box i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
+        .timer-box i { font-size: 3rem; margin-bottom: 15px; }
 
-        /* Premium Dark Mode Flip Clock Screen */
         .clock-overlay {
             display: none;
             position: fixed;
@@ -203,12 +187,7 @@
             color: white;
         }
 
-        .flip-clock-container {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
+        .flip-clock-container { display: flex; gap: 20px; margin-bottom: 40px; }
         .flip-card {
             background: #1e293b;
             padding: 35px 25px;
@@ -222,7 +201,6 @@
             position: relative;
         }
 
-        /* Analytics Sub-Containers */
         .white-card {
             background: rgba(255, 255, 255, 0.96);
             border-radius: 16px;
@@ -231,9 +209,8 @@
             margin-top: 10px;
         }
 
-        /* Premium Minimalist Table */
         .table-wrapper {
-            max-height: 180px;
+            max-height: 200px;
             overflow-y: auto;
             margin-top: 10px;
             border-radius: 8px;
@@ -243,21 +220,34 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .score-table th {
             background: #f1f5f9;
             padding: 10px;
             font-weight: 700;
+            color: #334155;
+        }
+
+        .score-table tr {
+            transition: transform 0.2s ease, background-color 0.2s;
+            cursor: pointer;
+            touch-action: pan-y;
         }
 
         .score-table td {
             padding: 10px;
             border-bottom: 1px solid #e2e8f0;
+            color: #475569;
         }
 
-        /* Additional Aesthetics Feature Box */
+        /* Swipe left hint animation effect */
+        .swipe-left-active {
+            transform: translateX(-60px);
+            background-color: #fee2e2;
+        }
+
         .premium-footer-box {
             max-width: 1400px;
             margin: 0 auto;
@@ -267,14 +257,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        .flashcard-title {
-            color: #38bdf8;
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 4px;
+        .flashcard-title { color: #38bdf8; font-weight: 700; font-size: 1.1rem; margin-bottom: 4px; }
+        
+        .score-inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -302,7 +293,7 @@
             <div>
                 <h2><i class="fa-solid fa-graduation-cap"></i> Core Syllabus Tracker</h2>
                 <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-                    <input type="text" id="task-title" placeholder="Chapter (e.g., Photosynthesis)">
+                    <input type="text" id="task-title" placeholder="Chapter (e.g., Genetics)">
                     <select id="task-subject">
                         <option value="Physics">Physics</option>
                         <option value="Chemistry">Chemistry</option>
@@ -315,7 +306,7 @@
             </div>
         </div>
 
-        <div class="column yellow-column" style="justify-content: flex-start;">
+        <div class="column yellow-column">
             <h2><i class="fa-solid fa-hourglass-start"></i> Focus Engine</h2>
             <p style="font-weight: 600; margin-top: -10px; opacity: 0.9;">Maximize concentration metrics inside custom environment.</p>
             
@@ -327,44 +318,47 @@
         </div>
 
         <div class="column red-column">
-            <h2><i class="fa-solid fa-chart-pie"></i> Score Analytics Suite</h2>
+            <h2><i class="fa-solid fa-chart-pie"></i> 180 Marks Analytics Suite</h2>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+            <div class="score-inputs-grid">
                 <input type="date" id="score-date">
-                <input type="text" id="score-name" placeholder="Mock Test Title">
+                <input type="text" id="score-name" placeholder="Test Name">
             </div>
-            <input type="number" id="score-value" placeholder="Score Obtained (Max 720)" max="720">
+            <div class="score-inputs-grid" style="margin-top: 0;">
+                <input type="number" id="score-p" placeholder="Phy (180)" max="180">
+                <input type="number" id="score-c" placeholder="Chem (180)" max="180">
+            </div>
+            <div class="score-inputs-grid" style="margin-top: 0;">
+                <input type="number" id="score-b" placeholder="Bot (180)" max="180">
+                <input type="number" id="score-z" placeholder="Zoo (180)" max="180">
+            </div>
             <button class="action-btn" onclick="addScore()">Update Performance Hub</button>
 
             <div class="white-card">
-                <div style="position: relative; height: 160px; width: 100%;">
+                <div style="position: relative; height: 180px; width: 100%;">
                     <canvas id="performanceChart"></canvas>
                 </div>
             </div>
 
             <div class="white-card">
-                <div style="position: relative; height: 150px; width: 100%;">
+                <div style="position: relative; height: 160px; width: 100%;">
                     <canvas id="pieChart"></canvas>
                 </div>
             </div>
 
             <div class="white-card" style="padding: 10px;">
+                <span style="font-size:0.75rem; color:#64748b; font-weight:bold;"><i class="fa-solid fa-hand-pointer"></i> Tip: Slide/Swipe Left on row to trigger Quick Delete</span>
                 <div class="table-wrapper">
                     <table class="score-table">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Test Name</th>
-                                <th>Marks</th>
+                                <th>Date / Name</th>
+                                <th>P/C/B/Z</th>
+                                <th>Total</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="score-table-body">
-                            <tr>
-                                <td>2026-07-15</td>
-                                <td>Grand Diagnostic Mock</td>
-                                <td>590/720</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="score-table-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -387,7 +381,7 @@
             <div class="flip-card" id="flip-min">00</div>
             <div class="flip-card" id="flip-sec">00</div>
         </div>
-        <div class="clock-controls" style="display: flex; gap: 20px;">
+        <div style="display: flex; gap: 20px;">
             <button class="action-btn" style="background: #22c55e; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="toggleClock()" id="start-pause-btn">Start Session</button>
             <button class="action-btn" style="background: #ef4444; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="resetClock()">Reset</button>
             <button class="action-btn" style="background: #3f3f46; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="closeClockOverlay()">Exit View</button>
@@ -395,30 +389,67 @@
     </div>
 
     <script>
-        // --- TODO CONTROLLER ---
+        // --- DATA PERSISTENCE MANAGEMENT (LOCALSTORAGE) ---
+        let state = JSON.parse(localStorage.getItem('arushNeetDashboard')) || {
+            todos: [],
+            chapters: [],
+            tests: []
+        };
+
+        function saveState() {
+            localStorage.setItem('arushNeetDashboard', JSON.stringify(state));
+        }
+
+        // --- TODO MANAGER ---
+        function renderTodos() {
+            const ul = document.getElementById('todo-list');
+            ul.innerHTML = '';
+            state.todos.forEach((todo, idx) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${todo}</span> <button class="delete-btn" onclick="deleteTodo(${idx})"><i class="fa-solid fa-trash"></i></button>`;
+                ul.appendChild(li);
+            });
+        }
+
         function addTodo() {
             const input = document.getElementById('todo-input');
             if (!input.value.trim()) return;
-            const ul = document.getElementById('todo-list');
-            const li = document.createElement('li');
-            li.innerHTML = `<span>${input.value}</span> <button class="delete-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash"></i></button>`;
-            ul.appendChild(li);
+            state.todos.push(input.value.trim());
+            saveState(); renderTodos();
             input.value = '';
         }
 
-        // --- CORE SYLLABUS CONTROLLER (UPDATED CHANNELS) ---
+        function deleteTodo(idx) {
+            state.todos.splice(idx, 1);
+            saveState(); renderTodos();
+        }
+
+        // --- CORE SYLLABUS MANAGER ---
+        function renderChapters() {
+            const ul = document.getElementById('task-list');
+            ul.innerHTML = '';
+            state.chapters.forEach((ch, idx) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> <button class="delete-btn" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
+                ul.appendChild(li);
+            });
+        }
+
         function addTask() {
             const title = document.getElementById('task-title');
             const subject = document.getElementById('task-subject');
             if (!title.value.trim()) return;
-            const ul = document.getElementById('task-list');
-            const li = document.createElement('li');
-            li.innerHTML = `<span><strong>[${subject.value}]</strong> ${title.value}</span> <button class="delete-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-check"></i></button>`;
-            ul.appendChild(li);
+            state.chapters.push({ title: title.value.trim(), subject: subject.value });
+            saveState(); renderChapters();
             title.value = '';
         }
 
-        // --- FLIP CLOCK TRACKER ENGINE ---
+        function deleteChapter(idx) {
+            state.chapters.splice(idx, 1);
+            saveState(); renderChapters();
+        }
+
+        // --- FLIP CLOCK CONTROLLER ---
         let clockInterval, running = false, totalSeconds = 0;
         function openClockOverlay() { document.getElementById('clock-overlay').style.display = 'flex'; }
         function closeClockOverlay() { document.getElementById('clock-overlay').style.display = 'none'; }
@@ -426,14 +457,10 @@
         function toggleClock() {
             const btn = document.getElementById('start-pause-btn');
             if (!running) {
-                running = true;
-                btn.innerText = "Pause Study";
-                btn.style.backgroundColor = "#eab308";
+                running = true; btn.innerText = "Pause Study"; btn.style.backgroundColor = "#eab308";
                 clockInterval = setInterval(() => { totalSeconds++; updateFlipDisplay(); }, 1000);
             } else {
-                running = false;
-                btn.innerText = "Resume Study";
-                btn.style.backgroundColor = "#22c55e";
+                running = false; btn.innerText = "Resume Study"; btn.style.backgroundColor = "#22c55e";
                 clearInterval(clockInterval);
             }
         }
@@ -450,83 +477,60 @@
             document.getElementById('flip-sec').innerText = String(totalSeconds % 60).padStart(2, '0');
         }
 
-        // --- PREMIUM ANALYTICS ENGINE (CHARTS & ENTRIES) ---
-        const timelineLabels = ['2026-07-15'];
-        const scoreDataPoints = [590];
-        let targetRangeCounts = [0, 0, 1]; // [ <500, 500-600, 600+ ]
+        // --- ADVANCED 180 CHART ENGINE ---
+        let performanceChart, pieChart;
+        
+        function initCharts() {
+            const ctxLine = document.getElementById('performanceChart').getContext('2d');
+            performanceChart = new Chart(ctxLine, {
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 180 } }
+                }
+            });
 
-        const ctxLine = document.getElementById('performanceChart').getContext('2d');
-        const performanceChart = new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: timelineLabels,
-                datasets: [{
-                    label: 'Score Timeline',
-                    data: scoreDataPoints,
-                    borderColor: '#DC2626',
-                    borderWidth: 2.5,
-                    tension: 0.2,
-                    fill: false
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: ['Physics', 'Chemistry', 'Botany', 'Zoology'],
+                    datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#3b82f6', '#eab308', '#10b981', '#ec4899'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
 
-        const ctxPie = document.getElementById('pieChart').getContext('2d');
-        const pieChart = new Chart(ctxPie, {
-            type: 'pie',
-            data: {
-                labels: ['<500', '500-600', '600+ Target'],
-                datasets: [{
-                    data: targetRangeCounts,
-                    backgroundColor: ['#ef4444', '#f59e0b', '#10b981']
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-
-        function addScore() {
-            const date = document.getElementById('score-date').value;
-            const name = document.getElementById('score-name').value || "Unnamed Mock";
-            const score = parseInt(document.getElementById('score-value').value);
-
-            if (!date || isNaN(score)) { alert("Enter proper Date and Score metric values."); return; }
-
-            // 1. Update Charts
-            timelineLabels.push(date);
-            scoreDataPoints.push(score);
+        function updateChartsData() {
+            const labels = state.tests.map(t => t.date);
             
-            if(score < 500) targetRangeCounts[0]++;
-            else if(score <= 600) targetRangeCounts[1]++;
-            else targetRangeCounts[2]++;
+            const datasets = [
+                { label: 'Phy', data: state.tests.map(t => t.p), borderColor: '#3b82f6', fill: false, tension: 0.1 },
+                { label: 'Chem', data: state.tests.map(t => t.c), borderColor: '#eab308', fill: false, tension: 0.1 },
+                { label: 'Bot', data: state.tests.map(t => t.b), borderColor: '#10b981', fill: false, tension: 0.1 },
+                { label: 'Zoo', data: state.tests.map(t => t.z), borderColor: '#ec4899', fill: false, tension: 0.1 }
+            ];
 
+            performanceChart.data.labels = labels;
+            performanceChart.data.datasets = datasets;
             performanceChart.update();
+
+            // Pie Chart calculates overall share aggregates
+            let totalP = 0, totalC = 0, totalB = 0, totalZ = 0;
+            state.tests.forEach(t => { totalP += t.p; totalC += t.c; totalB += t.b; totalZ += t.z; });
+            
+            pieChart.data.datasets[0].data = [totalP, totalC, totalB, totalZ];
             pieChart.update();
+        }
 
-            // 2. Update Entry History Table
+        function renderTable() {
             const tbody = document.getElementById('score-table-body');
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${date}</td><td>${name}</td><td><strong>${score}/720</strong></td>`;
-            tbody.appendChild(row);
-
-            document.getElementById('score-name').value = '';
-            document.getElementById('score-value').value = '';
-        }
-
-        // --- PREMIUM FEATURE: FORMULA ROTATOR INTERACTION ---
-        const formulas = [
-            "Physics: De Broglie Wavelength: λ = h / p = h / √(2mK)",
-            "Chemistry: Ideal Gas Law Equation: PV = nRT (R = 0.0821 L atm / mol K)",
-            "Botany: Photosynthesis Light Reaction Product Yield: 12 NADPH + 18 ATP per Glucose molecule",
-            "Zoology: Cardiac Output Assessment Equation: Stroke Volume × Heart Rate = ~5 Liters/min",
-            "Physics: Electrostatics Force Equation: F = k * (|q1 * q2|) / r²"
-        ];
-        function rotateFormula() {
-            const randomIdx = Math.floor(Math.random() * formulas.length);
-            document.getElementById('formula-text').innerText = formulas[randomIdx];
-        }
-        window.onload = rotateFormula;
-    </script>
-</body>
-</html>
-
+            tbody.innerHTML = '';
+            state.tests.forEach((t, idx) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${t.date}</strong><br><small>${t.name}</small></td>
+                    <td>P:${t.p}<br>C:${t.c}<br>B:${t.b}<br>Z:${t.z}</td>
+             
