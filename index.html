@@ -693,7 +693,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDtgU2S6fN2NFVzq9bhebydipumwUnAEhQ",
@@ -708,17 +708,15 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Core App Architecture Mappings
         window.isSignUpMode = false;
-        window.currentAuthRole = 'student'; // 'student' or 'parent'
-        window.userWorkspaceMode = 'student'; // Actual parsed configuration role
+        window.currentAuthRole = 'student';
+        window.userWorkspaceMode = 'student';
         window.activeUserMeta = null;
+        window.targetStudentUid = null;
         window.state = { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 };
 
-        // WebRTC Global Signalling Handlers
         let peerConnection = null;
         let localStream = null;
-        let signalingUnsubscribe = null;
         const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
         const MASTER_SYLLABUS = {
@@ -757,7 +755,7 @@
             
             if(role === 'parent') {
                 document.getElementById('auth-title').innerHTML = `<i class="fa-solid fa-user-shield"></i> Parent Vault Gateway`;
-                document.getElementById('auth-desc').innerText = "Access linked student performance and active surveillance nodes.";
+                document.getElementById('auth-desc').innerText = "Access linked student performance via parent credentials.";
                 if(window.isSignUpMode) { toggleAuthMode(); }
                 document.getElementById('auth-toggle-btn').style.display = 'none';
             } else {
@@ -801,10 +799,8 @@
             }
 
             if(window.currentAuthRole === 'parent') {
-                // Parent Cross-Reference Login Scheme
                 try {
-                    // Sign-in momentarily to check metadata records via cross email mappings
-                    alert("Authorizing via Parent Gate...");
+                    // Authenticate parent profile account directly
                     await signInWithEmailAndPassword(auth, email, password);
                 } catch (err) {
                     alert("Parent Vault Denied: Verification parameters failed.");
@@ -825,19 +821,33 @@
                 }
 
                 try {
+                    // Create Student Profile Account
                     const res = await createUserWithEmailAndPassword(auth, email, password);
+                    const studentUid = res.user.uid;
+                    
                     const userMeta = { 
                         name, 
                         className, 
                         targetExam, 
                         email,
                         parentEmail,
-                        parentPassword,
-                        studentUid: res.user.uid
+                        studentUid: studentUid
                     };
-                    await setDoc(doc(db, "users", res.user.uid), userMeta);
-                    await setDoc(doc(db, "userData", res.user.uid), { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 });
-                    alert("Ecosystem Generated Successfully!");
+                    
+                    await setDoc(doc(db, "users", studentUid), userMeta);
+                    await setDoc(doc(db, "userData", studentUid), { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 });
+                    
+                    // Create Parent System Account Secondary Node safely
+                    try {
+                        await createUserWithEmailAndPassword(auth, parentEmail, parentPassword);
+                        // Save lookup cross-reference node mapping
+                        await setDoc(doc(db, "parentMappings", parentEmail.toLowerCase()), { studentUid: studentUid });
+                    } catch(e) {
+                        console.log("Parent profile secondary node creation bypass or already exists.");
+                    }
+
+                    alert("Ecosystem Generated Successfully! Relogging into Workspace...");
+                    location.reload();
                 } catch (err) {
                     alert("Registration Error: " + err.message);
                 }
@@ -861,9 +871,9 @@
 
         async function saveStateToCloud() {
             if(window.userWorkspaceMode === 'parent') return; 
-            if(auth.currentUser) {
+            if(auth.currentUser && window.targetStudentUid) {
                 try {
-                    await setDoc(doc(db, "userData", auth.currentUser.uid), window.state);
+                    await setDoc(doc(db, "userData", window.targetStudentUid), window.state);
                 } catch (e) {
                     console.error("Cloud sync mismatch: ", e);
                 }
@@ -874,23 +884,26 @@
             if(user) {
                 let currentUid = user.uid;
                 
+                // Determine if parent profile cross reference matches
+                const mappingSnap = await getDoc(doc(db, "parentMappings", user.email.toLowerCase()));
+                
+                if(mappingSnap.exists()) {
+                    window.userWorkspaceMode = 'parent';
+                    window.targetStudentUid = mappingSnap.data().studentUid;
+                } else {
+                    window.userWorkspaceMode = 'student';
+                    window.targetStudentUid = currentUid;
+                }
+
                 // Fetch context metadata parameters
-                const metaSnap = await getDoc(doc(db, "users", currentUid));
+                const metaSnap = await getDoc(doc(db, "users", window.targetStudentUid));
                 if(metaSnap.exists()) {
                     window.activeUserMeta = metaSnap.data();
-                    
-                    // Determine if Parent or Student environment configurations map
-                    if(window.currentAuthRole === 'parent' || user.email === window.activeUserMeta.parentEmail) {
-                        window.userWorkspaceMode = 'parent';
-                    } else {
-                        window.userWorkspaceMode = 'student';
-                    }
-
                     document.getElementById('welcome-heading').innerText = `Hello ${window.activeUserMeta.name}! 👋`;
                     document.getElementById('class-tagline').innerText = `Role Context: ${window.userWorkspaceMode.toUpperCase()} • Target: ${window.activeUserMeta.targetExam} • Status: ${window.activeUserMeta.className}`;
                 }
 
-                const dataSnap = await getDoc(doc(db, "userData", currentUid));
+                const dataSnap = await getDoc(doc(db, "userData", window.targetStudentUid));
                 if(dataSnap.exists()) {
                     const cloudData = dataSnap.data();
                     window.state.todos = cloudData.todos || [];
@@ -900,18 +913,15 @@
                     window.state.streak = cloudData.streak || 0;
                 }
 
-                // Enforce Role Constraints onto Layout Engines
                 applyDynamicEcosystemAccessFilters();
-
                 configureSubjectSelectors();
                 configureScoreInputsLayout();
                 buildAutoSyllabusChecklist();
                 updateStreakUI();
                 initAppLifecycle();
 
-                // Setup Surveillance Node
                 if(window.userWorkspaceMode === 'parent') {
-                    initializeParentSurveillanceListener(currentUid);
+                    initializeParentSurveillanceListener(window.targetStudentUid);
                 }
             } else {
                 document.getElementById('auth-view').style.display = 'flex';
@@ -933,7 +943,7 @@
             }
         }
 
-        // --- WEB Rtc CCTV ENGINE PIPELINES ---
+        // --- WEB RTC MONITOR ENGINE ---
         window.initializeStudentSurveillancePipeline = async function() {
             const fallbackMsg = document.getElementById('cctv-fallback-msg');
             const videoViewport = document.getElementById('cctv-hardware-viewport');
@@ -941,14 +951,13 @@
             const streamBtn = document.getElementById('cctv-toggle-stream-btn');
 
             if(localStream) {
-                // Terminate session
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
                 videoViewport.srcObject = null;
                 statusBadge.style.display = 'none';
                 fallbackMsg.style.display = 'block';
                 streamBtn.innerHTML = `<i class="fa-solid fa-camera"></i> Start Live Self-Study Stream`;
-                await setDoc(doc(db, "surveillance", auth.currentUser.uid), { active: false });
+                await setDoc(doc(db, "surveillance", window.targetStudentUid), { active: false });
                 return;
             }
 
@@ -959,8 +968,7 @@
                 statusBadge.style.display = 'flex';
                 streamBtn.innerHTML = `<i class="fa-solid fa-video-slash"></i> Kill Live Session Stream`;
 
-                // Signal setup in Firestore
-                const surveillanceDocRef = doc(db, "surveillance", auth.currentUser.uid);
+                const surveillanceDocRef = doc(db, "surveillance", window.targetStudentUid);
                 await setDoc(surveillanceDocRef, { active: true, offer: null, answer: null, iceCandidates: [] });
 
                 peerConnection = new RTCPeerConnection(rtcConfig);
@@ -982,7 +990,6 @@
                     offer: { type: offerDescription.type, sdp: offerDescription.sdp }
                 });
 
-                // Listen for Answers from Parent Node
                 onSnapshot(surveillanceDocRef, async (snapshot) => {
                     const data = snapshot.data();
                     if (data && data.answer && !peerConnection.currentRemoteDescription) {
@@ -992,8 +999,7 @@
                 });
 
             } catch (err) {
-                alert("Hardware Pipeline Refused: Camera device mapping error.");
-                console.error(err);
+                alert("Hardware Pipeline Refused: Access permissions missing.");
             }
         };
 
@@ -1006,15 +1012,14 @@
             onSnapshot(surveillanceDocRef, async (snapshot) => {
                 const data = snapshot.data();
                 if (!data || !data.active || !data.offer) {
-                    // Feed offline
                     videoViewport.srcObject = null;
                     statusBadge.style.display = 'none';
-                    fallbackMsg.innerText = "Feed Standby: Student has not active self-study streaming sessions.";
+                    fallbackMsg.innerText = "Feed Standby: Student hasn't started a streaming session.";
                     fallbackMsg.style.display = 'block';
                     return;
                 }
 
-                if (peerConnection) return; // Handshake complete/in progress
+                if (peerConnection) return;
 
                 fallbackMsg.style.display = 'none';
                 statusBadge.style.display = 'flex';
@@ -1042,7 +1047,6 @@
                     answer: { type: answerDescription.type, sdp: answerDescription.sdp }
                 });
 
-                // Map Candidates
                 if (data.iceCandidates) {
                     data.iceCandidates.forEach(candidate => {
                         peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
