@@ -541,9 +541,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Configuration (Integrated directly as requested)
+        // Firebase Configuration
         const firebaseConfig = {
           apiKey: "AIzaSyDtgU2S6fN2NFVzq9bhebydipumwUnAEhQ",
           authDomain: "hybrid-study-workspace-1.firebaseapp.com",
@@ -557,7 +557,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Global State & Core Settings
+        // Global State
         window.isSignUpMode = false;
         window.activeUserMeta = null;
         window.state = { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 };
@@ -591,7 +591,6 @@
             }
         };
 
-        // Auth View Toggler
         window.toggleAuthMode = function() {
             window.isSignUpMode = !window.isSignUpMode;
             const title = document.getElementById('auth-title');
@@ -615,7 +614,6 @@
             }
         }
 
-        // Firebase Sign Up and Sign In Hub
         window.processAuthAction = async function() {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
@@ -638,10 +636,9 @@
                 try {
                     const res = await createUserWithEmailAndPassword(auth, email, password);
                     const userMeta = { name, className, targetExam, email };
-                    // Save metadata structure in Firestore
                     await setDoc(doc(db, "users", res.user.uid), userMeta);
                     await setDoc(doc(db, "userData", res.user.uid), { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 });
-                    alert("Account Created & Cloud Initialized successfully!");
+                    alert("Account Created successfully!");
                 } catch (err) {
                     alert("Registration Error: " + err.message);
                 }
@@ -660,18 +657,16 @@
             });
         }
 
-        // Sync local app mutations straight to Cloud Firestore
         async function saveStateToCloud() {
             if(auth.currentUser) {
                 try {
                     await setDoc(doc(db, "userData", auth.currentUser.uid), window.state);
                 } catch (e) {
-                    console.error("Cloud syncing dynamic drop error: ", e);
+                    console.error("Cloud sync error: ", e);
                 }
             }
         }
 
-        // Listen for Realtime user lifecycle changes
         onAuthStateChanged(auth, async (user) => {
             if(user) {
                 document.getElementById('auth-view').style.display = 'none';
@@ -686,7 +681,12 @@
 
                 const dataSnap = await getDoc(doc(db, "userData", user.uid));
                 if(dataSnap.exists()) {
-                    window.state = dataSnap.data();
+                    const cloudData = dataSnap.data();
+                    window.state.todos = cloudData.todos || [];
+                    window.state.chapters = cloudData.chapters || [];
+                    window.state.tests = cloudData.tests || [];
+                    window.state.activeStrategicPlan = cloudData.activeStrategicPlan || null;
+                    window.state.streak = cloudData.streak || 0;
                 }
 
                 configureSubjectSelectors();
@@ -704,7 +704,6 @@
             const selectObj = document.getElementById('task-subject');
             if(!selectObj || !window.activeUserMeta) return;
             selectObj.innerHTML = '';
-            
             const subs = window.activeUserMeta.targetExam === "JEE" ? ["Physics", "Chemistry", "Mathematics"] : ["Physics", "Chemistry", "Botany", "Zoology"];
             subs.forEach(s => {
                 let opt = document.createElement('option');
@@ -717,7 +716,6 @@
             const container = document.getElementById('dynamic-score-inputs-container');
             if(!container || !window.activeUserMeta) return;
             container.innerHTML = '';
-
             const subs = window.activeUserMeta.targetExam === "JEE" ? ["Physics", "Chemistry", "Mathematics"] : ["Physics", "Chemistry", "Botany", "Zoology"];
             const maxVal = window.activeUserMeta.targetExam === "JEE" ? 100 : 180;
 
@@ -740,13 +738,11 @@
             const box = document.getElementById('syllabus-checklist-container');
             if(!box || !window.activeUserMeta) return;
             box.innerHTML = '';
-
             const exam = window.activeUserMeta.targetExam;
             const targetClass = window.activeUserMeta.className;
             const syllabusData = MASTER_SYLLABUS[exam] ? MASTER_SYLLABUS[exam][targetClass] : null;
 
             if(!syllabusData) return;
-
             for(let subject in syllabusData) {
                 const subHead = document.createElement('div');
                 subHead.className = 'subject-header';
@@ -766,54 +762,53 @@
         }
 
         function updateStreakUI() {
-            if(window.state.streak === undefined) window.state.streak = 0;
-            document.getElementById('streak-counter-ui').innerText = `${window.state.streak} Days`;
-            
+            document.getElementById('streak-counter-ui').innerText = `${window.state.streak || 0} Days`;
             let badge = "Novice Learner";
             if(window.state.streak >= 3) badge = "Focus Ninja 🥷";
             if(window.state.streak >= 7) badge = "Elite Scholar 🎓";
             document.getElementById('badge-label').innerText = badge;
         }
 
-        // --- DASHBOARD CORE ENGINES FUNCTIONS ---
-        window.addTodo = function() {
+        window.addTodo = async function() {
             const input = document.getElementById('todo-input');
             const timeInput = document.getElementById('todo-time');
             if (!input || !input.value.trim()) return;
-            if(!window.state.todos) window.state.todos = [];
             window.state.todos.push({ text: input.value.trim(), timeLimit: timeInput.value ? parseInt(timeInput.value) : null });
-            saveStateToCloud(); renderTodos();
+            await saveStateToCloud(); 
+            renderTodos();
             input.value = ''; timeInput.value = '';
         }
 
-        window.completeTask = function(idx) {
+        window.completeTask = async function(idx) {
             window.state.todos.splice(idx, 1);
             window.state.streak = (window.state.streak || 0) + 1;
-            saveStateToCloud(); renderTodos(); updateStreakUI();
+            await saveStateToCloud(); 
+            renderTodos(); 
+            updateStreakUI();
         }
 
-        window.addTask = function() {
+        window.addTask = async function() {
             const title = document.getElementById('task-title');
             const subject = document.getElementById('task-subject');
             if (!title || !title.value.trim()) return;
-            if(!window.state.chapters) window.state.chapters = [];
             window.state.chapters.push({ title: title.value.trim(), subject: subject.value });
-            saveStateToCloud(); renderChapters(); title.value = '';
+            await saveStateToCloud(); 
+            renderChapters(); 
+            title.value = '';
         }
 
-        window.deleteChapter = function(idx) {
-            window.state.chapters.splice(idx, 1); saveStateToCloud(); renderChapters();
+        window.deleteChapter = async function(idx) {
+            window.state.chapters.splice(idx, 1); 
+            await saveStateToCloud(); 
+            renderChapters();
         }
 
-        window.calculateDynamicSyllabusPlan = function() {
+        window.calculateDynamicSyllabusPlan = async function() {
             const title = document.getElementById('planner-test-title').value || "Mock Evaluation Framework";
             const dateVal = document.getElementById('planner-test-date').value;
-            
             const checkboxes = document.querySelectorAll('.plan-chapter-checkbox:checked');
             let selectedChapters = [];
-            checkboxes.forEach(cb => {
-                selectedChapters.push({ subject: cb.getAttribute('data-subject'), title: cb.value });
-            });
+            checkboxes.forEach(cb => { selectedChapters.push({ subject: cb.getAttribute('data-subject'), title: cb.value }); });
 
             if(!dateVal || selectedChapters.length === 0) {
                 alert("Please select a Target Date and at least one Chapter checklist.");
@@ -823,30 +818,27 @@
             const today = new Date();
             const examDate = new Date(dateVal);
             const diffDays = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24));
-
-            if(diffDays < 0) {
-                alert("Target test date has already passed.");
-                return;
-            }
+            if(diffDays < 0) { alert("Target test date has already passed."); return; }
 
             const p1Days = Math.max(1, Math.floor(diffDays * 0.60));
             const p2Days = Math.max(1, Math.floor(diffDays * 0.25));
             const p3Days = Math.max(1, diffDays - (p1Days + p2Days));
 
             window.state.activeStrategicPlan = { title, diffDays, count: selectedChapters.length, p1Days, p2Days, p3Days };
-            saveStateToCloud(); renderStrategicPlan();
+            await saveStateToCloud(); 
+            renderStrategicPlan();
         }
 
-        window.clearStrategicPlan = function() {
-            window.state.activeStrategicPlan = null; saveStateToCloud(); renderStrategicPlan();
+        window.clearStrategicPlan = async function() {
+            window.state.activeStrategicPlan = null; 
+            await saveStateToCloud(); 
+            renderStrategicPlan();
         }
 
-        window.addScore = function() {
+        window.addScore = async function() {
             const date = document.getElementById('score-date').value;
             const name = document.getElementById('score-name').value || "Test Assessment";
-            
             if (!date) { alert("Invalid date parameter."); return; }
-            if(!window.state.tests) window.state.tests = [];
 
             let scoreObj = { date, name };
             const maxVal = window.activeUserMeta.targetExam === "JEE" ? 100 : 180;
@@ -867,19 +859,22 @@
             }
 
             window.state.tests.push(scoreObj);
-            saveStateToCloud(); renderTable(); updateChartsData();
+            await saveStateToCloud(); 
+            renderTable(); 
+            updateChartsData();
             configureScoreInputsLayout(); 
         }
 
-        window.deleteScore = function(idx) {
-            window.state.tests.splice(idx, 1); saveStateToCloud(); renderTable(); updateChartsData();
+        window.deleteScore = async function(idx) {
+            window.state.tests.splice(idx, 1); 
+            await saveStateToCloud(); 
+            renderTable(); 
+            updateChartsData();
         }
 
-        // UI rendering engines
         function renderTodos() {
             const ul = document.getElementById('todo-list');
             if(!ul) return; ul.innerHTML = '';
-            if(!window.state.todos) window.state.todos = [];
             window.state.todos.forEach((todo, idx) => {
                 const li = document.createElement('li');
                 const timeStr = todo.timeLimit ? ` (${todo.timeLimit}m)` : '';
@@ -897,7 +892,6 @@
         function renderChapters() {
             const ul = document.getElementById('task-list');
             if(!ul) return; ul.innerHTML = '';
-            if(!window.state.chapters) window.state.chapters = [];
             window.state.chapters.forEach((ch, idx) => {
                 const li = document.createElement('li');
                 li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> <button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
@@ -909,7 +903,6 @@
             const targetBox = document.getElementById('planner-output-card');
             if(!window.state.activeStrategicPlan) { targetBox.style.display = 'none'; return; }
             targetBox.style.display = 'block';
-            
             const plan = window.state.activeStrategicPlan;
             targetBox.innerHTML = `
                 <div style="display:flex; justify-content:between; align-items:center; margin-bottom: 8px;">
@@ -919,11 +912,11 @@
                 <p style="font-weight:bold; margin-bottom:5px;">⏳ ${plan.diffDays} Days Remaining for ${plan.count} Selected Topics</p>
                 <div class="phase-box" style="border-left-color: #2563eb;">
                     <strong>Phase 1: Deep Core Study (${plan.p1Days} Days)</strong><br>
-                    Load: ~${(plan.count / plan.p1Days).toFixed(1)} chapters/day. Focus completely on core problems.
+                    Load: ~${(plan.count / plan.p1Days).toFixed(1)} chapters/day.
                 </div>
                 <div class="phase-box" style="border-left-color: #eab308;">
                     <strong>Phase 2: High Yield Review (${plan.p2Days} Days)</strong><br>
-                    Speed run through formulas, summarized sheets.
+                    Speed run through formulas.
                 </div>
                 <div class="phase-box" style="border-left-color: #dc2626;">
                     <strong>Phase 3: Grand Mock Drills (${plan.p3Days} Days)</strong><br>
@@ -935,8 +928,6 @@
         function renderTable() {
             const tbody = document.getElementById('score-table-body');
             if (!tbody || !window.activeUserMeta) return; tbody.innerHTML = '';
-            if(!window.state.tests) window.state.tests = [];
-            
             window.state.tests.forEach((t, idx) => {
                 const row = document.createElement('tr');
                 let breakDownStr = window.activeUserMeta.targetExam === "JEE" ? 
@@ -976,10 +967,7 @@
             
             pieChart = new Chart(ctxPie, {
                 type: 'pie',
-                data: {
-                    labels: pieLabels,
-                    datasets: [{ data: pieLabels.map(()=>0), backgroundColor: pieColors }]
-                },
+                data: { labels: pieLabels, datasets: [{ data: pieLabels.map(()=>0), backgroundColor: pieColors }] },
                 options: { responsive: true, maintainAspectRatio: false }
             });
         }
@@ -1093,3 +1081,4 @@
     </script>
 </body>
 </html>
+        
