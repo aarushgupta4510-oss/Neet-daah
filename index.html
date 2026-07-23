@@ -6,161 +6,263 @@
     <title>Arush's NEET Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);
+            background: linear-gradient(180deg, #FFFDE4 0%, #FFFFFF 100%);
             min-height: 100vh;
-            padding: 20px;
-            color: #333;
+            padding: 40px 20px;
+            color: #ffffff;
         }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: 40px;
         }
 
         header h1 {
-            font-size: 2.5rem;
-            color: #4A0E4E;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            font-size: 3rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            letter-spacing: -1px;
         }
 
         header p {
             font-size: 1.1rem;
-            color: #6a1b9a;
-            margin-top: 5px;
+            color: #666;
+            margin-top: 8px;
             font-weight: 600;
         }
 
+        /* Three Column Layout with Solid Aesthetic Colors */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        .card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-            border: 2px solid transparent;
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .card:hover {
-            transform: translateY(-5px);
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
         }
 
-        /* Distinct Color Borders for Boxes */
-        .todo-card { border-top: 6px solid #FF5722; }
-        .cbt-card { border-top: 6px solid #4CAF50; }
-        .task-card { border-top: 6px solid #00BCD4; }
-        .stopwatch-card { border-top: 6px solid #9C27B0; }
-        .chart-card { border-top: 6px solid #FFEB3B; grid-column: span 1; }
-
-        @media (min-width: 1024px) {
-            .chart-card { grid-column: span 2; }
-        }
+        /* Solid Color System */
+        .blue-column { background-color: #2563EB; }
+        .yellow-column { background-color: #EAB308; }
+        .red-column { background-color: #DC2626; }
 
         h2 {
-            margin-bottom: 20px;
+            font-size: 1.6rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.4rem;
+            gap: 12px;
+            color: #ffffff;
         }
 
-        /* Colorful Buttons */
-        button {
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: opacity 0.2s;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .btn-orange { background-color: #FF5722; }
-        .btn-green { background-color: #4CAF50; }
-        .btn-cyan { background-color: #00BCD4; }
-        .btn-purple { background-color: #9C27B0; }
-        .btn-red { background-color: #E91E63; }
-
-        input, textarea, select {
+        /* Aesthetic Input Styling */
+        input[type="text"], input[type="number"], select {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Custom Beautiful Calendar Picker */
+        .date-picker-container {
+            position: relative;
+            width: 100%;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            color: white;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            scale: 1.2;
+            cursor: pointer;
         }
 
         /* Lists Styling */
         .item-list {
             list-style: none;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
-            margin-top: 15px;
         }
 
         .item-list li {
-            background: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
         }
 
-        /* Stopwatch Display */
-        .stopwatch-display {
-            font-size: 3rem;
+        /* Buttons matching the premium glass feel */
+        .action-btn {
+            background: white;
+            color: #1a1a1a;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            opacity: 0.95;
+        }
+
+        .delete-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Modern Clock Launcher Block */
+        .timer-box {
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 30px;
             text-align: center;
-            font-family: monospace;
-            margin: 20px 0;
-            color: #333;
-            background: #f0f0f0;
-            border-radius: 10px;
-            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .stopwatch-controls {
-            display: flex;
-            justify-content: space-around;
+        .timer-box:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
         }
 
-        /* CBT Simulation Styling */
-        .cbt-screen {
+        .timer-box i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Full Screen Flip Clock Overlay */
+        .clock-overlay {
             display: none;
-            background: #fff;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1000;
-            padding: 30px;
-            overflow-y: auto;
+            background: rgba(15, 23, 42, 0.98);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+
+        .flip-clock-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .flip-card {
+            background: #27272a;
+            padding: 30px 25px;
+            border-radius: 16px;
+            font-size: 6rem;
+            font-family: 'Share Tech Mono', monospace;
+            min-width: 140px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border-bottom: 6px solid #18181b;
+            position: relative;
+        }
+
+        .flip-card::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 50%; width: 100%; height: 2px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .clock-controls {
+            display: flex;
+            gap: 20px;
+        }
+
+        .clock-btn {
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+        }
+
+        /* Graph Box Styling */
+        .graph-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -168,189 +270,167 @@
 
     <header>
         <h1>Hello Arush! 👋</h1>
-        <p>Your Ultimate NEET Preparation Diet & Dashboard</p>
+        <p>Your Strategic NEET Focus Workspace</p>
     </header>
 
     <div class="dashboard-grid">
 
-        <div class="card todo-card">
-            <h2><i class="fa-solid fa-list-check" style="color: #FF5722;"></i> Daily To-Do List</h2>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="todo-input" placeholder="e.g., Revise Optics formulas" style="margin-bottom: 0;">
-                <button class="btn-orange" onclick="addTodo()">Add</button>
+        <div class="column blue-column">
+            <div>
+                <h2><i class="fa-solid fa-list-check"></i> Daily Tasks</h2>
+                <div style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
+                    <input type="text" id="todo-input" placeholder="Revise Organic Chemistry...">
+                    <button class="action-btn" onclick="addTodo()">Add</button>
+                </div>
+                <ul id="todo-list" class="item-list"></ul>
             </div>
-            <ul id="todo-list" class="item-list"></ul>
-        </div>
+            
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2); margin: 10px 0;">
 
-        <div class="card task-card">
-            <h2><i class="fa-solid fa-list-numbered" style="color: #00BCD4;"></i> NEET Chapter Manager</h2>
-            <input type="text" id="task-title" placeholder="Chapter Name (e.g., Genetics)">
-            <select id="task-subject">
-                <option value="Physics">Physics</option>
-                <option value="Chemistry">Chemistry</option>
-                <option value="Biology">Biology</option>
-            </select>
-            <button class="btn-cyan" style="width: 100%;" onclick="addTask()">Track Chapter</button>
-            <ul id="task-list" class="item-list"></ul>
-        </div>
-
-        <div class="card stopwatch-card">
-            <h2><i class="fa-solid fa-stopwatch" style="color: #9C27B0;"></i> Physics/Chemistry Timer</h2>
-            <div class="stopwatch-display" id="stopwatch-time">00:00:00</div>
-            <div class="stopwatch-controls">
-                <button class="btn-purple" onclick="startStopwatch()">Start</button>
-                <button class="btn-cyan" onclick="pauseStopwatch()">Pause</button>
-                <button class="btn-red" onclick="resetStopwatch()">Reset</button>
+            <div>
+                <h2><i class="fa-solid fa-graduation-cap"></i> Syllabus Tracker</h2>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                    <input type="text" id="task-title" placeholder="Chapter (e.g., Plant Physiology)">
+                    <select id="task-subject">
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Biology">Biology</option>
+                    </select>
+                    <button class="action-btn" onclick="addTask()">Log Chapter</button>
+                </div>
+                <ul id="task-list" class="item-list" style="margin-top: 15px;"></ul>
             </div>
         </div>
 
-        <div class="card cbt-card">
-            <h2><i class="fa-solid fa-laptop-code" style="color: #4CAF50;"></i> Auto CBT Test Mock</h2>
-            <label for="cbt-syllabus"><b>Enter Syllabus / Topics:</b></label>
-            <textarea id="cbt-syllabus" rows="2" placeholder="e.g., Electrostatics, Chemical Kinetics, Plant Kingdom"></textarea>
-            <button class="btn-green" style="width: 100%;" onclick="startCBT()">Generate & Launch CBT Test</button>
+        <div class="column yellow-column">
+            <h2><i class="fa-solid fa-hourglass-start"></i> Focus Engine</h2>
+            <p style="font-weight: 600; margin-top: -10px; opacity: 0.9;">Click the board below to trigger full screen study mode.</p>
+            
+            <div class="timer-box" onclick="openClockOverlay()">
+                <i class="fa-solid fa-expand-arrows-alt"></i>
+                <h3 style="font-size: 1.4rem; margin-bottom: 5px;">Launch Exam Clock</h3>
+                <p style="opacity: 0.8; font-size: 0.9rem;">Immersive Full-Screen Minimalist Counter</p>
+            </div>
         </div>
 
-        <div class="card chart-card">
-            <h2><i class="fa-solid fa-chart-line" style="color: #FFC107;"></i> NEET Test Performance Tracker</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 15px;">
-                <div>
-                    <label>Date</label>
-                    <input type="date" id="score-date" style="margin-bottom: 0;">
+        <div class="column red-column">
+            <h2><i class="fa-solid fa-chart-line"></i> Score Analytics</h2>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                <div class="date-picker-container">
+                    <input type="date" id="score-date">
                 </div>
-                <div>
-                    <label>Test Name</label>
-                    <input type="text" id="score-name" placeholder="Part Test 1" style="margin-bottom: 0;">
-                </div>
-                <div>
-                    <label>Score (Max 720)</label>
-                    <input type="number" id="score-value" placeholder="620" max="720" style="margin-bottom: 0;">
-                </div>
-                <button class="btn-purple" onclick="addScore()" style="height: 42px;">Add Score</button>
+                <input type="text" id="score-name" placeholder="Test Name (e.g., Grand Test 3)">
+                <input type="number" id="score-value" placeholder="Score Obtained (Max 720)" max="720">
+                <button class="action-btn" onclick="addScore()">Update Timeline</button>
             </div>
-            <div style="position: relative; height: 250px; width: 100%;">
-                <canvas id="performanceChart"></canvas>
+
+            <div class="graph-container">
+                <div style="position: relative; height: 230px; width: 100%;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <div id="cbt-screen" class="cbt-screen">
-        <div style="display: flex; justify-content: space-between; background: #3f51b5; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <h2 style="margin: 0; color: white;">NEET Mock CBT Exam Mode</h2>
-            <span id="cbt-timer" style="font-size: 1.3rem; font-weight: bold;">Time Left: 03:20:00</span>
+    <div id="clock-overlay" class="clock-overlay">
+        <h2 style="font-size: 2.5rem; margin-bottom: 30px; letter-spacing: 2px;"><i class="fa-solid fa-brain"></i> DEEP WORK SESSION</h2>
+        <div class="flip-clock-container">
+            <div class="flip-card" id="flip-hr">00</div>
+            <div class="flip-card" id="flip-min">00</div>
+            <div class="flip-card" id="flip-sec">00</div>
         </div>
-        <div id="cbt-syllabus-header" style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-weight: bold;"></div>
-        
-        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <h3>Question 1 (AI Generated based on entered syllabus)</h3>
-            <p style="margin: 15px 0; font-size: 1.1rem;">Which of the following statement is correct regarding the core topics matching your syllabus specification?</p>
-            <label style="display:block; margin: 10px 0;"><input type="radio" name="q1"> Option A: Statements reflecting high yield NCERT concepts.</label>
-            <label style="display:block; margin: 10px 0;"><input type="radio" name="q1"> Option B: Experimental anomaly configurations.</label>
-            <label style="display:block; margin: 10px 0;"><input type="radio" name="q1"> Option C: Conceptual pathway dependency values.</label>
-            <label style="display:block; margin: 10px 0;"><input type="radio" name="q1"> Option D: Both A and B.</label>
+        <div class="clock-controls">
+            <button class="action-btn clock-btn" style="background: #22c55e; color: white;" onclick="toggleClock()" id="start-pause-btn">Start Session</button>
+            <button class="action-btn clock-btn" style="background: #ef4444; color: white;" onclick="resetClock()">Reset</button>
+            <button class="action-btn clock-btn" style="background: #3f3f46; color: white;" onclick="closeClockOverlay()">Exit View</button>
         </div>
-        
-        <button class="btn-green" onclick="submitCBT()">Submit Test</button>
-        <button class="btn-red" onclick="closeCBT()">Exit Test without Saving</button>
     </div>
 
     <script>
-        // --- TO DO LIST ---
+        // --- TO DO LIST FUNCTIONS ---
         function addTodo() {
             const input = document.getElementById('todo-input');
             if (!input.value.trim()) return;
             const ul = document.getElementById('todo-list');
             const li = document.createElement('li');
-            li.innerHTML = `${input.value} <button class="btn-red" style="padding: 2px 8px;" onclick="this.parentElement.remove()">X</button>`;
+            li.innerHTML = `<span>${input.value}</span> <button class="delete-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-trash"></i></button>`;
             ul.appendChild(li);
             input.value = '';
         }
 
-        // --- TASK MANAGER ---
+        // --- CHAPTER MANAGER FUNCTIONS ---
         function addTask() {
             const title = document.getElementById('task-title');
             const subject = document.getElementById('task-subject');
             if (!title.value.trim()) return;
             const ul = document.getElementById('task-list');
             const li = document.createElement('li');
-            li.innerHTML = `<span><strong>[${subject.value}]</strong> ${title.value}</span> <button class="btn-red" style="padding: 2px 8px;" onclick="this.parentElement.remove()">Done</button>`;
+            li.innerHTML = `<span><strong>[${subject.value}]</strong> ${title.value}</span> <button class="delete-btn" onclick="this.parentElement.remove()"><i class="fa-solid fa-check"></i></button>`;
             ul.appendChild(li);
             title.value = '';
         }
 
-        // --- STOPWATCH ---
-        let stopwatchInterval;
-        let elapsedSeconds = 0;
-        
-        function formatTime(s) {
-            const hrs = String(Math.floor(s / 3600)).padStart(2, '0');
-            const mins = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
-            const secs = String(s % 60).padStart(2, '0');
-            return `${hrs}:${mins}:${secs}`;
+        // --- FLIP CLOCK CONTROLLER ---
+        let clockInterval;
+        let running = false;
+        let totalSeconds = 0;
+
+        function openClockOverlay() {
+            document.getElementById('clock-overlay').style.display = 'flex';
         }
 
-        function startStopwatch() {
-            clearInterval(stopwatchInterval);
-            stopwatchInterval = setInterval(() => {
-                elapsedSeconds++;
-                document.getElementById('stopwatch-time').innerText = formatTime(elapsedSeconds);
-            }, 1000);
+        function closeClockOverlay() {
+            document.getElementById('clock-overlay').style.display = 'none';
         }
 
-        function pauseStopwatch() {
-            clearInterval(stopwatchInterval);
-        }
-
-        function resetStopwatch() {
-            clearInterval(stopwatchInterval);
-            elapsedSeconds = 0;
-            document.getElementById('stopwatch-time').innerText = "00:00:00";
-        }
-
-        // --- CBT MOCK CONTROLLER ---
-        let cbtTimerInterval;
-        function startCBT() {
-            const syllabus = document.getElementById('cbt-syllabus').value;
-            if(!syllabus.trim()) {
-                alert("Please enter a syllabus first to generate the paper!");
-                return;
+        function toggleClock() {
+            const btn = document.getElementById('start-pause-btn');
+            if (!running) {
+                running = true;
+                btn.innerText = "Pause Study";
+                btn.style.backgroundColor = "#eab308";
+                clockInterval = setInterval(() => {
+                    totalSeconds++;
+                    updateFlipDisplay();
+                }, 1000);
+            } else {
+                running = false;
+                btn.innerText = "Resume Study";
+                btn.style.backgroundColor = "#22c55e";
+                clearInterval(clockInterval);
             }
-            document.getElementById('cbt-syllabus-header').innerText = "Target Syllabus: " + syllabus;
-            document.getElementById('cbt-screen').style.display = 'block';
+        }
+
+        function resetClock() {
+            running = false;
+            clearInterval(clockInterval);
+            totalSeconds = 0;
+            updateFlipDisplay();
+            const btn = document.getElementById('start-pause-btn');
+            btn.innerText = "Start Session";
+            btn.style.backgroundColor = "#22c55e";
+        }
+
+        function updateFlipDisplay() {
+            const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const secs = String(totalSeconds % 60).padStart(2, '0');
             
-            let totalSeconds = 200 * 60; // 3 hours 20 minutes for NEET standard
-            cbtTimerInterval = setInterval(() => {
-                totalSeconds--;
-                if(totalSeconds <= 0) {
-                    clearInterval(cbtTimerInterval);
-                    submitCBT();
-                }
-                const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-                const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-                const secs = String(totalSeconds % 60).padStart(2, '0');
-                document.getElementById('cbt-timer').innerText = `Time Left: ${hrs}:${mins}:${secs}`;
-            }, 1000);
+            document.getElementById('flip-hr').innerText = hrs;
+            document.getElementById('flip-min').innerText = mins;
+            document.getElementById('flip-sec').innerText = secs;
         }
 
-        function submitCBT() {
-            alert("Test submitted successfully! Complete performance parsing has been updated.");
-            closeCBT();
-        }
-
-        function closeCBT() {
-            clearInterval(cbtTimerInterval);
-            document.getElementById('cbt-screen').style.display = 'none';
-        }
-
-        // --- GRAPH CHART ENGINE ---
+        // --- CHART ENGINE ---
         const chartData = {
-            labels: ['2026-07-20', '2026-07-22'],
+            labels: ['2026-07-15', '2026-07-20'],
             datasets: [{
-                label: 'NEET Score (Out of 720)',
-                data: [580, 610],
-                borderColor: '#9C27B0',
-                backgroundColor: 'rgba(156, 39, 176, 0.2)',
+                label: 'Score (Max 720)',
+                data: [590, 625],
+                borderColor: '#DC2626',
+                backgroundColor: 'rgba(220, 38, 38, 0.1)',
                 borderWidth: 3,
                 tension: 0.3,
                 fill: true
@@ -364,11 +444,12 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
                 scales: {
-                    y: {
-                        min: 0,
-                        max: 720
-                    }
+                    y: { min: 0, max: 720, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
                 }
             }
         });
@@ -378,8 +459,8 @@
             const nameInput = document.getElementById('score-name').value;
             const valueInput = document.getElementById('score-value').value;
 
-            if(!dateInput || !valueInput) {
-                alert("Please fill in Date and Score values.");
+            if (!dateInput || !valueInput) {
+                alert("Please pick a date and fill your score.");
                 return;
             }
 
@@ -393,3 +474,4 @@
     </script>
 </body>
 </html>
+
