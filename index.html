@@ -92,8 +92,10 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #38bdf8;
-            margin: 15px 0 8px 0;
+            margin: 15px 0 12px 0;
             font-weight: 700;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
         }
 
         .auth-toggle {
@@ -523,9 +525,9 @@
             <p id="auth-desc">Enter your operational credentials to sync dynamic cloud metrics.</p>
             
             <div id="signup-only-fields" style="display:none;">
-                <input type="text" id="auth-name" placeholder="Enter Your Full Name">
+                <input type="text" id="auth-name" placeholder="Enter Student Full Name">
                 <select id="auth-class">
-                    <option value="">Select Your Current Class</option>
+                    <option value="">Select Student Current Class</option>
                     <option value="Class 11">Class 11 (Plus One Syllabus)</option>
                     <option value="Class 12">Class 12 (Plus Two Syllabus)</option>
                 </select>
@@ -534,14 +536,16 @@
                     <option value="NEET">NEET (Medical Stream)</option>
                     <option value="JEE">JEE (Engineering Stream)</option>
                 </select>
-
+            </div>
+            
+            <input type="email" id="auth-email" placeholder="Student Email Address">
+            <input type="password" id="auth-password" placeholder="Student Secure Password">
+            
+            <div id="signup-parent-fields" style="display:none;">
                 <div class="vault-section-title">Parent Authorization Details</div>
                 <input type="email" id="auth-parent-email" placeholder="Parent Email Address Reference">
                 <input type="password" id="auth-parent-password" placeholder="Set Secure Parent Access Password">
             </div>
-            
-            <input type="email" id="auth-email" placeholder="Operational Email Address">
-            <input type="password" id="auth-password" placeholder="Secure Workspace Password">
             
             <button class="action-btn" style="width:100%; margin-top:10px; background:#38bdf8; color:white;" onclick="processAuthAction()" id="auth-submit-btn">Login to Workspace</button>
             <div class="auth-toggle" id="auth-toggle-btn" onclick="toggleAuthMode()">New student setup? Create workspace (Sign Up)</div>
@@ -560,7 +564,6 @@
         </div>
 
         <div class="dashboard-grid">
-
             <div class="column blue-column">
                 <div>
                     <h2><i class="fa-solid fa-list-check"></i> Daily Tasks</h2>
@@ -758,10 +761,14 @@
                 document.getElementById('auth-desc').innerText = "Access linked student performance via parent credentials.";
                 if(window.isSignUpMode) { toggleAuthMode(); }
                 document.getElementById('auth-toggle-btn').style.display = 'none';
+                document.getElementById('auth-email').placeholder = "Parent Email Address";
+                document.getElementById('auth-password').placeholder = "Parent Access Password";
             } else {
                 document.getElementById('auth-title').innerHTML = `<i class="fa-solid fa-lock"></i> Account Sign In`;
                 document.getElementById('auth-desc').innerText = "Enter your operational credentials to sync dynamic cloud metrics.";
                 document.getElementById('auth-toggle-btn').style.display = 'block';
+                document.getElementById('auth-email').placeholder = "Student Email Address";
+                document.getElementById('auth-password').placeholder = "Student Secure Password";
             }
         }
 
@@ -770,20 +777,23 @@
             window.isSignUpMode = !window.isSignUpMode;
             const title = document.getElementById('auth-title');
             const desc = document.getElementById('auth-desc');
-            const extraFields = document.getElementById('signup-only-fields');
+            const studentFields = document.getElementById('signup-only-fields');
+            const parentFields = document.getElementById('signup-parent-fields');
             const submitBtn = document.getElementById('auth-submit-btn');
             const toggleBtn = document.getElementById('auth-toggle-btn');
 
             if(window.isSignUpMode) {
                 title.innerHTML = `<i class="fa-solid fa-user-plus"></i> Student Registration`;
                 desc.innerText = "Create your centralized cloud profile data vault.";
-                extraFields.style.display = "block";
+                studentFields.style.display = "block";
+                parentFields.style.display = "block";
                 submitBtn.innerText = "Register & Launch Dashboard";
                 toggleBtn.innerText = "Already registered? Login here";
             } else {
                 title.innerHTML = `<i class="fa-solid fa-lock"></i> Account Sign In`;
                 desc.innerText = "Enter your credentials to sync secure cloud workspace.";
-                extraFields.style.display = "none";
+                studentFields.style.display = "none";
+                parentFields.style.display = "none";
                 submitBtn.innerText = "Login to Workspace";
                 toggleBtn.innerText = "New student? Create an account (Sign Up)";
             }
@@ -794,13 +804,12 @@
             const password = document.getElementById('auth-password').value;
 
             if(!email || !password) {
-                alert("Please fill all required Email and Password fields.");
+                alert("Please complete the required Email and Password input parameters.");
                 return;
             }
 
             if(window.currentAuthRole === 'parent') {
                 try {
-                    // Authenticate parent profile account directly
                     await signInWithEmailAndPassword(auth, email, password);
                 } catch (err) {
                     alert("Parent Vault Denied: Verification parameters failed.");
@@ -816,12 +825,12 @@
                 const parentPassword = document.getElementById('auth-parent-password').value;
 
                 if(!name || !className || !targetExam || !parentEmail || !parentPassword) {
-                    alert("Registration requires Student and Parent details.");
+                    alert("Registration requires complete Student and Parent parameters.");
                     return;
                 }
 
                 try {
-                    // Create Student Profile Account
+                    // Create primary Student authenticated account node
                     const res = await createUserWithEmailAndPassword(auth, email, password);
                     const studentUid = res.user.uid;
                     
@@ -837,16 +846,15 @@
                     await setDoc(doc(db, "users", studentUid), userMeta);
                     await setDoc(doc(db, "userData", studentUid), { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 });
                     
-                    // Create Parent System Account Secondary Node safely
+                    // Provision matching Parent profile authorization channel 
                     try {
                         await createUserWithEmailAndPassword(auth, parentEmail, parentPassword);
-                        // Save lookup cross-reference node mapping
                         await setDoc(doc(db, "parentMappings", parentEmail.toLowerCase()), { studentUid: studentUid });
                     } catch(e) {
-                        console.log("Parent profile secondary node creation bypass or already exists.");
+                        console.log("Parent pipeline generation warning: mapped entity entry bypass.");
                     }
 
-                    alert("Ecosystem Generated Successfully! Relogging into Workspace...");
+                    alert("Ecosystem Workspace Provisioned! Re-logging in...");
                     location.reload();
                 } catch (err) {
                     alert("Registration Error: " + err.message);
@@ -875,7 +883,7 @@
                 try {
                     await setDoc(doc(db, "userData", window.targetStudentUid), window.state);
                 } catch (e) {
-                    console.error("Cloud sync mismatch: ", e);
+                    console.error("Cloud data payload sync error: ", e);
                 }
             }
         }
@@ -883,8 +891,6 @@
         onAuthStateChanged(auth, async (user) => {
             if(user) {
                 let currentUid = user.uid;
-                
-                // Determine if parent profile cross reference matches
                 const mappingSnap = await getDoc(doc(db, "parentMappings", user.email.toLowerCase()));
                 
                 if(mappingSnap.exists()) {
@@ -895,7 +901,6 @@
                     window.targetStudentUid = currentUid;
                 }
 
-                // Fetch context metadata parameters
                 const metaSnap = await getDoc(doc(db, "users", window.targetStudentUid));
                 if(metaSnap.exists()) {
                     window.activeUserMeta = metaSnap.data();
@@ -943,7 +948,7 @@
             }
         }
 
-        // --- WEB RTC MONITOR ENGINE ---
+        // --- WEB RTC HARDWARE ENGINE (STABILIZED) ---
         window.initializeStudentSurveillancePipeline = async function() {
             const fallbackMsg = document.getElementById('cctv-fallback-msg');
             const videoViewport = document.getElementById('cctv-hardware-viewport');
@@ -972,10 +977,14 @@
                 await setDoc(surveillanceDocRef, { active: true, offer: null, answer: null, iceCandidates: [] });
 
                 peerConnection = new RTCPeerConnection(rtcConfig);
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+                localStream.getTracks().forEach(track => {
+                    if (peerConnection.signalingState !== 'closed') {
+                        peerConnection.addTrack(track, localStream);
+                    }
+                });
 
                 peerConnection.onicecandidate = async (event) => {
-                    if (event.candidate) {
+                    if (event.candidate && peerConnection.signalingState !== 'closed') {
                         const snap = await getDoc(surveillanceDocRef);
                         const candidates = snap.data().iceCandidates || [];
                         candidates.push(event.candidate.toJSON());
@@ -992,14 +1001,14 @@
 
                 onSnapshot(surveillanceDocRef, async (snapshot) => {
                     const data = snapshot.data();
-                    if (data && data.answer && !peerConnection.currentRemoteDescription) {
+                    if (data && data.answer && peerConnection && peerConnection.signalingState !== 'closed' && !peerConnection.currentRemoteDescription) {
                         const answerDescription = new RTCSessionDescription(data.answer);
                         await peerConnection.setRemoteDescription(answerDescription);
                     }
                 });
 
             } catch (err) {
-                alert("Hardware Pipeline Refused: Access permissions missing.");
+                alert("Hardware Pipeline Refused: Video device access permissions missing.");
             }
         };
 
@@ -1012,9 +1021,13 @@
             onSnapshot(surveillanceDocRef, async (snapshot) => {
                 const data = snapshot.data();
                 if (!data || !data.active || !data.offer) {
+                    if(peerConnection) {
+                        peerConnection.close();
+                        peerConnection = null;
+                    }
                     videoViewport.srcObject = null;
                     statusBadge.style.display = 'none';
-                    fallbackMsg.innerText = "Feed Standby: Student hasn't started a streaming session.";
+                    fallbackMsg.innerText = "Feed Standby: Student has not initiated a video session.";
                     fallbackMsg.style.display = 'block';
                     return;
                 }
@@ -1027,11 +1040,13 @@
                 peerConnection = new RTCPeerConnection(rtcConfig);
                 
                 peerConnection.ontrack = (event) => {
-                    videoViewport.srcObject = event.streams[0];
+                    if (event.streams && event.streams[0]) {
+                        videoViewport.srcObject = event.streams[0];
+                    }
                 };
 
                 peerConnection.onicecandidate = async (event) => {
-                    if (event.candidate) {
+                    if (event.candidate && peerConnection.signalingState !== 'closed') {
                         const snap = await getDoc(surveillanceDocRef);
                         const candidates = snap.data().parentIceCandidates || [];
                         candidates.push(event.candidate.toJSON());
@@ -1049,13 +1064,15 @@
 
                 if (data.iceCandidates) {
                     data.iceCandidates.forEach(candidate => {
-                        peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                        if (peerConnection && peerConnection.signalingState !== 'closed') {
+                            peerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => {});
+                        }
                     });
                 }
             });
         }
 
-        // --- CORE LOGIC APPARATUS ---
+        // --- CORE PERFORMANCE CORE INTERFACES ---
         function configureSubjectSelectors() {
             const selectObj = document.getElementById('task-subject');
             if(!selectObj || !window.activeUserMeta) return;
@@ -1173,7 +1190,7 @@
             checkboxes.forEach(cb => { selectedChapters.push({ subject: cb.getAttribute('data-subject'), title: cb.value }); });
 
             if(!dateVal || selectedChapters.length === 0) {
-                alert("Please select a Target Date and at least one Chapter checklist.");
+                alert("Please select a Target Date and at least one Chapter checklist item.");
                 return;
             }
 
