@@ -242,7 +242,6 @@
             color: #475569;
         }
 
-        /* Swipe left hint animation effect */
         .swipe-left-active {
             transform: translateX(-60px);
             background-color: #fee2e2;
@@ -314,6 +313,24 @@
                 <i class="fa-solid fa-expand-arrows-alt"></i>
                 <h3 style="font-size: 1.5rem; margin-bottom: 5px;">Launch Immersive Counter</h3>
                 <p style="opacity: 0.8; font-size: 0.95rem;">Clean Full-Screen Minimalist Study Clock</p>
+            </div>
+
+            <div style="margin-top: 5px; background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px;">
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px;"><i class="fa-solid fa-book-open"></i> Daily NCERT Page Target</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: bold;">Bio Pages</label>
+                        <input type="number" id="ncert-b" placeholder="0" onchange="saveNcertGoals()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: bold;">Phy Pages</label>
+                        <input type="number" id="ncert-p" placeholder="0" onchange="saveNcertGoals()">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: bold;">Chem Pages</label>
+                        <input type="number" id="ncert-c" placeholder="0" onchange="saveNcertGoals()">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -389,20 +406,22 @@
     </div>
 
     <script>
-        // --- DATA PERSISTENCE MANAGEMENT (LOCALSTORAGE) ---
+        // --- DATA PERSISTENCE ROUTINE (LOCALSTORAGE) ---
         let state = JSON.parse(localStorage.getItem('arushNeetDashboard')) || {
             todos: [],
             chapters: [],
-            tests: []
+            tests: [],
+            ncertGoal: { biology: 0, physics: 0, chemistry: 0 }
         };
 
         function saveState() {
             localStorage.setItem('arushNeetDashboard', JSON.stringify(state));
         }
 
-        // --- TODO MANAGER ---
+        // --- TODO LIST ENGINE ---
         function renderTodos() {
             const ul = document.getElementById('todo-list');
+            if(!ul) return;
             ul.innerHTML = '';
             state.todos.forEach((todo, idx) => {
                 const li = document.createElement('li');
@@ -413,7 +432,7 @@
 
         function addTodo() {
             const input = document.getElementById('todo-input');
-            if (!input.value.trim()) return;
+            if (!input || !input.value.trim()) return;
             state.todos.push(input.value.trim());
             saveState(); renderTodos();
             input.value = '';
@@ -424,9 +443,10 @@
             saveState(); renderTodos();
         }
 
-        // --- CORE SYLLABUS MANAGER ---
+        // --- TARGET SYLLABUS MANAGER ---
         function renderChapters() {
             const ul = document.getElementById('task-list');
+            if(!ul) return;
             ul.innerHTML = '';
             state.chapters.forEach((ch, idx) => {
                 const li = document.createElement('li');
@@ -438,7 +458,7 @@
         function addTask() {
             const title = document.getElementById('task-title');
             const subject = document.getElementById('task-subject');
-            if (!title.value.trim()) return;
+            if (!title || !title.value.trim()) return;
             state.chapters.push({ title: title.value.trim(), subject: subject.value });
             saveState(); renderChapters();
             title.value = '';
@@ -449,7 +469,23 @@
             saveState(); renderChapters();
         }
 
-        // --- FLIP CLOCK CONTROLLER ---
+        // --- NCERT ELEMENTS WIDGET VALUE MANAGEMENT ---
+        function updateNCERTWidget() {
+            if(document.getElementById('ncert-b')) {
+                document.getElementById('ncert-b').value = state.ncertGoal.biology || 0;
+                document.getElementById('ncert-p').value = state.ncertGoal.physics || 0;
+                document.getElementById('ncert-c').value = state.ncertGoal.chemistry || 0;
+            }
+        }
+
+        function saveNcertGoals() {
+            state.ncertGoal.biology = parseInt(document.getElementById('ncert-b').value) || 0;
+            state.ncertGoal.physics = parseInt(document.getElementById('ncert-p').value) || 0;
+            state.ncertGoal.chemistry = parseInt(document.getElementById('ncert-c').value) || 0;
+            saveState();
+        }
+
+        // --- IMMERSIVE RETRO FLIP TIME COUNTER ---
         let clockInterval, running = false, totalSeconds = 0;
         function openClockOverlay() { document.getElementById('clock-overlay').style.display = 'flex'; }
         function closeClockOverlay() { document.getElementById('clock-overlay').style.display = 'none'; }
@@ -477,9 +513,10 @@
             document.getElementById('flip-sec').innerText = String(totalSeconds % 60).padStart(2, '0');
         }
 
-        // --- ADVANCED 180 CHART ENGINE ---
-        let performanceChart, pieChart;
-        
+        // --- ADVANCED CHART COMPLIANCE ROUTINES (FIXED INTERFACE LOADING) ---
+        let performanceChart = null;
+        let pieChart = null;
+
         function initCharts() {
             const ctxLine = document.getElementById('performanceChart').getContext('2d');
             performanceChart = new Chart(ctxLine, {
@@ -504,20 +541,21 @@
         }
 
         function updateChartsData() {
+            if (!performanceChart || !pieChart) return;
+
             const labels = state.tests.map(t => t.date);
             
             const datasets = [
-                { label: 'Phy', data: state.tests.map(t => t.p), borderColor: '#3b82f6', fill: false, tension: 0.1 },
-                { label: 'Chem', data: state.tests.map(t => t.c), borderColor: '#eab308', fill: false, tension: 0.1 },
-                { label: 'Bot', data: state.tests.map(t => t.b), borderColor: '#10b981', fill: false, tension: 0.1 },
-                { label: 'Zoo', data: state.tests.map(t => t.z), borderColor: '#ec4899', fill: false, tension: 0.1 }
+                { label: 'Physics', data: state.tests.map(t => t.p), borderColor: '#3b82f6', backgroundColor: '#3b82f6', fill: false, tension: 0.2 },
+                { label: 'Chemistry', data: state.tests.map(t => t.c), borderColor: '#eab308', backgroundColor: '#eab308', fill: false, tension: 0.2 },
+                { label: 'Botany', data: state.tests.map(t => t.b), borderColor: '#10b981', backgroundColor: '#10b981', fill: false, tension: 0.2 },
+                { label: 'Zoology', data: state.tests.map(t => t.z), borderColor: '#ec4899', backgroundColor: '#ec4899', fill: false, tension: 0.2 }
             ];
 
             performanceChart.data.labels = labels;
             performanceChart.data.datasets = datasets;
             performanceChart.update();
 
-            // Pie Chart calculates overall share aggregates
             let totalP = 0, totalC = 0, totalB = 0, totalZ = 0;
             state.tests.forEach(t => { totalP += t.p; totalC += t.c; totalB += t.b; totalZ += t.z; });
             
@@ -527,10 +565,92 @@
 
         function renderTable() {
             const tbody = document.getElementById('score-table-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             state.tests.forEach((t, idx) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${t.date}</strong><br><small>${t.name}</small></td>
                     <td>P:${t.p}<br>C:${t.c}<br>B:${t.b}<br>Z:${t.z}</td>
-             
+                    <td><strong>${t.p + t.c + t.b + t.z}</strong>/720</td>
+                    <td><button class="delete-btn" onclick="deleteScore(${idx})"><i class="fa-solid fa-trash"></i></button></td>
+                `;
+                
+                // MULTI-TOUCH INTERACTIVE SWIPE SLIDER LOGIC
+                let startX = 0;
+                row.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
+                row.addEventListener('touchend', (e) => {
+                    let diffX = startX - e.changedTouches[0].clientX;
+                    if (diffX > 50) { 
+                        row.classList.add('swipe-left-active');
+                        setTimeout(() => {
+                            if(confirm(`Delete ${t.name || 'this test'} logs permanently?`)) {
+                                deleteScore(idx);
+                            } else {
+                                row.classList.remove('swipe-left-active');
+                            }
+                        }, 100);
+                    }
+                });
+                tbody.appendChild(row);
+            });
+        }
+
+        function addScore() {
+            const date = document.getElementById('score-date').value;
+            const name = document.getElementById('score-name').value || "Mock Test";
+            const p = parseInt(document.getElementById('score-p').value) || 0;
+            const c = parseInt(document.getElementById('score-c').value) || 0;
+            const b = parseInt(document.getElementById('score-b').value) || 0;
+            const z = parseInt(document.getElementById('score-z').value) || 0;
+
+            if (!date) { alert("Please choose a valid test date."); return; }
+            if (p>180 || c>180 || b>180 || z>180) { alert("Max marks for individual subject can't exceed 180."); return; }
+
+            state.tests.push({ date, name, p, c, b, z });
+            saveState();
+            renderTable();
+            updateChartsData();
+
+            document.getElementById('score-name').value = '';
+            document.getElementById('score-p').value = '';
+            document.getElementById('score-c').value = '';
+            document.getElementById('score-b').value = '';
+            document.getElementById('score-z').value = '';
+        }
+
+        function deleteScore(idx) {
+            state.tests.splice(idx, 1);
+            saveState();
+            renderTable();
+            updateChartsData();
+        }
+
+        // --- TRIVIAL FORMULA REFRESH ENGINE ---
+        const formulas = [
+            "Physics: De Broglie Wavelength: λ = h / p = h / √(2mK)",
+            "Chemistry: Ideal Gas Law Equation: PV = nRT (R = 0.0821 L atm / mol K)",
+            "Botany: C4 pathway first stable compound: Oxaloacetic Acid (OAA - 4C Carbon compound)",
+            "Zoology: GFR Rate in dynamic healthy individual: ~125 mL/min or 180 Liters per day",
+            "Physics: Electrostatics Force Equation: F = k * (|q1 * q2|) / r²",
+            "Chemistry: Arrhenius Equation: k = A * e^(-Ea / RT)"
+        ];
+        function rotateFormula() {
+            const randomIdx = Math.floor(Math.random() * formulas.length);
+            const target = document.getElementById('formula-text');
+            if(target) target.innerText = formulas[randomIdx];
+        }
+
+        // DOMContentLoaded Safety Wrapper Lifecycle Init
+        document.addEventListener("DOMContentLoaded", function() {
+            renderTodos();
+            renderChapters();
+            initCharts();
+            renderTable();
+            updateChartsData();
+            rotateFormula();
+            updateNCERTWidget();
+        });
+    </script>
+</body>
+</html>
