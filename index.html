@@ -208,12 +208,17 @@
         }
 
         .delete-btn {
-            background: rgba(255, 255, 255, 0.2);
+            background: #ef4444;
             border: none;
             color: white;
             padding: 6px 12px;
             border-radius: 8px;
             cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
         }
 
         .timer-box {
@@ -299,15 +304,25 @@
             margin-top: 10px;
         }
 
+        /* HIGH VISIBILITY TABLE TEXT OVERRIDES */
         .score-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
+            color: #1e293b !important; /* Forces dark color text */
         }
 
-        .score-table th, .score-table td {
+        .score-table th {
+            color: #475569;
+            font-weight: 700;
+            padding: 10px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .score-table td {
             padding: 10px;
             border-bottom: 1px solid #e2e8f0;
+            color: #1e293b !important;
         }
 
         .premium-footer-box {
@@ -341,7 +356,6 @@
             margin-right: 5px;
         }
 
-        /* FIXED CLEAN INPUT GRID - NO COLLISION */
         .score-inputs-vertical-stack {
             display: flex;
             flex-direction: column;
@@ -353,6 +367,22 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
+        }
+
+        /* STREAK REWARDS WIDGET CSS */
+        .streak-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .streak-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fdba74;
         }
     </style>
 </head>
@@ -397,6 +427,15 @@
             <div class="column blue-column">
                 <div>
                     <h2><i class="fa-solid fa-list-check"></i> Daily Tasks</h2>
+                    
+                    <div class="streak-card">
+                        <div>
+                            <span style="font-size:0.85rem; display:block; opacity:0.9;">🔥 Focus Streak</span>
+                            <strong id="badge-label" style="font-size:0.95rem; color:#67e8f9;">Novice Learner</strong>
+                        </div>
+                        <div class="streak-num" id="streak-counter-ui">0 Days</div>
+                    </div>
+
                     <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
                         <input type="text" id="todo-input" placeholder="Task Name (e.g., Solve Mock Problems)">
                         <div style="display: flex; gap: 10px;">
@@ -469,7 +508,7 @@
                     <div class="table-wrapper">
                         <table class="score-table">
                             <thead>
-                                <tr style="color:#475569; text-align: left;">
+                                <tr>
                                     <th>Test Metric</th>
                                     <th>Subject Breakdown</th>
                                     <th>Sum</th>
@@ -508,7 +547,6 @@
     </div>
 
     <script>
-        // --- LIVE DATABASE WITH SEPARATED SYLLABUS SCHEMES FOR JEE & NEET ---
         const MASTER_SYLLABUS = {
             "NEET": {
                 "Class 11": {
@@ -538,9 +576,9 @@
             }
         };
 
-        // --- AUTH REGISTRATION ROUTINES ---
         let isSignUpMode = false;
         let activeUser = JSON.parse(localStorage.getItem('hybridActiveUser')) || null;
+        let state = { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 };
 
         function toggleAuthMode() {
             isSignUpMode = !isSignUpMode;
@@ -571,7 +609,7 @@
             let database = JSON.parse(localStorage.getItem('hybridUsersDB')) || [];
 
             if(!email || !password) {
-                alert("Please complete the required Email and Password input forms.");
+                alert("Please complete the required Email and Password inputs.");
                 return;
             }
 
@@ -586,7 +624,7 @@
                 }
 
                 if(database.find(u => u.email === email)) {
-                    alert("This email identifier is already active.");
+                    alert("This emailidentifier is already registered.");
                     return;
                 }
 
@@ -600,7 +638,7 @@
             } else {
                 let userMatch = database.find(u => u.email === email && u.password === password);
                 if(!userMatch) {
-                    alert("Invalid Email or Security Password structure.");
+                    alert("Invalid Email or Password.");
                     return;
                 }
                 activeUser = userMatch;
@@ -614,9 +652,6 @@
             activeUser = null;
             location.reload();
         }
-
-        // --- CORE CORE MODULE STATE ARCHITECTURE ---
-        let state = { todos: [], chapters: [], tests: [], activeStrategicPlan: null };
 
         function saveStateToUserStorage() {
             if(activeUser) {
@@ -632,12 +667,13 @@
                 document.getElementById('class-tagline').innerText = `Strategic Hub • Exam: ${activeUser.targetExam} • Class Status: ${activeUser.className}`;
                 
                 state = JSON.parse(localStorage.getItem(`hybridData_${activeUser.email}`)) || {
-                    todos: [], chapters: [], tests: [], activeStrategicPlan: null
+                    todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0
                 };
                 
                 configureSubjectSelectors();
                 configureScoreInputsLayout();
                 buildAutoSyllabusChecklist();
+                updateStreakUI();
                 initAppLifecycle();
             } else {
                 document.getElementById('auth-view').style.display = 'flex';
@@ -645,7 +681,6 @@
             }
         }
 
-        // --- SUBJECT OPTIONS LOADERS BASED ON EXAM TYPE ---
         function configureSubjectSelectors() {
             const selectObj = document.getElementById('task-subject');
             if(!selectObj || !activeUser) return;
@@ -659,7 +694,6 @@
             });
         }
 
-        // --- BOX COLLISION FIXED: GENERATE INPUT FIELDS CLEANLY ---
         function configureScoreInputsLayout() {
             const container = document.getElementById('dynamic-score-inputs-container');
             if(!container || !activeUser) return;
@@ -668,16 +702,14 @@
             const subs = activeUser.targetExam === "JEE" ? ["Physics", "Chemistry", "Mathematics"] : ["Physics", "Chemistry", "Botany", "Zoology"];
             const maxVal = activeUser.targetExam === "JEE" ? 100 : 180;
 
-            // Group fields in rows of 2 to guarantee clean padding and no overlay
             let currentStr = `<div class="score-inputs-vertical-stack">`;
-            
             for(let i=0; i < subs.length; i+=2) {
                 currentStr += `<div class="score-inputs-row">`;
                 currentStr += `<input type="number" id="score-sub-${subs[i].toLowerCase()}" placeholder="${subs[i]} (${maxVal})" max="${maxVal}">`;
                 if(subs[i+1]) {
                     currentStr += `<input type="number" id="score-sub-${subs[i+1].toLowerCase()}" placeholder="${subs[i+1]} (${maxVal})" max="${maxVal}">`;
                 } else {
-                    currentStr += `<div></div>`; // Spacer placeholder
+                    currentStr += `<div></div>`;
                 }
                 currentStr += `</div>`;
             }
@@ -685,7 +717,6 @@
             container.innerHTML = currentStr;
         }
 
-        // --- SYLLABUS BUILDER ACCORDING TO USER CONFIG ---
         function buildAutoSyllabusChecklist() {
             const box = document.getElementById('syllabus-checklist-container');
             if(!box || !activeUser) return;
@@ -715,10 +746,19 @@
             }
         }
 
-        // --- TIMER PARAMETERS ---
+        // --- STREAK SYSTEMS ENGINE ---
+        function updateStreakUI() {
+            if(state.streak === undefined) state.streak = 0;
+            document.getElementById('streak-counter-ui').innerText = `${state.streak} Days`;
+            
+            let badge = "Novice Learner";
+            if(state.streak >= 3) badge = "Focus Ninja 🥷";
+            if(state.streak >= 7) badge = "Elite Scholar 🎓";
+            document.getElementById('badge-label').innerText = badge;
+        }
+
         let clockInterval, running = false, totalSeconds = 0, isCountdownMode = false;
 
-        // --- TASKS ENGINE ---
         function renderTodos() {
             const ul = document.getElementById('todo-list');
             if(!ul) return; ul.innerHTML = '';
@@ -729,7 +769,7 @@
                     <div><span>${todo.text}${timeStr}</span></div>
                     <div>
                         ${todo.timeLimit ? `<button class="badge-clock-btn" onclick="loadTaskToClock(${idx})"><i class="fa-solid fa-clock"></i> Load</button>` : ''}
-                        <button class="delete-btn" onclick="deleteTodo(${idx})"><i class="fa-solid fa-trash"></i></button>
+                        <button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="completeTask(${idx})"><i class="fa-solid fa-check"></i></button>
                     </div>
                 `;
                 ul.appendChild(li);
@@ -745,8 +785,10 @@
             input.value = ''; timeInput.value = '';
         }
 
-        function deleteTodo(idx) {
-            state.todos.splice(idx, 1); saveStateToUserStorage(); renderTodos();
+        function completeTask(idx) {
+            state.todos.splice(idx, 1);
+            state.streak = (state.streak || 0) + 1; // Increment streak on every task checked
+            saveStateToUserStorage(); renderTodos(); updateStreakUI();
         }
 
         function loadTaskToClock(idx) {
@@ -759,9 +801,8 @@
             }
         }
 
-        // --- STRATEGIC 3-PHASE HYBRID PLANNER ---
         function calculateDynamicSyllabusPlan() {
-            const title = document.getElementById('planner-test-title').value || "Standard Evaluation Mock";
+            const title = document.getElementById('planner-test-title').value || "Mock Evaluation Framework";
             const dateVal = document.getElementById('planner-test-date').value;
             
             const checkboxes = document.querySelectorAll('.plan-chapter-checkbox:checked');
@@ -771,7 +812,7 @@
             });
 
             if(!dateVal || selectedChapters.length === 0) {
-                alert("Please state a valid Target Date and select at least one Chapter checkbox to build schedule charts.");
+                alert("Please select a Target Date and at least one Chapter checklist.");
                 return;
             }
 
@@ -780,7 +821,7 @@
             const diffDays = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24));
 
             if(diffDays < 0) {
-                alert("Target test date has already elapsed.");
+                alert("Target test date has already passed.");
                 return;
             }
 
@@ -807,7 +848,7 @@
                 
                 <div class="phase-box" style="border-left-color: #2563eb;">
                     <strong>Phase 1: Deep Core Study (${plan.p1Days} Days)</strong><br>
-                    Load: ~${(plan.count / plan.p1Days).toFixed(1)} chapters/day. Focus completely on detailed concepts and main textbook questions.
+                    Load: ~${(plan.count / plan.p1Days).toFixed(1)} chapters/day. Focus completely on detailed concepts and core problems.
                 </div>
                 <div class="phase-box" style="border-left-color: #eab308;">
                     <strong>Phase 2: High Yield Review (${plan.p2Days} Days)</strong><br>
@@ -815,7 +856,7 @@
                 </div>
                 <div class="phase-box" style="border-left-color: #dc2626;">
                     <strong>Phase 3: Grand Mock Drills (${plan.p3Days} Days)</strong><br>
-                    Strictly time-bound mock test papers and correcting critical mistakes.
+                    Time-bound mock papers and error logs analysis.
                 </div>
             `;
         }
@@ -824,13 +865,12 @@
             state.activeStrategicPlan = null; saveStateToUserStorage(); renderStrategicPlan();
         }
 
-        // --- MANUAL PROGRESS SYNC TRACKER ---
         function renderChapters() {
             const ul = document.getElementById('task-list');
             if(!ul) return; ul.innerHTML = '';
             state.chapters.forEach((ch, idx) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> <button class="delete-btn" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
+                li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> <button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
                 ul.appendChild(li);
             });
         }
@@ -845,7 +885,6 @@
             state.chapters.splice(idx, 1); saveStateToUserStorage(); renderChapters();
         }
 
-        // --- STUDY FLIP COUNTER LOGICS ---
         function openClockOverlay() { document.getElementById('clock-overlay').style.display = 'flex'; }
         function closeClockOverlay() { document.getElementById('clock-overlay').style.display = 'none'; }
         
@@ -878,14 +917,12 @@
             btn.innerText = "Start Session"; btn.style.backgroundColor = "#22c55e";
         }
 
-        /* Update clock overlay interface strings */
         function updateFlipDisplay() {
             document.getElementById('flip-hr').innerText = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
             document.getElementById('flip-min').innerText = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
             document.getElementById('flip-sec').innerText = String(totalSeconds % 60).padStart(2, '0');
         }
 
-        // --- GRAPH PERFORMANCE SUITE (DYNAMICALLY SCALES JEE / NEET COLOR METRICS) ---
         let performanceChart = null, pieChart = null;
 
         function initCharts() {
@@ -953,7 +990,6 @@
             
             state.tests.forEach((t, idx) => {
                 const row = document.createElement('tr');
-                row.style.color = "white";
                 
                 let breakDownStr = activeUser.targetExam === "JEE" ? 
                     `P:${t.physics} C:${t.chemistry} M:${t.mathematics}` : 
@@ -965,7 +1001,7 @@
                     (t.physics + t.chemistry + t.botany + t.zoology);
 
                 row.innerHTML = `
-                    <td><strong>${t.date}</strong><br><small>${t.name}</small></td>
+                    <td><strong>${t.date}</strong><br><small style="color:#64748b;">${t.name}</small></td>
                     <td>${breakDownStr}</td>
                     <td><strong>${sumScore}</strong>/${maxPossible}</td>
                     <td><button class="delete-btn" onclick="deleteScore(${idx})"><i class="fa-solid fa-trash"></i></button></td>
@@ -1000,14 +1036,13 @@
 
             state.tests.push(scoreObj);
             saveStateToUserStorage(); renderTable(); updateChartsData();
-            configureScoreInputsLayout(); // Reset view fields safely
+            configureScoreInputsLayout(); 
         }
 
         function deleteScore(idx) {
             state.tests.splice(idx, 1); saveStateToUserStorage(); renderTable(); updateChartsData();
         }
 
-        // --- FORMULAS ENGINE ---
         const formulas = [
             "Physics: De Broglie Wavelength: λ = h / p = h / √(2mK)",
             "Chemistry: Ideal Gas Law Equation: PV = nRT",
@@ -1029,7 +1064,6 @@
             renderStrategicPlan();
         }
 
-        // CONTROL LOADER
         document.addEventListener("DOMContentLoaded", function() {
             checkWorkspaceAuth();
         });
