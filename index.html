@@ -16,6 +16,7 @@
         .auth-card h2 { text-align: center; margin-bottom: 10px; color: #38bdf8; }
         .auth-card p { color: #94a3b8; margin-bottom: 25px; font-size: 0.95rem; text-align: center; }
         .auth-card input { margin-bottom: 15px; background: rgba(255, 255, 255, 0.08); color: white; }
+        .auth-toggle { color: #38bdf8; text-align: center; margin-top: 15px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
         #dashboard-view { display: none; }
         header { text-align: center; margin-bottom: 40px; position: relative; }
         header h1 { font-size: 3rem; font-weight: 800; color: #1a1a1a; }
@@ -37,51 +38,25 @@
         .score-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; color: #1e293b !important; }
         .streak-card { background: rgba(255, 255, 255, 0.15); border-radius: 16px; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
         
-        /* PREMIUM LIVE CCTV SCREEN DESK PLATFORM */
-        .cctv-parent-monitor-screen {
-            width: 100%;
-            height: 220px;
-            background: #0f172a;
-            border-radius: 16px;
-            border: 3px dashed rgba(255,255,255,0.4);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #cctv-img-receiver {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
-        .cctv-status-dot {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .cctv-parent-monitor-screen { width: 100%; height: 220px; background: #0f172a; border-radius: 16px; border: 3px dashed rgba(255,255,255,0.4); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        #cctv-img-receiver { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .cctv-status-dot { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 8px; font-size: 0.7rem; display: flex; align-items: center; gap: 6px; }
         .dot-pulse { width: 8px; height: 8px; border-radius: 50%; background: #64748b; }
         .active-pulse { background: #22c55e; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        .key-input-box { background: rgba(255, 255, 255, 0.15); padding: 15px; border-radius: 16px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
     <div id="auth-view" class="auth-container">
         <div class="auth-card">
-            <h2><i class="fa-solid fa-user-shield"></i> Parental Desk</h2>
-            <p>Access secure monitoring credentials synced to student nodes.</p>
-            <input type="email" id="auth-email" placeholder="Student's Email Address" style="width:100%; padding:12px; border:2px solid rgba(255,255,255,0.2); border-radius:12px;">
+            <h2 id="auth-title"><i class="fa-solid fa-user-shield"></i> Parent Sign In</h2>
+            <p id="auth-desc">Access secure monitoring credentials synced to student nodes.</p>
+            <input type="email" id="auth-email" placeholder="Parent Email Address" style="width:100%; padding:12px; border:2px solid rgba(255,255,255,0.2); border-radius:12px;">
             <input type="password" id="auth-password" placeholder="Secure Password" style="width:100%; padding:12px; border:2px solid rgba(255,255,255,0.2); border-radius:12px;">
-            <button class="action-btn" style="background:#38bdf8; color:white;" onclick="handleParentLogin()">Connect Security Desk</button>
+            <button class="action-btn" style="background:#38bdf8; color:white;" onclick="handleParentLogin()" id="auth-submit-btn">Connect Security Desk</button>
+            <div class="auth-toggle" id="auth-toggle-btn" onclick="toggleAuthMode()">New Parent? Create an account here</div>
         </div>
     </div>
 
@@ -115,6 +90,14 @@
             <div class="column yellow-column">
                 <h2><i class="fa-solid fa-video"></i> Live Workspace CCTV</h2>
                 
+                <div class="key-input-box">
+                    <label style="font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; display: block;">🔗 Link Student Workspace Key:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="student-connect-key-input" placeholder="Enter 8-digit key" style="width: 100%; padding: 10px; border-radius: 8px; border: none; color: #1a1a1a; font-weight: bold; text-align: center;">
+                        <button class="action-btn" style="width: auto; padding: 10px 20px; font-size: 0.9rem; background: #22c55e; color: white;" onclick="linkStudentNode()">Link</button>
+                    </div>
+                </div>
+
                 <div class="cctv-parent-monitor-screen">
                     <div class="cctv-status-dot">
                         <div id="cctv-status-light" class="dot-pulse"></div>
@@ -160,8 +143,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDtgU2S6fN2NFVzq9bhebydipumwUnAEhQ",
@@ -177,76 +160,127 @@
         const db = getFirestore(app);
 
         window.activeUserMeta = null;
+        window.isSignUpMode = false;
+        let activeStudentUid = null;
+        let unsubscribeData = null;
+        let unsubscribeCctv = null;
+
+        window.toggleAuthMode = function() {
+            window.isSignUpMode = !window.isSignUpMode;
+            const title = document.getElementById('auth-title');
+            const desc = document.getElementById('auth-desc');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const toggleBtn = document.getElementById('auth-toggle-btn');
+            if(window.isSignUpMode) {
+                title.innerHTML = `<i class="fa-solid fa-user-plus"></i> Parent Registration`;
+                desc.innerText = "Create a new parent account.";
+                submitBtn.innerText = "Register Parent Account";
+                toggleBtn.innerText = "Already registered? Login here";
+            } else {
+                title.innerHTML = `<i class="fa-solid fa-user-shield"></i> Parent Sign In`;
+                desc.innerText = "Access secure monitoring credentials synced to student nodes.";
+                submitBtn.innerText = "Connect Security Desk";
+                toggleBtn.innerText = "New Parent? Create an account here";
+            }
+        }
 
         window.handleParentLogin = async function() {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
-            if(!email || !password) { alert("Please complete credentials layout setup."); return; }
+            if(!email || !password) { alert("Please complete credentials setup."); return; }
             try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch(err) { alert("Parent Validation Blocked: Check credentials."); }
+                if(window.isSignUpMode) {
+                    const res = await createUserWithEmailAndPassword(auth, email, password);
+                    await setDoc(doc(db, "users", res.user.uid), { email, isParent: true });
+                    alert("Parent account ready!");
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+            } catch(err) { alert("Authentication failed: " + err.message); }
         }
 
         window.handleLogout = function() { signOut(auth).then(() => { location.reload(); }); }
+
+        window.linkStudentNode = async function() {
+            const key = document.getElementById('student-connect-key-input').value.trim();
+            if(!key) { alert("Please input a key."); return; }
+            
+            const keySnap = await getDoc(doc(db, "keysMapping", key));
+            if(keySnap.exists()) {
+                activeStudentUid = keySnap.data().studentUid;
+                // Save link to parent's profile so it persists on reload
+                if(auth.currentUser) {
+                    await setDoc(doc(db, "users", auth.currentUser.uid), { linkedStudentUid: activeStudentUid }, { merge: true });
+                }
+                startLiveSyncPipelines(activeStudentUid);
+                alert("Successfully linked to student data channel!");
+            } else {
+                alert("Invalid Key. Check Student Dashboard for correct Key.");
+            }
+        }
 
         onAuthStateChanged(auth, async (user) => {
             if(user) {
                 document.getElementById('auth-view').style.display = 'none';
                 document.getElementById('dashboard-view').style.display = 'block';
 
-                const metaSnap = await getDoc(doc(db, "users", user.uid));
-                if(metaSnap.exists()) {
-                    window.activeUserMeta = metaSnap.data();
-                    document.getElementById('welcome-heading').innerText = `Monitoring Desk: ${window.activeUserMeta.name} 🛡️`;
-                    document.getElementById('class-tagline').innerText = `Exam Target Node: ${window.activeUserMeta.targetExam} • Current Class: ${window.activeUserMeta.className}`;
+                const parentMetaSnap = await getDoc(doc(db, "users", user.uid));
+                if(parentMetaSnap.exists() && parentMetaSnap.data().linkedStudentUid) {
+                    activeStudentUid = parentMetaSnap.data().linkedStudentUid;
+                    startLiveSyncPipelines(activeStudentUid);
                 }
-
-                initCharts();
-
-                // Live Stream Data Sync Channel Pipeline
-                onSnapshot(doc(db, "userData", user.uid), (snapshot) => {
-                    if(snapshot.exists()) {
-                        const data = snapshot.data();
-                        renderMetrics(data);
-                    }
-                });
-
-                // Live CCTV continuous interception engine
-                onSnapshot(doc(db, "cctvFeeds", user.uid), (snapshot) => {
-                    const imgEl = document.getElementById('cctv-img-receiver');
-                    const msgEl = document.getElementById('cctv-placeholder-msg');
-                    const statusDot = document.getElementById('cctv-status-light');
-                    const statusLabel = document.getElementById('cctv-status-label');
-
-                    if(snapshot.exists()) {
-                        const feed = snapshot.data();
-                        const staleThreshold = Date.now() - 10000; // Check if last frame was within 10 seconds
-
-                        if(feed.online && feed.frame && feed.timestamp > staleThreshold) {
-                            imgEl.src = feed.frame;
-                            imgEl.style.display = 'block';
-                            msgEl.style.display = 'none';
-                            statusDot.className = 'dot-pulse active-pulse';
-                            statusLabel.innerText = "LIVE BROADCAST";
-                            statusLabel.style.color = "#22c55e";
-                            return;
-                        }
-                    }
-                    imgEl.style.display = 'none';
-                    msgEl.style.display = 'block';
-                    statusDot.className = 'dot-pulse';
-                    statusLabel.innerText = "Offline";
-                    statusLabel.style.color = "#64748b";
-                });
-
             } else {
                 document.getElementById('auth-view').style.display = 'flex';
                 document.getElementById('dashboard-view').style.display = 'none';
             }
         });
 
+        async function startLiveSyncPipelines(studentUid) {
+            if(unsubscribeData) unsubscribeData();
+            if(unsubscribeCctv) unsubscribeCctv();
+
+            const studentMetaSnap = await getDoc(doc(db, "users", studentUid));
+            if(studentMetaSnap.exists()) {
+                window.activeUserMeta = studentMetaSnap.data();
+                document.getElementById('welcome-heading').innerText = `Monitoring Desk: ${window.activeUserMeta.name} 🛡️`;
+                document.getElementById('class-tagline').innerText = `Exam Target Node: ${window.activeUserMeta.targetExam} • Current Class: ${window.activeUserMeta.className}`;
+            }
+
+            initCharts();
+
+            unsubscribeData = onSnapshot(doc(db, "userData", studentUid), (snapshot) => {
+                if(snapshot.exists()) renderMetrics(snapshot.data());
+            });
+
+            unsubscribeCctv = onSnapshot(doc(db, "cctvFeeds", studentUid), (snapshot) => {
+                const imgEl = document.getElementById('cctv-img-receiver');
+                const msgEl = document.getElementById('cctv-placeholder-msg');
+                const statusDot = document.getElementById('cctv-status-light');
+                const statusLabel = document.getElementById('cctv-status-label');
+
+                if(snapshot.exists()) {
+                    const feed = snapshot.data();
+                    const staleThreshold = Date.now() - 12000; 
+
+                    if(feed.online && feed.frame && feed.timestamp > staleThreshold) {
+                        imgEl.src = feed.frame;
+                        imgEl.style.display = 'block';
+                        msgEl.style.display = 'none';
+                        statusDot.className = 'dot-pulse active-pulse';
+                        statusLabel.innerText = "LIVE BROADCAST";
+                        statusLabel.style.color = "#22c55e";
+                        return;
+                    }
+                }
+                imgEl.style.display = 'none';
+                msgEl.style.display = 'block';
+                statusDot.className = 'dot-pulse';
+                statusLabel.innerText = "Offline";
+                statusLabel.style.color = "#64748b";
+            });
+        }
+
         function renderMetrics(data) {
-            // Task List Data Render
             const todoList = document.getElementById('todo-list');
             todoList.innerHTML = '';
             (data.todos || []).forEach(t => {
@@ -255,7 +289,6 @@
                 todoList.appendChild(li);
             });
 
-            // Logged Chapters Data Render
             const taskList = document.getElementById('task-list');
             taskList.innerHTML = '';
             (data.chapters || []).forEach(ch => {
@@ -264,7 +297,6 @@
                 taskList.appendChild(li);
             });
 
-            // Streak System Data UI Sync
             const streak = data.streak || 0;
             document.getElementById('streak-counter-ui').innerText = `${streak} Days`;
             let badge = "Novice Learner";
@@ -272,7 +304,6 @@
             if(streak >= 7) badge = "Elite Scholar 🎓";
             document.getElementById('badge-label').innerText = badge;
 
-            // Strategy Blueprint Plan Render
             const planBox = document.getElementById('planner-output-card');
             if(data.activeStrategicPlan) {
                 planBox.style.display = 'block';
@@ -283,21 +314,14 @@
                 `;
             } else { planBox.style.display = 'none'; }
 
-            // Table Summary Scores Data Sync
             const tbody = document.getElementById('score-table-body');
             tbody.innerHTML = '';
             const tests = data.tests || [];
             tests.forEach(t => {
                 const row = document.createElement('tr');
-                let breakDownStr = window.activeUserMeta.targetExam === "JEE" ? 
-                    `P:${t.physics} C:${t.chemistry} M:${t.mathematics}` : 
-                    `P:${t.physics} C:${t.chemistry}<br>B:${t.botany} Z:${t.zoology}`;
-                
+                let breakDownStr = window.activeUserMeta.targetExam === "JEE" ? `P:${t.physics} C:${t.chemistry} M:${t.mathematics}` : `P:${t.physics} C:${t.chemistry}<br>B:${t.botany} Z:${t.zoology}`;
                 let maxPossible = window.activeUserMeta.targetExam === "JEE" ? 300 : 720;
-                let sumScore = window.activeUserMeta.targetExam === "JEE" ? 
-                    (t.physics + t.chemistry + t.mathematics) : 
-                    (t.physics + t.chemistry + t.botany + t.zoology);
-
+                let sumScore = window.activeUserMeta.targetExam === "JEE" ? (t.physics + t.chemistry + t.mathematics) : (t.physics + t.chemistry + t.botany + t.zoology);
                 row.innerHTML = `<td><strong>${t.date}</strong><br><small>${t.name}</small></td><td>${breakDownStr}</td><td><strong>${sumScore}</strong>/${maxPossible}</td>`;
                 tbody.appendChild(row);
             });
@@ -310,22 +334,13 @@
             const maxRange = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? 100 : 180;
             const ctxLine = document.getElementById('performanceChart').getContext('2d');
             if(performanceChart) performanceChart.destroy();
-            performanceChart = new Chart(ctxLine, {
-                type: 'line',
-                data: { labels: [], datasets: [] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: maxRange } } }
-            });
+            performanceChart = new Chart(ctxLine, { type: 'line', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: maxRange } } } });
 
             const ctxPie = document.getElementById('pieChart').getContext('2d');
             if(pieChart) pieChart.destroy();
             const pieLabels = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? ['Physics', 'Chemistry', 'Mathematics'] : ['Physics', 'Chemistry', 'Botany', 'Zoology'];
             const pieColors = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? ['#3b82f6', '#eab308', '#a855f7'] : ['#3b82f6', '#eab308', '#10b981', '#ec4899'];
-            
-            pieChart = new Chart(ctxPie, {
-                type: 'pie',
-                data: { labels: pieLabels, datasets: [{ data: pieLabels.map(()=>0), backgroundColor: pieColors }] },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+            pieChart = new Chart(ctxPie, { type: 'pie', data: { labels: pieLabels, datasets: [{ data: pieLabels.map(()=>0), backgroundColor: pieColors }] }, options: { responsive: true, maintainAspectRatio: false } });
         }
 
         function updateChartsData(tests) {
@@ -340,13 +355,9 @@
                     { label: 'Chemistry', data: tests.map(t => t.chemistry), borderColor: '#eab308', fill: false },
                     { label: 'Mathematics', data: tests.map(t => t.mathematics), borderColor: '#a855f7', fill: false }
                 ];
-                performanceChart.data.datasets = datasets;
-                performanceChart.update();
-
-                let tP = 0, tC = 0, tM = 0;
-                tests.forEach(t => { tP += t.physics; tC += t.chemistry; tM += t.mathematics; });
-                pieChart.data.datasets[0].data = [tP, tC, tM];
-                pieChart.update();
+                performanceChart.data.datasets = datasets; performanceChart.update();
+                let tP = 0, tC = 0, tM = 0; tests.forEach(t => { tP += t.physics; tC += t.chemistry; tM += t.mathematics; });
+                pieChart.data.datasets[0].data = [tP, tC, tM]; pieChart.update();
             } else {
                 datasets = [
                     { label: 'Physics', data: tests.map(t => t.physics), borderColor: '#3b82f6', fill: false },
@@ -354,13 +365,9 @@
                     { label: 'Botany', data: tests.map(t => t.botany), borderColor: '#10b981', fill: false },
                     { label: 'Zoology', data: tests.map(t => t.zoology), borderColor: '#ec4899', fill: false }
                 ];
-                performanceChart.data.datasets = datasets;
-                performanceChart.update();
-
-                let tP = 0, tC = 0, tB = 0, tZ = 0;
-                tests.forEach(t => { tP += t.physics; tC += t.chemistry; tB += t.botany; tZ += t.zoology; });
-                pieChart.data.datasets[0].data = [tP, tC, tB, tZ];
-                pieChart.update();
+                performanceChart.data.datasets = datasets; performanceChart.update();
+                let tP = 0, tC = 0, tB = 0, tZ = 0; tests.forEach(t => { tP += t.physics; tC += t.chemistry; tB += t.botany; tZ += t.zoology; });
+                pieChart.data.datasets[0].data = [tP, tC, tB, tZ]; pieChart.update();
             }
         }
     </script>
