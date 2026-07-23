@@ -79,6 +79,7 @@
             text-align: center;
             margin-bottom: 40px;
             position: relative;
+            padding-top: 50px; /* Dynamic breathing room for absolute elements */
         }
 
         header h1 {
@@ -97,7 +98,9 @@
 
         .logout-link {
             position: absolute;
-            top: 0; right: 20px;
+            top: 0; 
+            right: 50%;
+            transform: translateX(50%); /* Centered layout on tiny viewports */
             background: #334155;
             color: white;
             border: none;
@@ -105,6 +108,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+            white-space: nowrap;
         }
 
         .dashboard-grid {
@@ -189,6 +193,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: 0.9rem;
+            gap: 10px;
         }
 
         .action-btn {
@@ -240,9 +245,17 @@
             align-items: center;
             flex-direction: column;
             color: white;
+            padding: 20px;
         }
 
-        .flip-clock-container { display: flex; gap: 20px; margin-bottom: 40px; }
+        .flip-clock-container { 
+            display: flex; 
+            gap: 20px; 
+            margin-bottom: 40px; 
+            width: 100%;
+            justify-content: center;
+        }
+        
         .flip-card {
             background: #1e293b;
             padding: 35px 25px;
@@ -253,6 +266,14 @@
             text-align: center;
             box-shadow: 0 20px 45px rgba(0,0,0,0.6);
             border-bottom: 8px solid #0f172a;
+        }
+
+        .clock-controls {
+            display: flex; 
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
         }
 
         .white-card {
@@ -332,6 +353,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
         }
 
         .phase-box {
@@ -352,6 +374,7 @@
             font-weight: 700;
             cursor: pointer;
             margin-right: 5px;
+            white-space: nowrap;
         }
 
         .score-inputs-vertical-stack {
@@ -380,6 +403,62 @@
             font-size: 1.8rem;
             font-weight: 800;
             color: #fdba74;
+        }
+
+        /* SCREEN SPECIFIC MEDIA QUERIES TO FIX MOBILE COLLISION & BREAKAGE */
+        @media (min-width: 600px) {
+            header {
+                padding-top: 0;
+            }
+            .logout-link {
+                top: 0; 
+                right: 20px;
+                transform: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
+            header h1 {
+                font-size: 2.1rem;
+            }
+            header p {
+                font-size: 0.95rem;
+            }
+            .column {
+                padding: 20px 15px;
+            }
+            .premium-footer-box {
+                flex-direction: column;
+                text-align: center;
+            }
+            .premium-footer-box .action-btn {
+                width: 100%;
+            }
+            .flip-clock-container {
+                gap: 8px;
+            }
+            .flip-card {
+                font-size: 2.5rem;
+                padding: 20px 10px;
+                min-width: 75px;
+                border-bottom-width: 4px;
+            }
+            #clock-overlay-title {
+                font-size: 1.5rem !important;
+                text-align: center;
+            }
+            .clock-controls {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .clock-controls .action-btn {
+                width: 100%;
+                padding: 12px 20px !important;
+                font-size: 0.95rem !important;
+            }
         }
     </style>
 </head>
@@ -531,7 +610,7 @@
             <div class="flip-card" id="flip-min">00</div>
             <div class="flip-card" id="flip-sec">00</div>
         </div>
-        <div style="display: flex; gap: 20px;">
+        <div class="clock-controls">
             <button class="action-btn" style="background: #22c55e; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="toggleClock()" id="start-pause-btn">Start Session</button>
             <button class="action-btn" style="background: #ef4444; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="resetClock()">Reset</button>
             <button class="action-btn" style="background: #3f3f46; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="closeClockOverlay()">Exit View</button>
@@ -1081,4 +1160,3 @@
     </script>
 </body>
 </html>
-        
