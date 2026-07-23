@@ -696,7 +696,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDtgU2S6fN2NFVzq9bhebydipumwUnAEhQ",
@@ -830,7 +830,6 @@
                 }
 
                 try {
-                    // Create primary Student authenticated account node
                     const res = await createUserWithEmailAndPassword(auth, email, password);
                     const studentUid = res.user.uid;
                     
@@ -846,12 +845,11 @@
                     await setDoc(doc(db, "users", studentUid), userMeta);
                     await setDoc(doc(db, "userData", studentUid), { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 });
                     
-                    // Provision matching Parent profile authorization channel 
                     try {
                         await createUserWithEmailAndPassword(auth, parentEmail, parentPassword);
                         await setDoc(doc(db, "parentMappings", parentEmail.toLowerCase()), { studentUid: studentUid });
                     } catch(e) {
-                        console.log("Parent pipeline generation warning: mapped entity entry bypass.");
+                        console.log("Parent profile mapping processed.");
                     }
 
                     alert("Ecosystem Workspace Provisioned! Re-logging in...");
@@ -948,7 +946,7 @@
             }
         }
 
-        // --- WEB RTC HARDWARE ENGINE (STABILIZED) ---
+        /* HARDWARE STABLE SELF-STUDY PIPELINE */
         window.initializeStudentSurveillancePipeline = async function() {
             const fallbackMsg = document.getElementById('cctv-fallback-msg');
             const videoViewport = document.getElementById('cctv-hardware-viewport');
@@ -958,20 +956,20 @@
             if(localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
-                videoViewport.srcObject = null;
-                statusBadge.style.display = 'none';
-                fallbackMsg.style.display = 'block';
-                streamBtn.innerHTML = `<i class="fa-solid fa-camera"></i> Start Live Self-Study Stream`;
+                if(videoViewport) videoViewport.srcObject = null;
+                if(statusBadge) statusBadge.style.display = 'none';
+                if(fallbackMsg) fallbackMsg.style.display = 'block';
+                if(streamBtn) streamBtn.innerHTML = `<i class="fa-solid fa-camera"></i> Start Live Self-Study Stream`;
                 await setDoc(doc(db, "surveillance", window.targetStudentUid), { active: false });
                 return;
             }
 
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                videoViewport.srcObject = localStream;
-                fallbackMsg.style.display = 'none';
-                statusBadge.style.display = 'flex';
-                streamBtn.innerHTML = `<i class="fa-solid fa-video-slash"></i> Kill Live Session Stream`;
+                if(videoViewport) videoViewport.srcObject = localStream;
+                if(fallbackMsg) fallbackMsg.style.display = 'none';
+                if(statusBadge) statusBadge.style.display = 'flex';
+                if(streamBtn) streamBtn.innerHTML = `<i class="fa-solid fa-video-slash"></i> Kill Live Session Stream`;
 
                 const surveillanceDocRef = doc(db, "surveillance", window.targetStudentUid);
                 await setDoc(surveillanceDocRef, { active: true, offer: null, answer: null, iceCandidates: [] });
@@ -1025,22 +1023,24 @@
                         peerConnection.close();
                         peerConnection = null;
                     }
-                    videoViewport.srcObject = null;
-                    statusBadge.style.display = 'none';
-                    fallbackMsg.innerText = "Feed Standby: Student has not initiated a video session.";
-                    fallbackMsg.style.display = 'block';
+                    if(videoViewport) videoViewport.srcObject = null;
+                    if(statusBadge) statusBadge.style.display = 'none';
+                    if(fallbackMsg) {
+                        fallbackMsg.innerText = "Feed Standby: Student has not initiated a video session.";
+                        fallbackMsg.style.display = 'block';
+                    }
                     return;
                 }
 
                 if (peerConnection) return;
 
-                fallbackMsg.style.display = 'none';
-                statusBadge.style.display = 'flex';
+                if(fallbackMsg) fallbackMsg.style.display = 'none';
+                if(statusBadge) statusBadge.style.display = 'flex';
 
                 peerConnection = new RTCPeerConnection(rtcConfig);
                 
                 peerConnection.ontrack = (event) => {
-                    if (event.streams && event.streams[0]) {
+                    if (event.streams && event.streams[0] && videoViewport) {
                         videoViewport.srcObject = event.streams[0];
                     }
                 };
@@ -1072,7 +1072,6 @@
             });
         }
 
-        // --- CORE PERFORMANCE CORE INTERFACES ---
         function configureSubjectSelectors() {
             const selectObj = document.getElementById('task-subject');
             if(!selectObj || !window.activeUserMeta) return;
@@ -1136,11 +1135,13 @@
         }
 
         function updateStreakUI() {
-            document.getElementById('streak-counter-ui').innerText = `${window.state.streak || 0} Days`;
+            const el = document.getElementById('streak-counter-ui');
+            if(el) el.innerText = `${window.state.streak || 0} Days`;
             let badge = "Novice Learner";
             if(window.state.streak >= 3) badge = "Focus Ninja 🥷";
             if(window.state.streak >= 7) badge = "Elite Scholar 🎓";
-            document.getElementById('badge-label').innerText = badge;
+            const lbl = document.getElementById('badge-label');
+            if(lbl) lbl.innerText = badge;
         }
 
         window.addTodo = async function() {
@@ -1287,6 +1288,7 @@
 
         function renderStrategicPlan() {
             const targetBox = document.getElementById('planner-output-card');
+            if(!targetBox) return;
             if(!window.state.activeStrategicPlan) { targetBox.style.display = 'none'; return; }
             targetBox.style.display = 'block';
             const plan = window.state.activeStrategicPlan;
@@ -1408,7 +1410,7 @@
             renderStrategicPlan();
         }
 
-        // Timer Module Core
+        // Timer Overlay Execution Block
         let clockInterval, running = false, totalSeconds = 0, isCountdownMode = false;
         window.openClockOverlay = function() { document.getElementById('clock-overlay').style.display = 'flex'; }
         window.closeClockOverlay = function() { document.getElementById('clock-overlay').style.display = 'none'; }
@@ -1428,7 +1430,8 @@
             if(window.userWorkspaceMode === 'parent') return;
             const btn = document.getElementById('start-pause-btn');
             if (!running) {
-                running = true; btn.innerText = "Pause Study"; btn.style.backgroundColor = "#eab308";
+                running = true; 
+                if(btn) { btn.innerText = "Pause Study"; btn.style.backgroundColor = "#eab308"; }
                 clockInterval = setInterval(() => { 
                     if(isCountdownMode) {
                         if(totalSeconds > 0) { totalSeconds--; }
@@ -1440,14 +1443,15 @@
                     updateFlipDisplay(); 
                 }, 1000);
             } else {
-                running = false; btn.innerText = "Resume Study"; btn.style.backgroundColor = "#22c55e";
+                running = false; 
+                if(btn) { btn.innerText = "Resume Study"; btn.style.backgroundColor = "#22c55e"; }
                 clearInterval(clockInterval);
             }
         }
 
         window.resetClock = function() {
             if(window.userWorkspaceMode === 'parent') return;
-            running = false; clearInterval(clockInterval); totalSeconds = 0; isCountdownMode = false;
+            running = false; if(clockInterval) clearInterval(clockInterval); totalSeconds = 0; isCountdownMode = false;
             updateFlipDisplay();
             document.getElementById('clock-status-text').innerText = `Mode: Free Flow Stopwatch`;
             document.getElementById('clock-overlay-title').innerHTML = `<i class="fa-solid fa-brain"></i> DEEP STUDY STREAM`;
@@ -1456,9 +1460,12 @@
         }
 
         function updateFlipDisplay() {
-            document.getElementById('flip-hr').innerText = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-            document.getElementById('flip-min').innerText = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-            document.getElementById('flip-sec').innerText = String(totalSeconds % 60).padStart(2, '0');
+            const hr = document.getElementById('flip-hr');
+            const min = document.getElementById('flip-min');
+            const sec = document.getElementById('flip-sec');
+            if(hr) hr.innerText = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            if(min) min.innerText = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            if(sec) sec.innerText = String(totalSeconds % 60).padStart(2, '0');
         }
 
         const formulas = [
@@ -1469,7 +1476,8 @@
         ];
         window.rotateFormula = function() {
             const randomIdx = Math.floor(Math.random() * formulas.length);
-            document.getElementById('formula-text').innerText = formulas[randomIdx];
+            const el = document.getElementById('formula-text');
+            if(el) el.innerText = formulas[randomIdx];
         }
     </script>
 </body>
