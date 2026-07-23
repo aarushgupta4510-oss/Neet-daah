@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arush's NEET Premium Dashboard</title>
+    <title>Arush's NEET Premium AI Workspace</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -128,6 +128,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 0.9rem;
         }
 
         .action-btn {
@@ -162,7 +163,7 @@
             background: rgba(255, 255, 255, 0.12);
             border: 2px dashed rgba(255, 255, 255, 0.3);
             border-radius: 16px;
-            padding: 40px 20px;
+            padding: 25px 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -173,7 +174,7 @@
             border-color: white;
         }
 
-        .timer-box i { font-size: 3rem; margin-bottom: 15px; }
+        .timer-box i { font-size: 2.5rem; margin-bottom: 10px; }
 
         .clock-overlay {
             display: none;
@@ -266,6 +267,18 @@
             gap: 10px;
             margin-top: 10px;
         }
+
+        .badge-clock-btn {
+            background: white;
+            color: #2563EB;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -280,9 +293,12 @@
         <div class="column blue-column">
             <div>
                 <h2><i class="fa-solid fa-list-check"></i> Daily Tasks</h2>
-                <div style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
-                    <input type="text" id="todo-input" placeholder="Revise Organic Chemistry...">
-                    <button class="action-btn" onclick="addTodo()">Add</button>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
+                    <input type="text" id="todo-input" placeholder="Task Name (e.g., Solve Electrostatics)">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="todo-time" placeholder="Target Time (Mins)" min="1">
+                        <button class="action-btn" onclick="addTodo()">Add Task</button>
+                    </div>
                 </div>
                 <ul id="todo-list" class="item-list"></ul>
             </div>
@@ -307,15 +323,25 @@
 
         <div class="column yellow-column">
             <h2><i class="fa-solid fa-hourglass-start"></i> Focus Engine</h2>
-            <p style="font-weight: 600; margin-top: -10px; opacity: 0.9;">Maximize concentration metrics inside custom environment.</p>
             
             <div class="timer-box" onclick="openClockOverlay()">
                 <i class="fa-solid fa-expand-arrows-alt"></i>
-                <h3 style="font-size: 1.5rem; margin-bottom: 5px;">Launch Immersive Counter</h3>
-                <p style="opacity: 0.8; font-size: 0.95rem;">Clean Full-Screen Minimalist Study Clock</p>
+                <h3 style="font-size: 1.3rem; margin-bottom: 5px;">Launch Study Clock</h3>
+                <p id="clock-status-text" style="opacity: 0.8; font-size: 0.85rem;">Mode: Free Flow Stopwatch</p>
             </div>
 
-            <div style="margin-top: 5px; background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px;">
+            <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px;">
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px;"><i class="fa-solid fa-calendar-check"></i> Test Prep & Deadline Tracker</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <input type="text" id="planner-test-name" placeholder="Upcoming Test Name">
+                    <input type="date" id="planner-test-date">
+                    <input type="number" id="planner-chapters-count" placeholder="Total Chapters in Syllabus">
+                    <button class="action-btn" onclick="calculateTestPlan()">Generate Prep Schedule</button>
+                </div>
+                <div id="planner-output-card" class="white-card" style="display: none; font-size: 0.85rem; line-height: 1.4;"></div>
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px;">
                 <h3 style="font-size: 1.2rem; margin-bottom: 10px;"><i class="fa-solid fa-book-open"></i> Daily NCERT Page Target</h3>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                     <div>
@@ -392,7 +418,7 @@
     </div>
 
     <div id="clock-overlay" class="clock-overlay">
-        <h2 style="font-size: 2.5rem; margin-bottom: 30px; letter-spacing: 2px;"><i class="fa-solid fa-brain"></i> DEEP STUDY STREAM</h2>
+        <h2 id="clock-overlay-title" style="font-size: 2.5rem; margin-bottom: 30px; letter-spacing: 2px;"><i class="fa-solid fa-brain"></i> DEEP STUDY STREAM</h2>
         <div class="flip-clock-container">
             <div class="flip-card" id="flip-hr">00</div>
             <div class="flip-card" id="flip-min">00</div>
@@ -411,31 +437,50 @@
             todos: [],
             chapters: [],
             tests: [],
-            ncertGoal: { biology: 0, physics: 0, chemistry: 0 }
+            ncertGoal: { biology: 0, physics: 0, chemistry: 0 },
+            activePlan: null
         };
 
         function saveState() {
             localStorage.setItem('arushNeetDashboard', JSON.stringify(state));
         }
 
-        // --- TODO LIST ENGINE ---
+        // --- CLOCK VARIABLE CONTROLLERS ---
+        let clockInterval, running = false, totalSeconds = 0, isCountdownMode = false;
+
+        // --- TODO LIST ENGINE WITH CLOCK LINK ---
         function renderTodos() {
             const ul = document.getElementById('todo-list');
             if(!ul) return;
             ul.innerHTML = '';
             state.todos.forEach((todo, idx) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${todo}</span> <button class="delete-btn" onclick="deleteTodo(${idx})"><i class="fa-solid fa-trash"></i></button>`;
+                const timeStr = todo.timeLimit ? ` (${todo.timeLimit}m)` : '';
+                li.innerHTML = `
+                    <div>
+                        <span>${todo.text}${timeStr}</span>
+                    </div>
+                    <div>
+                        ${todo.timeLimit ? `<button class="badge-clock-btn" onclick="loadTaskToClock(${idx})"><i class="fa-solid fa-clock"></i> Load</button>` : ''}
+                        <button class="delete-btn" onclick="deleteTodo(${idx})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
                 ul.appendChild(li);
             });
         }
 
         function addTodo() {
             const input = document.getElementById('todo-input');
+            const timeInput = document.getElementById('todo-time');
             if (!input || !input.value.trim()) return;
-            state.todos.push(input.value.trim());
+            
+            state.todos.push({
+                text: input.value.trim(),
+                timeLimit: timeInput.value ? parseInt(timeInput.value) : null
+            });
             saveState(); renderTodos();
             input.value = '';
+            timeInput.value = '';
         }
 
         function deleteTodo(idx) {
@@ -443,214 +488,41 @@
             saveState(); renderTodos();
         }
 
-        // --- TARGET SYLLABUS MANAGER ---
-        function renderChapters() {
-            const ul = document.getElementById('task-list');
-            if(!ul) return;
-            ul.innerHTML = '';
-            state.chapters.forEach((ch, idx) => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> <button class="delete-btn" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
-                ul.appendChild(li);
-            });
-        }
-
-        function addTask() {
-            const title = document.getElementById('task-title');
-            const subject = document.getElementById('task-subject');
-            if (!title || !title.value.trim()) return;
-            state.chapters.push({ title: title.value.trim(), subject: subject.value });
-            saveState(); renderChapters();
-            title.value = '';
-        }
-
-        function deleteChapter(idx) {
-            state.chapters.splice(idx, 1);
-            saveState(); renderChapters();
-        }
-
-        // --- NCERT ELEMENTS WIDGET VALUE MANAGEMENT ---
-        function updateNCERTWidget() {
-            if(document.getElementById('ncert-b')) {
-                document.getElementById('ncert-b').value = state.ncertGoal.biology || 0;
-                document.getElementById('ncert-p').value = state.ncertGoal.physics || 0;
-                document.getElementById('ncert-c').value = state.ncertGoal.chemistry || 0;
+        function loadTaskToClock(idx) {
+            const task = state.todos[idx];
+            if(task && task.timeLimit) {
+                isCountdownMode = true;
+                totalSeconds = task.timeLimit * 60;
+                document.getElementById('clock-status-text').innerText = `Target: ${task.text} (${task.timeLimit} mins)`;
+                document.getElementById('clock-overlay-title').innerHTML = `<i class="fa-solid fa-bullseye"></i> TARGET: ${task.text.toUpperCase()}`;
+                updateFlipDisplay();
+                openClockOverlay();
             }
         }
 
-        function saveNcertGoals() {
-            state.ncertGoal.biology = parseInt(document.getElementById('ncert-b').value) || 0;
-            state.ncertGoal.physics = parseInt(document.getElementById('ncert-p').value) || 0;
-            state.ncertGoal.chemistry = parseInt(document.getElementById('ncert-c').value) || 0;
-            saveState();
-        }
+        // --- AUTOMATED AI TEST PLANNER TRACKER ---
+        function calculateTestPlan() {
+            const name = document.getElementById('planner-test-name').value || "Upcoming Exam";
+            const dateVal = document.getElementById('planner-test-date').value;
+            const chaptersCount = parseInt(document.getElementById('planner-chapters-count').value);
 
-        // --- IMMERSIVE RETRO FLIP TIME COUNTER ---
-        let clockInterval, running = false, totalSeconds = 0;
-        function openClockOverlay() { document.getElementById('clock-overlay').style.display = 'flex'; }
-        function closeClockOverlay() { document.getElementById('clock-overlay').style.display = 'none'; }
-        
-        function toggleClock() {
-            const btn = document.getElementById('start-pause-btn');
-            if (!running) {
-                running = true; btn.innerText = "Pause Study"; btn.style.backgroundColor = "#eab308";
-                clockInterval = setInterval(() => { totalSeconds++; updateFlipDisplay(); }, 1000);
-            } else {
-                running = false; btn.innerText = "Resume Study"; btn.style.backgroundColor = "#22c55e";
-                clearInterval(clockInterval);
+            if(!dateVal || isNaN(chaptersCount) || chaptersCount <= 0) {
+                alert("Please fill target exam date and total chapters.");
+                return;
             }
-        }
 
-        function resetClock() {
-            running = false; clearInterval(clockInterval); totalSeconds = 0; updateFlipDisplay();
-            const btn = document.getElementById('start-pause-btn');
-            btn.innerText = "Start Session"; btn.style.backgroundColor = "#22c55e";
-        }
+            const today = new Date();
+            const examDate = new Date(dateVal);
+            const diffTime = examDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        function updateFlipDisplay() {
-            document.getElementById('flip-hr').innerText = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-            document.getElementById('flip-min').innerText = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-            document.getElementById('flip-sec').innerText = String(totalSeconds % 60).padStart(2, '0');
-        }
+            const outputCard = document.getElementById('planner-output-card');
+            outputCard.style.display = "block";
 
-        // --- ADVANCED CHART COMPLIANCE ROUTINES (FIXED INTERFACE LOADING) ---
-        let performanceChart = null;
-        let pieChart = null;
+            if(diffDays < 0) {
+                outputCard.innerHTML = `<span style="color:#ef4444; font-weight:bold;">Selected target date has already passed!</span>`;
+                return;
+            }
 
-        function initCharts() {
-            const ctxLine = document.getElementById('performanceChart').getContext('2d');
-            performanceChart = new Chart(ctxLine, {
-                type: 'line',
-                data: { labels: [], datasets: [] },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    scales: { y: { min: 0, max: 180 } }
-                }
-            });
-
-            const ctxPie = document.getElementById('pieChart').getContext('2d');
-            pieChart = new Chart(ctxPie, {
-                type: 'pie',
-                data: {
-                    labels: ['Physics', 'Chemistry', 'Botany', 'Zoology'],
-                    datasets: [{ data: [0, 0, 0, 0], backgroundColor: ['#3b82f6', '#eab308', '#10b981', '#ec4899'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        function updateChartsData() {
-            if (!performanceChart || !pieChart) return;
-
-            const labels = state.tests.map(t => t.date);
-            
-            const datasets = [
-                { label: 'Physics', data: state.tests.map(t => t.p), borderColor: '#3b82f6', backgroundColor: '#3b82f6', fill: false, tension: 0.2 },
-                { label: 'Chemistry', data: state.tests.map(t => t.c), borderColor: '#eab308', backgroundColor: '#eab308', fill: false, tension: 0.2 },
-                { label: 'Botany', data: state.tests.map(t => t.b), borderColor: '#10b981', backgroundColor: '#10b981', fill: false, tension: 0.2 },
-                { label: 'Zoology', data: state.tests.map(t => t.z), borderColor: '#ec4899', backgroundColor: '#ec4899', fill: false, tension: 0.2 }
-            ];
-
-            performanceChart.data.labels = labels;
-            performanceChart.data.datasets = datasets;
-            performanceChart.update();
-
-            let totalP = 0, totalC = 0, totalB = 0, totalZ = 0;
-            state.tests.forEach(t => { totalP += t.p; totalC += t.c; totalB += t.b; totalZ += t.z; });
-            
-            pieChart.data.datasets[0].data = [totalP, totalC, totalB, totalZ];
-            pieChart.update();
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('score-table-body');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            state.tests.forEach((t, idx) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>${t.date}</strong><br><small>${t.name}</small></td>
-                    <td>P:${t.p}<br>C:${t.c}<br>B:${t.b}<br>Z:${t.z}</td>
-                    <td><strong>${t.p + t.c + t.b + t.z}</strong>/720</td>
-                    <td><button class="delete-btn" onclick="deleteScore(${idx})"><i class="fa-solid fa-trash"></i></button></td>
-                `;
-                
-                // MULTI-TOUCH INTERACTIVE SWIPE SLIDER LOGIC
-                let startX = 0;
-                row.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
-                row.addEventListener('touchend', (e) => {
-                    let diffX = startX - e.changedTouches[0].clientX;
-                    if (diffX > 50) { 
-                        row.classList.add('swipe-left-active');
-                        setTimeout(() => {
-                            if(confirm(`Delete ${t.name || 'this test'} logs permanently?`)) {
-                                deleteScore(idx);
-                            } else {
-                                row.classList.remove('swipe-left-active');
-                            }
-                        }, 100);
-                    }
-                });
-                tbody.appendChild(row);
-            });
-        }
-
-        function addScore() {
-            const date = document.getElementById('score-date').value;
-            const name = document.getElementById('score-name').value || "Mock Test";
-            const p = parseInt(document.getElementById('score-p').value) || 0;
-            const c = parseInt(document.getElementById('score-c').value) || 0;
-            const b = parseInt(document.getElementById('score-b').value) || 0;
-            const z = parseInt(document.getElementById('score-z').value) || 0;
-
-            if (!date) { alert("Please choose a valid test date."); return; }
-            if (p>180 || c>180 || b>180 || z>180) { alert("Max marks for individual subject can't exceed 180."); return; }
-
-            state.tests.push({ date, name, p, c, b, z });
-            saveState();
-            renderTable();
-            updateChartsData();
-
-            document.getElementById('score-name').value = '';
-            document.getElementById('score-p').value = '';
-            document.getElementById('score-c').value = '';
-            document.getElementById('score-b').value = '';
-            document.getElementById('score-z').value = '';
-        }
-
-        function deleteScore(idx) {
-            state.tests.splice(idx, 1);
-            saveState();
-            renderTable();
-            updateChartsData();
-        }
-
-        // --- TRIVIAL FORMULA REFRESH ENGINE ---
-        const formulas = [
-            "Physics: De Broglie Wavelength: λ = h / p = h / √(2mK)",
-            "Chemistry: Ideal Gas Law Equation: PV = nRT (R = 0.0821 L atm / mol K)",
-            "Botany: C4 pathway first stable compound: Oxaloacetic Acid (OAA - 4C Carbon compound)",
-            "Zoology: GFR Rate in dynamic healthy individual: ~125 mL/min or 180 Liters per day",
-            "Physics: Electrostatics Force Equation: F = k * (|q1 * q2|) / r²",
-            "Chemistry: Arrhenius Equation: k = A * e^(-Ea / RT)"
-        ];
-        function rotateFormula() {
-            const randomIdx = Math.floor(Math.random() * formulas.length);
-            const target = document.getElementById('formula-text');
-            if(target) target.innerText = formulas[randomIdx];
-        }
-
-        // DOMContentLoaded Safety Wrapper Lifecycle Init
-        document.addEventListener("DOMContentLoaded", function() {
-            renderTodos();
-            renderChapters();
-            initCharts();
-            renderTable();
-            updateChartsData();
-            rotateFormula();
-            updateNCERTWidget();
-        });
-    </script>
-</body>
-</html>
+            const pace = (chaptersCount / (diffDays > 0 ? diffDays : 1)).toFixed(2);
+            state.activePlan = { name, dateVal, chaptersCount, diff
