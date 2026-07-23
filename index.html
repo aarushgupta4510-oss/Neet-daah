@@ -925,111 +925,160 @@
             `;
         }
 
-        function rendeerTable() {
-            const tbody = document.getElementById('score-table-body'); tbody.innerHTML = '';
+        function renderTable() {
+            const tbody = document.getElementById('score-table-body');
+            if (!tbody || !window.activeUserMeta) return; tbody.innerHTML = '';
             window.state.tests.forEach((t, idx) => {
-                tbody.innerHTML += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding:8px 4px; color:#1e293b; font-size:0.85rem;"><strong>${t.name}</strong> (${t.date})<br><span style="color:#64748b; font-size:0.75rem;">Score Total: ${t.total || 0}</span></td>
-                <td style="text-align:right; padding:8px 4px;">${window.selectedRole==='Student'?`<button class="delete-btn" onclick="deleteScore(${idx})">✕</button>`:''}</td></tr>`;
+                const row = document.createElement('tr');
+                let breakDownStr = window.activeUserMeta.targetExam === "JEE" ? 
+                    `P:${t.physics} C:${t.chemistry} M:${t.mathematics}` : 
+                    `P:${t.physics} C:${t.chemistry}<br>B:${t.botany} Z:${t.zoology}`;
+                
+                let maxPossible = window.activeUserMeta.targetExam === "JEE" ? 300 : 720;
+                let sumScore = window.activeUserMeta.targetExam === "JEE" ? 
+                    (t.physics + t.chemistry + t.mathematics) : 
+                    (t.physics + t.chemistry + t.botany + t.zoology);
+
+                row.innerHTML = `
+                    <td><strong>${t.date}</strong><br><small style="color:#64748b;">${t.name}</small></td>
+                    <td>${breakDownStr}</td>
+                    <td><strong>${sumScore}</strong>/${maxPossible}</td>
+                    <td><button class="delete-btn" onclick="deleteScore(${idx})"><i class="fa-solid fa-trash"></i></button></td>
+                `;
+                tbody.appendChild(row);
             });
         }
 
-        let lineChart = null, pieChart = null;
+        let performanceChart = null, pieChart = null;
         function initCharts() {
-            const ctxL = document.getElementById('performanceChart').getContext('2d');
-            if(lineChart) lineChart.destroy();
-            lineChart = new Chart(ctxL, { 
-                type: 'line', 
-                data: { labels: [], datasets: [] }, 
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true } } } 
+            const maxRange = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? 100 : 180;
+            const ctxLine = document.getElementById('performanceChart').getContext('2d');
+            if(performanceChart) performanceChart.destroy();
+            performanceChart = new Chart(ctxLine, {
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: maxRange } } }
             });
 
-            const ctxP = document.getElementById('pieChart').getContext('2d');
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
             if(pieChart) pieChart.destroy();
-            pieChart = new Chart(ctxP, { 
-                type: 'pie', 
-                data: { labels: ['Awaiting Logs'], datasets: [{data:[1], backgroundColor:['#cbd5e1']}] }, 
-                options: { responsive: true, maintainAspectRatio: false } 
+            const pieLabels = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? ['Physics', 'Chemistry', 'Mathematics'] : ['Physics', 'Chemistry', 'Botany', 'Zoology'];
+            const pieColors = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? ['#3b82f6', '#eab308', '#a855f7'] : ['#3b82f6', '#eab308', '#10b981', '#ec4899'];
+            
+            pieChart = new Chart(ctxPie, {
+                type: 'pie',
+                data: { labels: pieLabels, datasets: [{ data: pieLabels.map(()=>0), backgroundColor: pieColors }] },
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
 
         function updateChartsData() {
-            if(!lineChart || !pieChart) return;
-            
-            if(!window.state.tests || window.state.tests.length === 0) {
-                lineChart.data.labels = [];
-                lineChart.data.datasets = [];
-                lineChart.update();
-                
-                pieChart.data.labels = ['Awaiting Logs'];
-                pieChart.data.datasets = [{data:[1], backgroundColor:['#cbd5e1']}];
+            if (!performanceChart || !pieChart || !window.activeUserMeta || !window.state.tests) return;
+            const labels = window.state.tests.map(t => t.date);
+            performanceChart.data.labels = labels;
+
+            let datasets = [];
+            if(window.activeUserMeta.targetExam === "JEE") {
+                datasets = [
+                    { label: 'Physics', data: window.state.tests.map(t => t.physics), borderColor: '#3b82f6', fill: false, tension: 0.2 },
+                    { label: 'Chemistry', data: window.state.tests.map(t => t.chemistry), borderColor: '#eab308', fill: false, tension: 0.2 },
+                    { label: 'Mathematics', data: window.state.tests.map(t => t.mathematics), borderColor: '#a855f7', fill: false, tension: 0.2 }
+                ];
+                performanceChart.data.datasets = datasets;
+                performanceChart.update();
+
+                let tP = 0, tC = 0, tM = 0;
+                window.state.tests.forEach(t => { tP += t.physics; tC += t.chemistry; tM += t.mathematics; });
+                pieChart.data.datasets[0].data = [tP, tC, tM];
                 pieChart.update();
-                return;
+            } else {
+                datasets = [
+                    { label: 'Physics', data: window.state.tests.map(t => t.physics), borderColor: '#3b82f6', fill: false, tension: 0.2 },
+                    { label: 'Chemistry', data: window.state.tests.map(t => t.chemistry), borderColor: '#eab308', fill: false, tension: 0.2 },
+                    { label: 'Botany', data: window.state.tests.map(t => t.botany), borderColor: '#10b981', fill: false, tension: 0.2 },
+                    { label: 'Zoology', data: window.state.tests.map(t => t.zoology), borderColor: '#ec4899', fill: false, tension: 0.2 }
+                ];
+                performanceChart.data.datasets = datasets;
+                performanceChart.update();
+
+                let tP = 0, tC = 0, tB = 0, tZ = 0;
+                window.state.tests.forEach(t => { tP += t.physics; tC += t.chemistry; tB += t.botany; tZ += t.zoology; });
+                pieChart.data.datasets[0].data = [tP, tC, tB, tZ];
+                pieChart.update();
             }
-
-            // MARKS LOGIC REFLECTION FIX
-            const labels = window.state.tests.map(t => t.name || t.date);
-            const dataPoints = window.state.tests.map(t => t.total || 0);
-            
-            lineChart.data.labels = labels;
-            lineChart.data.datasets = [{
-                label: 'Overall Progress',
-                data: dataPoints,
-                borderColor: '#dc2626',
-                backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.2
-            }];
-            lineChart.update();
-
-            // SUBJECT BREAKDOWN GENERATION FOR PIE CHART
-            const latestTest = window.state.tests[window.state.tests.length - 1];
-            const subs = window.activeUserMeta.targetExam === "JEE" ? ["physics", "chemistry", "mathematics"] : ["physics", "chemistry", "botany", "zoology"];
-            const pieLabels = subs.map(s => s.toUpperCase());
-            const pieData = subs.map(s => latestTest[s] || 0);
-
-            pieChart.data.labels = pieLabels;
-            pieChart.data.datasets = [{
-                data: pieData,
-                backgroundColor: ['#2563eb', '#eab308', '#dc2626', '#10b981']
-            }];
-            pieChart.update();
         }
 
-        function initAppLifecycle() { renderTodos(); renderChapters(); initCharts(); renderTable(); updateChartsData(); renderStrategicPlan(); rotateFormula(); }
+        function initAppLifecycle() {
+            renderTodos();
+            renderChapters();
+            initCharts();
+            renderTable();
+            updateChartsData();
+            rotateFormula();
+            renderStrategicPlan();
+        }
 
-        let clockInterval, running = false, totalSeconds = 0, countdown = false;
+        // Clock Global Mappings
+        let clockInterval, running = false, totalSeconds = 0, isCountdownMode = false;
         window.openClockOverlay = function() { document.getElementById('clock-overlay').style.display = 'flex'; }
         window.closeClockOverlay = function() { document.getElementById('clock-overlay').style.display = 'none'; }
         
         window.loadTaskToClock = function(idx) {
-            if(window.selectedRole === 'Parent') return;
-            const t = window.state.todos[idx];
-            if(t && t.timeLimit) { countdown = true; totalSeconds = t.timeLimit * 60; updateFlipDisplay(); window.openClockOverlay(); }
+            const task = window.state.todos[idx];
+            if(task && task.timeLimit) {
+                isCountdownMode = true; totalSeconds = task.timeLimit * 60;
+                document.getElementById('clock-status-text').innerText = `Target: ${task.text} (${task.timeLimit} mins)`;
+                document.getElementById('clock-overlay-title').innerHTML = `<i class="fa-solid fa-bullseye"></i> TARGET: ${task.text.toUpperCase()}`;
+                updateFlipDisplay(); window.openClockOverlay();
+            }
         }
 
         window.toggleClock = function() {
-            if(window.selectedRole === 'Parent') return;
             const btn = document.getElementById('start-pause-btn');
-            if(!running) {
-                running = true; btn.innerText = "Pause"; btn.style.backgroundColor = "#eab308";
-                clockInterval = setInterval(() => {
-                    if(countdown && totalSeconds > 0) totalSeconds--;
-                    else if(!countdown) totalSeconds++;
-                    updateFlipDisplay();
+            if (!running) {
+                running = true; btn.innerText = "Pause Study"; btn.style.backgroundColor = "#eab308";
+                clockInterval = setInterval(() => { 
+                    if(isCountdownMode) {
+                        if(totalSeconds > 0) { totalSeconds--; }
+                        else {
+                            clearInterval(clockInterval); running = false;
+                            alert("Time Target Achieved!"); window.resetClock(); return;
+                        }
+                    } else { totalSeconds++; }
+                    updateFlipDisplay(); 
                 }, 1000);
-            } else { running = false; btn.innerText = "Resume"; btn.style.backgroundColor = "#22c55e"; clearInterval(clockInterval); }
+            } else {
+                running = false; btn.innerText = "Resume Study"; btn.style.backgroundColor = "#22c55e";
+                clearInterval(clockInterval);
+            }
         }
 
-        window.resetClock = function() { running = false; clearInterval(clockInterval); totalSeconds = 0; countdown = false; updateFlipDisplay(); document.getElementById('start-pause-btn').innerText = "Start Session"; }
+        window.resetClock = function() {
+            running = false; clearInterval(clockInterval); totalSeconds = 0; isCountdownMode = false;
+            updateFlipDisplay();
+            document.getElementById('clock-status-text').innerText = `Mode: Free Flow Stopwatch`;
+            document.getElementById('clock-overlay-title').innerHTML = `<i class="fa-solid fa-brain"></i> DEEP STUDY STREAM`;
+            const btn = document.getElementById('start-pause-btn');
+            btn.innerText = "Start Session"; btn.style.backgroundColor = "#22c55e";
+        }
+
         function updateFlipDisplay() {
             document.getElementById('flip-hr').innerText = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
             document.getElementById('flip-min').innerText = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
             document.getElementById('flip-sec').innerText = String(totalSeconds % 60).padStart(2, '0');
         }
 
-        const formulas = ["De Broglie: λ = h / p", "Ideal Gas Law: PV = nRT", "Euler's Identity: e^(iπ) + 1 = 0"];
-        window.rotateFormula = function() { document.getElementById('formula-text').innerText = formulas[Math.floor(Math.random()*formulas.length)]; }
+        const formulas = [
+            "Physics: De Broglie Wavelength: λ = h / p = h / √(2mK)",
+            "Chemistry: Ideal Gas Law Equation: PV = nRT",
+            "Mathematics: Euler's Identity Formula: e^(iπ) + 1 = 0",
+            "NEET Target Point: GFR Rate in dynamic individual: ~125 mL/min"
+        ];
+        window.rotateFormula = function() {
+            const randomIdx = Math.floor(Math.random() * formulas.length);
+            document.getElementById('formula-text').innerText = formulas[randomIdx];
+        }
     </script>
 </body>
 </html>
+        
