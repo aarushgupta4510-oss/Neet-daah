@@ -37,7 +37,7 @@
             border-radius: 24px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             width: 100%;
-            max-width: 450px;
+            max-width: 480px;
         }
 
         .auth-card h2 {
@@ -61,6 +61,41 @@
             color: white;
         }
 
+        .role-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .role-tab {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .role-tab.active {
+            background: #38bdf8;
+            color: #1e293b;
+        }
+
+        .vault-section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #38bdf8;
+            margin: 15px 0 8px 0;
+            font-weight: 700;
+        }
+
         .auth-toggle {
             color: #38bdf8;
             text-align: center;
@@ -79,7 +114,7 @@
             text-align: center;
             margin-bottom: 40px;
             position: relative;
-            padding-top: 50px; /* Dynamic breathing room for absolute elements */
+            padding-top: 50px;
         }
 
         header h1 {
@@ -100,7 +135,7 @@
             position: absolute;
             top: 0; 
             right: 50%;
-            transform: translateX(50%); /* Centered layout on tiny viewports */
+            transform: translateX(50%);
             background: #334155;
             color: white;
             border: none;
@@ -405,60 +440,73 @@
             color: #fdba74;
         }
 
-        /* SCREEN SPECIFIC MEDIA QUERIES TO FIX MOBILE COLLISION & BREAKAGE */
+        /* LIVE STREAM SURVEILLANCE MODULE */
+        .cctv-container {
+            background: #0f172a;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 15px;
+            aspect-ratio: 16/9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cctv-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
+
+        .cctv-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: pulse 1.5s infinite;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* HIDDEN FOR PARENT CONTROLS CLASS */
+        .parent-hidden {
+            display: none !important;
+        }
+
+        /* SCREEN SPECIFIC MEDIA QUERIES */
         @media (min-width: 600px) {
-            header {
-                padding-top: 0;
-            }
-            .logout-link {
-                top: 0; 
-                right: 20px;
-                transform: none;
-            }
+            header { padding-top: 0; }
+            .logout-link { top: 0; right: 20px; transform: none; }
         }
 
         @media (max-width: 600px) {
-            body {
-                padding: 20px 10px;
-            }
-            header h1 {
-                font-size: 2.1rem;
-            }
-            header p {
-                font-size: 0.95rem;
-            }
-            .column {
-                padding: 20px 15px;
-            }
-            .premium-footer-box {
-                flex-direction: column;
-                text-align: center;
-            }
-            .premium-footer-box .action-btn {
-                width: 100%;
-            }
-            .flip-clock-container {
-                gap: 8px;
-            }
-            .flip-card {
-                font-size: 2.5rem;
-                padding: 20px 10px;
-                min-width: 75px;
-                border-bottom-width: 4px;
-            }
-            #clock-overlay-title {
-                font-size: 1.5rem !important;
-                text-align: center;
-            }
-            .clock-controls {
-                flex-direction: column;
-                gap: 12px;
-            }
-            .clock-controls .action-btn {
-                width: 100%;
-                padding: 12px 20px !important;
-                font-size: 0.95rem !important;
-            }
+            body { padding: 20px 10px; }
+            header h1 { font-size: 2.1rem; }
+            header p { font-size: 0.95rem; }
+            .column { padding: 20px 15px; }
+            .premium-footer-box { flex-direction: column; text-align: center; }
+            .premium-footer-box .action-btn { width: 100%; }
+            .flip-clock-container { gap: 8px; }
+            .flip-card { font-size: 2.5rem; padding: 20px 10px; min-width: 75px; border-bottom-width: 4px; }
+            #clock-overlay-title { font-size: 1.5rem !important; text-align: center; }
+            .clock-controls { flex-direction: column; gap: 12px; }
+            .clock-controls .action-btn { width: 100%; padding: 12px 20px !important; font-size: 0.95rem !important; }
         }
     </style>
 </head>
@@ -466,8 +514,13 @@
 
     <div id="auth-view" class="auth-container">
         <div class="auth-card">
+            <div class="role-tabs">
+                <button id="tab-student" class="role-tab active" onclick="setAuthRole('student')"><i class="fa-solid fa-user-graduate"></i> Student Portal</button>
+                <button id="tab-parent" class="role-tab" onclick="setAuthRole('parent')"><i class="fa-solid fa-user-shield"></i> Parent Vault</button>
+            </div>
+
             <h2 id="auth-title" style="color:#38bdf8; text-align:center;"><i class="fa-solid fa-lock"></i> Account Sign In</h2>
-            <p id="auth-desc">Enter your credentials to sync secure cloud workspace.</p>
+            <p id="auth-desc">Enter your operational credentials to sync dynamic cloud metrics.</p>
             
             <div id="signup-only-fields" style="display:none;">
                 <input type="text" id="auth-name" placeholder="Enter Your Full Name">
@@ -481,13 +534,17 @@
                     <option value="NEET">NEET (Medical Stream)</option>
                     <option value="JEE">JEE (Engineering Stream)</option>
                 </select>
+
+                <div class="vault-section-title">Parent Authorization Details</div>
+                <input type="email" id="auth-parent-email" placeholder="Parent Email Address Reference">
+                <input type="password" id="auth-parent-password" placeholder="Set Secure Parent Access Password">
             </div>
             
-            <input type="email" id="auth-email" placeholder="Email Address">
-            <input type="password" id="auth-password" placeholder="Secure Password">
+            <input type="email" id="auth-email" placeholder="Operational Email Address">
+            <input type="password" id="auth-password" placeholder="Secure Workspace Password">
             
             <button class="action-btn" style="width:100%; margin-top:10px; background:#38bdf8; color:white;" onclick="processAuthAction()" id="auth-submit-btn">Login to Workspace</button>
-            <div class="auth-toggle" id="auth-toggle-btn" onclick="toggleAuthMode()">New student? Create an account (Sign Up)</div>
+            <div class="auth-toggle" id="auth-toggle-btn" onclick="toggleAuthMode()">New student setup? Create workspace (Sign Up)</div>
         </div>
     </div>
 
@@ -497,6 +554,10 @@
             <p id="class-tagline">Strategic Study Focus Workspace</p>
             <button class="logout-link" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Lock Screen</button>
         </header>
+
+        <div id="parent-notice-banner" style="display:none; max-width: 1400px; margin: -20px auto 25px auto; padding: 15px; background: #0f172a; color: #38bdf8; border: 2px solid #38bdf8; border-radius: 16px; text-align: center; font-weight: 700;">
+            <i class="fa-solid fa-eye"></i> Parental Cryptographic Watch Active: Displaying Live Mirrored Performance Feed.
+        </div>
 
         <div class="dashboard-grid">
 
@@ -512,7 +573,7 @@
                         <div class="streak-num" id="streak-counter-ui">0 Days</div>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
+                    <div class="student-control-block" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
                         <input type="text" id="todo-input" placeholder="Task Name (e.g., Solve Mock Problems)">
                         <div style="display: flex; gap: 10px;">
                             <input type="number" id="todo-time" placeholder="Target Time (Mins)" min="1">
@@ -526,7 +587,7 @@
 
                 <div>
                     <h2><i class="fa-solid fa-square-poll-vertical"></i> Custom Chapter Tracker</h2>
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                    <div class="student-control-block" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
                         <input type="text" id="task-title" placeholder="Topic details...">
                         <select id="task-subject"></select>
                         <button class="action-btn" onclick="addTask()">Log Progress</button>
@@ -545,18 +606,30 @@
                 </div>
 
                 <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px;">
+                    <h3><i class="fa-solid fa-video"></i> Live Session Surveillance Monitor</h3>
+                    <button id="cctv-toggle-stream-btn" class="action-btn student-control-block" style="width: 100%; margin-top: 10px; background: #0f172a; color: #38bdf8;" onclick="initializeStudentSurveillancePipeline()">
+                        <i class="fa-solid fa-camera"></i> Start Live Self-Study Stream
+                    </button>
+                    <div class="cctv-container">
+                        <div id="cctv-status-badge" class="cctv-badge" style="display:none;"><i class="fa-solid fa-circle"></i> LIVE CHANNEL</div>
+                        <video id="cctv-hardware-viewport" class="cctv-video" autoplay playsinline muted></video>
+                        <div id="cctv-fallback-msg" style="color: #94a3b8; font-size: 0.85rem; padding: 20px; text-align: center;">Camera feed standby status. awaiting operational stream...</div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px;">
                     <h3 style="font-size: 1.15rem; margin-bottom: 5px;"><i class="fa-solid fa-graduation-cap"></i> AI Auto-Syllabus Test Planner</h3>
                     <p style="font-size: 0.75rem; opacity: 0.9; margin-bottom: 10px;">Select chapters below to generate a phase strategy blueprint.</p>
                     
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="student-control-block" style="display: flex; flex-direction: column; gap: 10px;">
                         <input type="text" id="planner-test-title" placeholder="Test Name (e.g., Major Mock Test-1)">
                         <input type="date" id="planner-test-date">
-                        
-                        <label style="font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: block;">Select Chapters to Include:</label>
-                        <div class="syllabus-scroll-box" id="syllabus-checklist-container"></div>
-
-                        <button class="action-btn" style="margin-top: 10px;" onclick="calculateDynamicSyllabusPlan()">Generate Live Blueprint</button>
                     </div>
+                    
+                    <label style="font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: block;">Select Chapters to Include:</label>
+                    <div class="syllabus-scroll-box" id="syllabus-checklist-container"></div>
+
+                    <button class="action-btn student-control-block" style="margin-top: 10px; width:100%;" onclick="calculateDynamicSyllabusPlan()">Generate Live Blueprint</button>
                     <div id="planner-output-card" class="white-card" style="display: none; font-size: 0.85rem; color:#334155;"></div>
                 </div>
             </div>
@@ -564,7 +637,7 @@
             <div class="column red-column">
                 <h2><i class="fa-solid fa-chart-pie"></i> Marks Performance Hub</h2>
                 
-                <div class="score-inputs-vertical-stack">
+                <div class="score-inputs-vertical-stack student-control-block">
                     <div class="score-inputs-row">
                         <input type="date" id="score-date">
                         <input type="text" id="score-name" placeholder="Test Label">
@@ -584,7 +657,7 @@
                                     <th>Test Metric</th>
                                     <th>Subject Breakdown</th>
                                     <th>Sum</th>
-                                    <th>Action</th>
+                                    <th class="student-control-block">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="score-table-body"></tbody>
@@ -611,8 +684,8 @@
             <div class="flip-card" id="flip-sec">00</div>
         </div>
         <div class="clock-controls">
-            <button class="action-btn" style="background: #22c55e; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="toggleClock()" id="start-pause-btn">Start Session</button>
-            <button class="action-btn" style="background: #ef4444; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="resetClock()">Reset</button>
+            <button class="action-btn student-control-block" style="background: #22c55e; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="toggleClock()" id="start-pause-btn">Start Session</button>
+            <button class="action-btn student-control-block" style="background: #ef4444; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="resetClock()">Reset</button>
             <button class="action-btn" style="background: #3f3f46; color: white; padding: 15px 35px; font-size: 1.1rem; border-radius: 50px;" onclick="closeClockOverlay()">Exit View</button>
         </div>
     </div>
@@ -620,9 +693,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
           apiKey: "AIzaSyDtgU2S6fN2NFVzq9bhebydipumwUnAEhQ",
           authDomain: "hybrid-study-workspace-1.firebaseapp.com",
@@ -636,10 +708,18 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Global State
+        // Core App Architecture Mappings
         window.isSignUpMode = false;
+        window.currentAuthRole = 'student'; // 'student' or 'parent'
+        window.userWorkspaceMode = 'student'; // Actual parsed configuration role
         window.activeUserMeta = null;
         window.state = { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 };
+
+        // WebRTC Global Signalling Handlers
+        let peerConnection = null;
+        let localStream = null;
+        let signalingUnsubscribe = null;
+        const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
         const MASTER_SYLLABUS = {
             "NEET": {
@@ -670,7 +750,25 @@
             }
         };
 
+        window.setAuthRole = function(role) {
+            window.currentAuthRole = role;
+            document.getElementById('tab-student').classList.toggle('active', role === 'student');
+            document.getElementById('tab-parent').classList.toggle('active', role === 'parent');
+            
+            if(role === 'parent') {
+                document.getElementById('auth-title').innerHTML = `<i class="fa-solid fa-user-shield"></i> Parent Vault Gateway`;
+                document.getElementById('auth-desc').innerText = "Access linked student performance and active surveillance nodes.";
+                if(window.isSignUpMode) { toggleAuthMode(); }
+                document.getElementById('auth-toggle-btn').style.display = 'none';
+            } else {
+                document.getElementById('auth-title').innerHTML = `<i class="fa-solid fa-lock"></i> Account Sign In`;
+                document.getElementById('auth-desc').innerText = "Enter your operational credentials to sync dynamic cloud metrics.";
+                document.getElementById('auth-toggle-btn').style.display = 'block';
+            }
+        }
+
         window.toggleAuthMode = function() {
+            if(window.currentAuthRole === 'parent') return;
             window.isSignUpMode = !window.isSignUpMode;
             const title = document.getElementById('auth-title');
             const desc = document.getElementById('auth-desc');
@@ -698,7 +796,19 @@
             const password = document.getElementById('auth-password').value;
 
             if(!email || !password) {
-                alert("Please fill all required Email and Password inputs.");
+                alert("Please fill all required Email and Password fields.");
+                return;
+            }
+
+            if(window.currentAuthRole === 'parent') {
+                // Parent Cross-Reference Login Scheme
+                try {
+                    // Sign-in momentarily to check metadata records via cross email mappings
+                    alert("Authorizing via Parent Gate...");
+                    await signInWithEmailAndPassword(auth, email, password);
+                } catch (err) {
+                    alert("Parent Vault Denied: Verification parameters failed.");
+                }
                 return;
             }
 
@@ -706,18 +816,28 @@
                 const name = document.getElementById('auth-name').value.trim();
                 const className = document.getElementById('auth-class').value;
                 const targetExam = document.getElementById('auth-exam').value;
+                const parentEmail = document.getElementById('auth-parent-email').value.trim();
+                const parentPassword = document.getElementById('auth-parent-password').value;
 
-                if(!name || !className || !targetExam) {
-                    alert("Registration requires Name, Class, and Target Exam setups.");
+                if(!name || !className || !targetExam || !parentEmail || !parentPassword) {
+                    alert("Registration requires Student and Parent details.");
                     return;
                 }
 
                 try {
                     const res = await createUserWithEmailAndPassword(auth, email, password);
-                    const userMeta = { name, className, targetExam, email };
+                    const userMeta = { 
+                        name, 
+                        className, 
+                        targetExam, 
+                        email,
+                        parentEmail,
+                        parentPassword,
+                        studentUid: res.user.uid
+                    };
                     await setDoc(doc(db, "users", res.user.uid), userMeta);
                     await setDoc(doc(db, "userData", res.user.uid), { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 });
-                    alert("Account Created successfully!");
+                    alert("Ecosystem Generated Successfully!");
                 } catch (err) {
                     alert("Registration Error: " + err.message);
                 }
@@ -725,40 +845,52 @@
                 try {
                     await signInWithEmailAndPassword(auth, email, password);
                 } catch (err) {
-                    alert("Login Failed: Invalid Email or Password configuration.");
+                    alert("Login Failed: Invalid Parameter Matrix.");
                 }
             }
         }
 
         window.handleLogout = function() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
             signOut(auth).then(() => {
                 location.reload();
             });
         }
 
         async function saveStateToCloud() {
+            if(window.userWorkspaceMode === 'parent') return; 
             if(auth.currentUser) {
                 try {
                     await setDoc(doc(db, "userData", auth.currentUser.uid), window.state);
                 } catch (e) {
-                    console.error("Cloud sync error: ", e);
+                    console.error("Cloud sync mismatch: ", e);
                 }
             }
         }
 
         onAuthStateChanged(auth, async (user) => {
             if(user) {
-                document.getElementById('auth-view').style.display = 'none';
-                document.getElementById('dashboard-view').style.display = 'block';
-
-                const metaSnap = await getDoc(doc(db, "users", user.uid));
+                let currentUid = user.uid;
+                
+                // Fetch context metadata parameters
+                const metaSnap = await getDoc(doc(db, "users", currentUid));
                 if(metaSnap.exists()) {
                     window.activeUserMeta = metaSnap.data();
+                    
+                    // Determine if Parent or Student environment configurations map
+                    if(window.currentAuthRole === 'parent' || user.email === window.activeUserMeta.parentEmail) {
+                        window.userWorkspaceMode = 'parent';
+                    } else {
+                        window.userWorkspaceMode = 'student';
+                    }
+
                     document.getElementById('welcome-heading').innerText = `Hello ${window.activeUserMeta.name}! 👋`;
-                    document.getElementById('class-tagline').innerText = `Strategic Cloud Hub • Exam: ${window.activeUserMeta.targetExam} • Class Status: ${window.activeUserMeta.className}`;
+                    document.getElementById('class-tagline').innerText = `Role Context: ${window.userWorkspaceMode.toUpperCase()} • Target: ${window.activeUserMeta.targetExam} • Status: ${window.activeUserMeta.className}`;
                 }
 
-                const dataSnap = await getDoc(doc(db, "userData", user.uid));
+                const dataSnap = await getDoc(doc(db, "userData", currentUid));
                 if(dataSnap.exists()) {
                     const cloudData = dataSnap.data();
                     window.state.todos = cloudData.todos || [];
@@ -768,17 +900,158 @@
                     window.state.streak = cloudData.streak || 0;
                 }
 
+                // Enforce Role Constraints onto Layout Engines
+                applyDynamicEcosystemAccessFilters();
+
                 configureSubjectSelectors();
                 configureScoreInputsLayout();
                 buildAutoSyllabusChecklist();
                 updateStreakUI();
                 initAppLifecycle();
+
+                // Setup Surveillance Node
+                if(window.userWorkspaceMode === 'parent') {
+                    initializeParentSurveillanceListener(currentUid);
+                }
             } else {
                 document.getElementById('auth-view').style.display = 'flex';
                 document.getElementById('dashboard-view').style.display = 'none';
             }
         });
 
+        function applyDynamicEcosystemAccessFilters() {
+            document.getElementById('auth-view').style.display = 'none';
+            document.getElementById('dashboard-view').style.display = 'block';
+
+            const elements = document.querySelectorAll('.student-control-block');
+            if(window.userWorkspaceMode === 'parent') {
+                document.getElementById('parent-notice-banner').style.display = 'block';
+                elements.forEach(el => el.classList.add('parent-hidden'));
+            } else {
+                document.getElementById('parent-notice-banner').style.display = 'none';
+                elements.forEach(el => el.classList.remove('parent-hidden'));
+            }
+        }
+
+        // --- WEB Rtc CCTV ENGINE PIPELINES ---
+        window.initializeStudentSurveillancePipeline = async function() {
+            const fallbackMsg = document.getElementById('cctv-fallback-msg');
+            const videoViewport = document.getElementById('cctv-hardware-viewport');
+            const statusBadge = document.getElementById('cctv-status-badge');
+            const streamBtn = document.getElementById('cctv-toggle-stream-btn');
+
+            if(localStream) {
+                // Terminate session
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+                videoViewport.srcObject = null;
+                statusBadge.style.display = 'none';
+                fallbackMsg.style.display = 'block';
+                streamBtn.innerHTML = `<i class="fa-solid fa-camera"></i> Start Live Self-Study Stream`;
+                await setDoc(doc(db, "surveillance", auth.currentUser.uid), { active: false });
+                return;
+            }
+
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                videoViewport.srcObject = localStream;
+                fallbackMsg.style.display = 'none';
+                statusBadge.style.display = 'flex';
+                streamBtn.innerHTML = `<i class="fa-solid fa-video-slash"></i> Kill Live Session Stream`;
+
+                // Signal setup in Firestore
+                const surveillanceDocRef = doc(db, "surveillance", auth.currentUser.uid);
+                await setDoc(surveillanceDocRef, { active: true, offer: null, answer: null, iceCandidates: [] });
+
+                peerConnection = new RTCPeerConnection(rtcConfig);
+                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+                peerConnection.onicecandidate = async (event) => {
+                    if (event.candidate) {
+                        const snap = await getDoc(surveillanceDocRef);
+                        const candidates = snap.data().iceCandidates || [];
+                        candidates.push(event.candidate.toJSON());
+                        await updateDoc(surveillanceDocRef, { iceCandidates: candidates });
+                    }
+                };
+
+                const offerDescription = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offerDescription);
+
+                await updateDoc(surveillanceDocRef, {
+                    offer: { type: offerDescription.type, sdp: offerDescription.sdp }
+                });
+
+                // Listen for Answers from Parent Node
+                onSnapshot(surveillanceDocRef, async (snapshot) => {
+                    const data = snapshot.data();
+                    if (data && data.answer && !peerConnection.currentRemoteDescription) {
+                        const answerDescription = new RTCSessionDescription(data.answer);
+                        await peerConnection.setRemoteDescription(answerDescription);
+                    }
+                });
+
+            } catch (err) {
+                alert("Hardware Pipeline Refused: Camera device mapping error.");
+                console.error(err);
+            }
+        };
+
+        function initializeParentSurveillanceListener(studentUid) {
+            const surveillanceDocRef = doc(db, "surveillance", studentUid);
+            const videoViewport = document.getElementById('cctv-hardware-viewport');
+            const fallbackMsg = document.getElementById('cctv-fallback-msg');
+            const statusBadge = document.getElementById('cctv-status-badge');
+
+            onSnapshot(surveillanceDocRef, async (snapshot) => {
+                const data = snapshot.data();
+                if (!data || !data.active || !data.offer) {
+                    // Feed offline
+                    videoViewport.srcObject = null;
+                    statusBadge.style.display = 'none';
+                    fallbackMsg.innerText = "Feed Standby: Student has not active self-study streaming sessions.";
+                    fallbackMsg.style.display = 'block';
+                    return;
+                }
+
+                if (peerConnection) return; // Handshake complete/in progress
+
+                fallbackMsg.style.display = 'none';
+                statusBadge.style.display = 'flex';
+
+                peerConnection = new RTCPeerConnection(rtcConfig);
+                
+                peerConnection.ontrack = (event) => {
+                    videoViewport.srcObject = event.streams[0];
+                };
+
+                peerConnection.onicecandidate = async (event) => {
+                    if (event.candidate) {
+                        const snap = await getDoc(surveillanceDocRef);
+                        const candidates = snap.data().parentIceCandidates || [];
+                        candidates.push(event.candidate.toJSON());
+                        await updateDoc(surveillanceDocRef, { parentIceCandidates: candidates });
+                    }
+                };
+
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                const answerDescription = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answerDescription);
+
+                await updateDoc(surveillanceDocRef, {
+                    answer: { type: answerDescription.type, sdp: answerDescription.sdp }
+                });
+
+                // Map Candidates
+                if (data.iceCandidates) {
+                    data.iceCandidates.forEach(candidate => {
+                        peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                    });
+                }
+            });
+        }
+
+        // --- CORE LOGIC APPARATUS ---
         function configureSubjectSelectors() {
             const selectObj = document.getElementById('task-subject');
             if(!selectObj || !window.activeUserMeta) return;
@@ -831,8 +1104,9 @@
                 syllabusData[subject].forEach((chapter) => {
                     const label = document.createElement('label');
                     label.className = 'syllabus-item';
+                    const isDisabled = window.userWorkspaceMode === 'parent' ? 'disabled' : '';
                     label.innerHTML = `
-                        <input type="checkbox" class="plan-chapter-checkbox" data-subject="${subject}" value="${chapter}">
+                        <input type="checkbox" class="plan-chapter-checkbox" data-subject="${subject}" value="${chapter}" ${isDisabled}>
                         <span>${chapter}</span>
                     `;
                     box.appendChild(label);
@@ -849,6 +1123,7 @@
         }
 
         window.addTodo = async function() {
+            if(window.userWorkspaceMode === 'parent') return;
             const input = document.getElementById('todo-input');
             const timeInput = document.getElementById('todo-time');
             if (!input || !input.value.trim()) return;
@@ -856,17 +1131,19 @@
             await saveStateToCloud(); 
             renderTodos();
             input.value = ''; timeInput.value = '';
-        }
+        };
 
         window.completeTask = async function(idx) {
+            if(window.userWorkspaceMode === 'parent') return;
             window.state.todos.splice(idx, 1);
             window.state.streak = (window.state.streak || 0) + 1;
             await saveStateToCloud(); 
             renderTodos(); 
             updateStreakUI();
-        }
+        };
 
         window.addTask = async function() {
+            if(window.userWorkspaceMode === 'parent') return;
             const title = document.getElementById('task-title');
             const subject = document.getElementById('task-subject');
             if (!title || !title.value.trim()) return;
@@ -874,15 +1151,17 @@
             await saveStateToCloud(); 
             renderChapters(); 
             title.value = '';
-        }
+        };
 
         window.deleteChapter = async function(idx) {
+            if(window.userWorkspaceMode === 'parent') return;
             window.state.chapters.splice(idx, 1); 
             await saveStateToCloud(); 
             renderChapters();
-        }
+        };
 
         window.calculateDynamicSyllabusPlan = async function() {
+            if(window.userWorkspaceMode === 'parent') return;
             const title = document.getElementById('planner-test-title').value || "Mock Evaluation Framework";
             const dateVal = document.getElementById('planner-test-date').value;
             const checkboxes = document.querySelectorAll('.plan-chapter-checkbox:checked');
@@ -906,15 +1185,17 @@
             window.state.activeStrategicPlan = { title, diffDays, count: selectedChapters.length, p1Days, p2Days, p3Days };
             await saveStateToCloud(); 
             renderStrategicPlan();
-        }
+        };
 
         window.clearStrategicPlan = async function() {
+            if(window.userWorkspaceMode === 'parent') return;
             window.state.activeStrategicPlan = null; 
             await saveStateToCloud(); 
             renderStrategicPlan();
-        }
+        };
 
         window.addScore = async function() {
+            if(window.userWorkspaceMode === 'parent') return;
             const date = document.getElementById('score-date').value;
             const name = document.getElementById('score-name').value || "Test Assessment";
             if (!date) { alert("Invalid date parameter."); return; }
@@ -942,9 +1223,10 @@
             renderTable(); 
             updateChartsData();
             configureScoreInputsLayout(); 
-        }
+        };
 
         window.deleteScore = async function(idx) {
+            if(window.userWorkspaceMode === 'parent') return;
             window.state.tests.splice(idx, 1); 
             await saveStateToCloud(); 
             renderTable(); 
@@ -957,9 +1239,11 @@
             window.state.todos.forEach((todo, idx) => {
                 const li = document.createElement('li');
                 const timeStr = todo.timeLimit ? ` (${todo.timeLimit}m)` : '';
+                const isParent = window.userWorkspaceMode === 'parent';
+                
                 li.innerHTML = `
                     <div><span>${todo.text}${timeStr}</span></div>
-                    <div>
+                    <div class="${isParent ? 'parent-hidden' : ''}">
                         ${todo.timeLimit ? `<button class="badge-clock-btn" onclick="loadTaskToClock(${idx})"><i class="fa-solid fa-clock"></i> Load</button>` : ''}
                         <button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="completeTask(${idx})"><i class="fa-solid fa-check"></i></button>
                     </div>
@@ -973,7 +1257,9 @@
             if(!ul) return; ul.innerHTML = '';
             window.state.chapters.forEach((ch, idx) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> <button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
+                const isParent = window.userWorkspaceMode === 'parent';
+                li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> 
+                <button class="delete-btn ${isParent ? 'parent-hidden' : ''}" style="background:rgba(255,255,255,0.25);" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
                 ul.appendChild(li);
             });
         }
@@ -983,10 +1269,12 @@
             if(!window.state.activeStrategicPlan) { targetBox.style.display = 'none'; return; }
             targetBox.style.display = 'block';
             const plan = window.state.activeStrategicPlan;
+            const isParent = window.userWorkspaceMode === 'parent';
+
             targetBox.innerHTML = `
                 <div style="display:flex; justify-content:between; align-items:center; margin-bottom: 8px;">
                     <strong style="color:#1e3a8a;">🎯 Strategy: ${plan.title}</strong>
-                    <i class="fa-solid fa-square-xmark" style="cursor:pointer; color:#ef4444; margin-left:auto; font-size:1.15rem;" onclick="clearStrategicPlan()"></i>
+                    <i class="fa-solid fa-square-xmark ${isParent ? 'parent-hidden' : ''}" style="cursor:pointer; color:#ef4444; margin-left:auto; font-size:1.15rem;" onclick="clearStrategicPlan()"></i>
                 </div>
                 <p style="font-weight:bold; margin-bottom:5px;">⏳ ${plan.diffDays} Days Remaining for ${plan.count} Selected Topics</p>
                 <div class="phase-box" style="border-left-color: #2563eb;">
@@ -1018,11 +1306,13 @@
                     (t.physics + t.chemistry + t.mathematics) : 
                     (t.physics + t.chemistry + t.botany + t.zoology);
 
+                const isParent = window.userWorkspaceMode === 'parent';
+
                 row.innerHTML = `
                     <td><strong>${t.date}</strong><br><small style="color:#64748b;">${t.name}</small></td>
                     <td>${breakDownStr}</td>
                     <td><strong>${sumScore}</strong>/${maxPossible}</td>
-                    <td><button class="delete-btn" onclick="deleteScore(${idx})"><i class="fa-solid fa-trash"></i></button></td>
+                    <td class="${isParent ? 'parent-hidden' : ''}"><button class="delete-btn" onclick="deleteScore(${idx})"><i class="fa-solid fa-trash"></i></button></td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1097,12 +1387,13 @@
             renderStrategicPlan();
         }
 
-        // Clock Global Mappings
+        // Timer Module Core
         let clockInterval, running = false, totalSeconds = 0, isCountdownMode = false;
         window.openClockOverlay = function() { document.getElementById('clock-overlay').style.display = 'flex'; }
         window.closeClockOverlay = function() { document.getElementById('clock-overlay').style.display = 'none'; }
         
         window.loadTaskToClock = function(idx) {
+            if(window.userWorkspaceMode === 'parent') return;
             const task = window.state.todos[idx];
             if(task && task.timeLimit) {
                 isCountdownMode = true; totalSeconds = task.timeLimit * 60;
@@ -1113,6 +1404,7 @@
         }
 
         window.toggleClock = function() {
+            if(window.userWorkspaceMode === 'parent') return;
             const btn = document.getElementById('start-pause-btn');
             if (!running) {
                 running = true; btn.innerText = "Pause Study"; btn.style.backgroundColor = "#eab308";
@@ -1133,12 +1425,13 @@
         }
 
         window.resetClock = function() {
+            if(window.userWorkspaceMode === 'parent') return;
             running = false; clearInterval(clockInterval); totalSeconds = 0; isCountdownMode = false;
             updateFlipDisplay();
             document.getElementById('clock-status-text').innerText = `Mode: Free Flow Stopwatch`;
             document.getElementById('clock-overlay-title').innerHTML = `<i class="fa-solid fa-brain"></i> DEEP STUDY STREAM`;
             const btn = document.getElementById('start-pause-btn');
-            btn.innerText = "Start Session"; btn.style.backgroundColor = "#22c55e";
+            if(btn) { btn.innerText = "Start Session"; btn.style.backgroundColor = "#22c55e"; }
         }
 
         function updateFlipDisplay() {
@@ -1160,4 +1453,3 @@
     </script>
 </body>
 </html>
-
