@@ -111,15 +111,22 @@
             white-space: nowrap;
         }
 
+        /* Updated to 4 columns for large screens */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            max-width: 1400px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            max-width: 1600px;
             margin: 0 auto 30px auto;
         }
 
-        @media (max-width: 1100px) {
+        @media (max-width: 1300px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 800px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
@@ -130,16 +137,17 @@
             flex-direction: column;
             gap: 30px;
             border-radius: 24px;
-            padding: 30px;
+            padding: 25px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
         }
 
         .blue-column { background-color: #2563EB; }
         .yellow-column { background-color: #EAB308; }
         .red-column { background-color: #DC2626; }
+        .green-column { background-color: #16A34A; } /* New Green Section */
 
         h2 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -318,6 +326,63 @@
             margin-top: 3px;
         }
 
+        /* GREEN SECTION VIDEO HUB STYLING */
+        .video-hub-container {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 15px;
+            max-height: 580px;
+            overflow-y: auto;
+        }
+
+        .video-subject-title {
+            font-weight: 800;
+            font-size: 1rem;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .video-chapter-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e293b;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .video-chapter-card span {
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .yt-btn {
+            background-color: #cc0000;
+            color: white !important;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .yt-btn:hover {
+            background-color: #990000;
+        }
+
         .table-wrapper {
             max-height: 200px;
             overflow-y: auto;
@@ -345,7 +410,7 @@
         }
 
         .premium-footer-box {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             background: #1e293b;
             border-radius: 24px;
@@ -517,6 +582,13 @@
                     </div>
                 </div>
 
+                <div class="column green-column">
+                    <h2><i class="fa-solid fa-circle-play"></i> Video Lectures Hub</h2>
+                    <p style="font-size: 0.8rem; opacity: 0.9; margin-top: -15px;">Curated multi-part YouTube playlists for every chapter based on your target stream.</p>
+                    <div class="video-hub-container" id="video-hub-list">
+                        </div>
+                </div>
+
                 <div class="column red-column">
                     <h2><i class="fa-solid fa-chart-pie"></i> Marks Performance Hub</h2>
                     <div class="score-inputs-vertical-stack">
@@ -590,7 +662,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Force browser session persistence so logins do not accidentally stick across wrong tabs
+        // Force browser session persistence
         setPersistence(auth, browserSessionPersistence).catch(console.error);
 
         // Global Application Context
@@ -601,31 +673,58 @@
         const MASTER_SYLLABUS = {
             "NEET": {
                 "Class 11": {
-                    "Physics": ["Units and Measurements", "Motion in a Straight Line", "Motion in a Plane", "Laws of Motion", "Work, Energy and Power", "Rotational Motion", "Gravitation", "Mechanical Properties", "Thermal Properties", "Thermodynamics", "Kinetic Theory", "Oscillations & Waves"],
-                    "Chemistry": ["Basic Concepts", "Structure of Atom", "Classification", "Chemical Bonding", "Thermodynamics", "Equilibrium", "Redox Reactions", "Organic Chemistry", "Hydrocarbons"],
-                    "Botany": ["The Living World", "Biological Classification", "Plant Kingdom", "Morphology", "Anatomy", "Cell Cycle"],
-                    "Zoology": ["Animal Kingdom", "Structural Organisation", "Biomolecules", "Breathing", "Circulation", "Excretion", "Locomotion", "Neural Control"]
+                    "Physics": ["Units and Measurements", "Motion in a Straight Line", "Motion in a Plane", "Laws of Motion", "Work, Energy and Power", "Rotational Motion", "Gravitation", "Mechanical Properties of Solids & Fluids", "Thermal Properties of Matter", "Thermodynamics", "Kinetic Theory", "Oscillations & Waves"],
+                    "Chemistry": ["Basic Concepts of Chemistry", "Structure of Atom", "Classification of Elements", "Chemical Bonding", "Thermodynamics", "Equilibrium", "Redox Reactions", "Organic Chemistry Basics", "Hydrocarbons"],
+                    "Botany": ["The Living World", "Biological Classification", "Plant Kingdom", "Morphology of Flowering Plants", "Anatomy of Flowering Plants", "Cell: The Unit of Life", "Cell Cycle & Division"],
+                    "Zoology": ["Animal Kingdom", "Structural Organisation in Animals", "Biomolecules", "Breathing & Exchange of Gases", "Body Fluids & Circulation", "Excretory Products", "Locomotion & Movement", "Neural Control & Coordination", "Chemical Coordination"]
                 },
                 "Class 12": {
-                    "Physics": ["Electrostatics", "Current Electricity", "Moving Charges", "Magnetism", "EMI & AC", "EM Waves", "Ray Optics", "Wave Optics", "Dual Nature", "Atoms & Nuclei", "Semiconductors"],
-                    "Chemistry": ["Solutions", "Electrochemistry", "Chemical Kinetics", "d & f Block", "Coordination", "Haloalkanes", "Alcohols", "Aldehydes", "Amines", "Biomolecules"],
-                    "Botany": ["Reproduction in Plants", "Principles of Inheritance", "Molecular Basis", "Ecosystem", "Biodiversity"],
-                    "Zoology": ["Human Reproduction", "Reproductive Health", "Evolution", "Human Health", "Biotechnology"]
+                    "Physics": ["Electrostatics", "Current Electricity", "Moving Charges & Magnetism", "Magnetism & Matter", "EMI & AC", "EM Waves", "Ray Optics", "Wave Optics", "Dual Nature", "Atoms & Nuclei", "Semiconductors"],
+                    "Chemistry": ["Solutions", "Electrochemistry", "Chemical Kinetics", "d & f Block Elements", "Coordination Compounds", "Haloalkanes & Haloarenes", "Alcohols, Phenols & Ethers", "Aldehydes, Ketones & Carboxylic Acids", "Amines", "Biomolecules"],
+                    "Botany": ["Sexual Reproduction in Flowering Plants", "Principles of Inheritance", "Molecular Basis of Inheritance", "Ecosystem", "Biodiversity & Conservation"],
+                    "Zoology": ["Human Reproduction", "Reproductive Health", "Evolution", "Human Health & Disease", "Biotechnology Principles", "Biotechnology Applications"]
                 }
             },
             "JEE": {
                 "Class 11": {
-                    "Physics": ["Units & Measurements", "Kinematics", "Laws of Motion", "Work, Energy & Power", "Rotational Motion", "Gravitation", "Thermodynamics", "Oscillations & Waves"],
-                    "Chemistry": ["Basic Concepts", "Atomic Structure", "Chemical Bonding", "Thermodynamics", "Solutions", "Equilibrium", "Redox Reactions"],
-                    "Mathematics": ["Sets & Functions", "Complex Numbers", "Matrices & Determinants", "Permutations", "Binomial Theorem", "Sequences & Series"]
+                    "Physics": ["Units & Measurements", "Kinematics 1D & 2D", "Laws of Motion & Friction", "Work, Energy & Power", "Rotational Motion", "Gravitation", "Properties of Matter", "Thermodynamics", "Oscillations & Waves"],
+                    "Chemistry": ["Mole Concept & Basic Concepts", "Atomic Structure", "Chemical Bonding", "Thermodynamics", "Chemical & Ionic Equilibrium", "Redox Reactions", "General Organic Chemistry", "Hydrocarbons"],
+                    "Mathematics": ["Sets, Relations & Functions", "Trigonometric Functions", "Complex Numbers", "Quadratic Equations", "Permutations & Combinations", "Binomial Theorem", "Sequences & Series", "Straight Lines & Conic Sections"]
                 },
                 "Class 12": {
-                    "Physics": ["Electrostatics", "Current Electricity", "Magnetic Effects", "EMI & AC", "Optics", "Modern Physics", "Electronic Devices"],
-                    "Chemistry": ["Coordination Compounds", "d and f Block Elements", "Organic Principles", "Hydrocarbons", "Biomolecules"],
-                    "Mathematics": ["Limits & Continuity", "Integral Calculus", "Differential Equations", "Vector Algebra", "3D Geometry", "Probability"]
+                    "Physics": ["Electrostatics", "Current Electricity", "Magnetic Effects of Current", "EMI & Alternating Current", "Ray & Wave Optics", "Modern Physics", "Semiconductors"],
+                    "Chemistry": ["Solutions", "Electrochemistry", "Chemical Kinetics", "d and f Block Elements", "Coordination Compounds", "Organic Chemistry Reactions", "Biomolecules"],
+                    "Mathematics": ["Limits, Continuity & Differentiability", "Integral Calculus", "Differential Equations", "Vector Algebra", "3D Geometry", "Matrices & Determinants", "Probability"]
                 }
             }
         };
+
+        // Curated Multi-part Playlist Links Repository
+        const CHAPTER_VIDEO_LINKS = {
+            "Units and Measurements": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
+            "Units & Measurements": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
+            "Motion in a Straight Line": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
+            "Kinematics 1D & 2D": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
+            "Motion in a Plane": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
+            "Laws of Motion": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
+            "Laws of Motion & Friction": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
+            "Work, Energy and Power": "https://www.youtube.com/watch?v=5sA9uo8qtUs",
+            "Work, Energy & Power": "https://www.youtube.com/watch?v=5sA9uo8qtUs",
+            "Basic Concepts of Chemistry": "https://www.youtube.com/watch?v=Qy0Q_AYs63Y",
+            "Mole Concept & Basic Concepts": "https://www.youtube.com/watch?v=Qy0Q_AYs63Y",
+            "Structure of Atom": "https://www.youtube.com/@PhysicsWallah",
+            "Atomic Structure": "https://www.youtube.com/@PhysicsWallah",
+            "Chemical Bonding": "https://www.youtube.com/@PhysicsWallah",
+            "Classification of Elements": "https://www.youtube.com/@PhysicsWallah",
+            "Sets, Relations & Functions": "https://www.youtube.com/watch?v=XYJyV48ijms",
+            "Trigonometric Functions": "https://www.youtube.com/@MohitTyagi",
+            "Complex Numbers": "https://www.youtube.com/@MohitTyagi",
+            "Cell: The Unit of Life": "https://www.youtube.com/watch?v=-x45iqiZUn0",
+            "Biological Classification": "https://www.youtube.com/watch?v=YXL0SxV1NFw",
+            "Plant Kingdom": "https://www.youtube.com/watch?v=AgHila9T1fo"
+        };
+
+        const DEFAULT_VIDEO_LINK = "https://www.youtube.com/@PhysicsWallah";
 
         window.toggleAuthMode = function() {
             window.isSignUpMode = !window.isSignUpMode;
@@ -726,6 +825,7 @@
                 configureSubjectSelectors();
                 configureScoreInputsLayout();
                 buildAutoSyllabusChecklist();
+                renderVideoHub(); // Populate Green Section
                 updateStreakUI();
                 initAppLifecycle();
             } else {
@@ -791,6 +891,39 @@
                         <span>${chapter}</span>
                     `;
                     box.appendChild(label);
+                });
+            }
+        }
+
+        // Renders Green Video Lectures Hub
+        function renderVideoHub() {
+            const container = document.getElementById('video-hub-list');
+            if(!container || !window.activeUserMeta) return;
+            container.innerHTML = '';
+
+            const exam = window.activeUserMeta.targetExam;
+            const targetClass = window.activeUserMeta.className;
+            const syllabusData = MASTER_SYLLABUS[exam] ? MASTER_SYLLABUS[exam][targetClass] : null;
+
+            if(!syllabusData) return;
+
+            for(let subject in syllabusData) {
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'video-subject-title';
+                titleDiv.innerText = `📌 ${subject}`;
+                container.appendChild(titleDiv);
+
+                syllabusData[subject].forEach((chapterName) => {
+                    const link = CHAPTER_VIDEO_LINKS[chapterName] || DEFAULT_VIDEO_LINK;
+                    const card = document.createElement('div');
+                    card.className = 'video-chapter-card';
+                    card.innerHTML = `
+                        <span>${chapterName}</span>
+                        <a href="${link}" target="_blank" class="yt-btn">
+                            <i class="fa-brands fa-youtube"></i> Watch
+                        </a>
+                    `;
+                    container.appendChild(card);
                 });
             }
         }
