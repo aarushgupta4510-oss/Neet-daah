@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Premium Hybrid Study Workspace (JEE / NEET)</title>
+    <title>AI Premium Study Workspace (JEE / NEET)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -21,32 +21,6 @@
             min-height: 100vh;
             padding: 40px 20px;
             color: #ffffff;
-        }
-
-        /* PORTAL SELECTION DESK */
-        .portal-selector {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .portal-btn {
-            background: #1e293b;
-            color: white;
-            border: 2px solid transparent;
-            padding: 12px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s ease;
-        }
-
-        .portal-btn.active {
-            background: #2563EB;
-            border-color: #ffffff;
-            box-shadow: 0 10px 20px rgba(37,99,235,0.2);
         }
 
         /* PREMIUM AUTH SCENE */
@@ -96,30 +70,8 @@
             font-weight: 600;
         }
 
-        /* DYNAMIC POPUP BADGE */
-        .parent-profile-popup {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #1e293b;
-            border: 2px solid #2563EB;
-            padding: 15px 20px;
-            border-radius: 16px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.25);
-            z-index: 3000;
-            display: none;
-            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            color: white;
-            max-width: 300px;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
         /* MAIN DASHBOARD SCENE */
-        #student-dashboard, #parent-dashboard {
+        #student-dashboard {
             display: none;
         }
 
@@ -142,18 +94,6 @@
             color: #666;
             margin-top: 8px;
             font-weight: 600;
-        }
-
-        .sync-key-display {
-            display: inline-block;
-            background: #0f172a;
-            color: #38bdf8;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-family: 'Share Tech Mono', monospace;
-            margin-top: 10px;
-            font-size: 0.95rem;
-            border: 1px dashed #38bdf8;
         }
 
         .logout-link {
@@ -284,52 +224,6 @@
 
         .delete-btn:hover {
             background: #dc2626;
-        }
-
-        /* WEBRTC DYNAMIC CCTV COMPONENT */
-        .cctv-container {
-            background: #0f172a;
-            border: 3px solid #ef4444;
-            border-radius: 16px;
-            overflow: hidden;
-            position: relative;
-            margin-top: 15px;
-            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.15);
-        }
-
-        .cctv-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(239, 68, 68, 0.85);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            z-index: 10;
-        }
-
-        .cctv-badge span {
-            width: 8px;
-            height: 8px;
-            background: #ffffff;
-            border-radius: 50%;
-            display: inline-block;
-            animation: blink 1s infinite alternate;
-        }
-
-        @keyframes blink { from { opacity: 0.2; } to { opacity: 1; } }
-
-        .cctv-video {
-            width: 100%;
-            height: 200px;
-            background: #000;
-            object-fit: cover;
-            transform: scaleX(-1);
         }
 
         .timer-box {
@@ -505,6 +399,7 @@
             justify-content: space-between;
             margin-top: 15px;
         }
+
         .streak-num {
             font-size: 1.8rem;
             font-weight: 800;
@@ -532,17 +427,6 @@
     </style>
 </head>
 <body>
-
-    <div class="portal-selector">
-        <button id="btn-student-desk" class="portal-btn active" onclick="switchDesk('student')"><i class="fa-solid fa-graduation-cap"></i> Student Desk</button>
-        <button id="btn-parent-desk" class="portal-btn" onclick="switchDesk('parent')"><i class="fa-solid fa-user-shield"></i> Parental Watch Desk</button>
-    </div>
-
-    <div id="parent-badge-popup" class="parent-profile-popup">
-        <div style="font-size: 0.8rem; color: #38bdf8; text-transform: uppercase; font-weight: 800; margin-bottom: 4px;"><i class="fa-solid fa-link"></i> Linked Student</div>
-        <h4 id="pop-student-name" style="font-size: 1.1rem; font-weight: 700;">Loading...</h4>
-        <div id="pop-student-meta" style="font-size: 0.85rem; opacity: 0.8; margin-top: 2px;">Class & Target Details</div>
-    </div>
 
     <div id="student-view-container">
         <div id="auth-view" class="auth-container">
@@ -576,7 +460,6 @@
             <header>
                 <h1 id="welcome-heading">Hello User! 👋</h1>
                 <p id="class-tagline">Strategic Study Focus Workspace</p>
-                <div id="student-sync-key-ui" class="sync-key-display">Sync Key: Connecting...</div>
                 <button class="logout-link" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Lock Screen</button>
             </header>
 
@@ -619,8 +502,6 @@
                         <h3 style="font-size: 1.3rem; margin-bottom: 5px;">Launch Study Clock</h3>
                         <p id="clock-status-text" style="opacity: 0.8; font-size: 0.85rem;">Mode: Free Flow Stopwatch</p>
                     </div>
-
-                    <video id="student-hidden-cam" autoplay muted playsinline style="display:none;"></video>
 
                     <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px;">
                         <h3 style="font-size: 1.15rem; margin-bottom: 5px;"><i class="fa-solid fa-graduation-cap"></i> AI Auto-Syllabus Test Planner</h3>
@@ -671,76 +552,7 @@
                     <div class="flashcard-title"><i class="fa-solid fa-bolt"></i> High-Yield Hybrid Formula Desk</div>
                     <p id="formula-text" style="color: #cbd5e1; font-size: 0.95rem;">Loading targeted study pointers...</p>
                 </div>
-                <button class="action-btn" style="padding: 10px 20px; font-size: 0.9 Mail; background: #334155; color: white;" onclick="rotateFormula()">Next Formula</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="parent-view-container" style="display:none;">
-        <div id="parent-sync-panel" class="auth-container">
-            <div class="auth-card" style="border: 2px solid #2563EB;">
-                <h2 style="color:#2563EB; text-align:center;"><i class="fa-solid fa-user-shield"></i> Parental Watch Sync</h2>
-                <p>Insert the tracking synchronization key generated on your student's dashboard layout.</p>
-                <input type="text" id="parent-sync-key-input" placeholder="Paste Student Sync Key here...">
-                <button class="action-btn" style="width:100%; margin-top:10px; background:#2563EB; color:white;" onclick="linkStudentAccount()">Synchronize Desk</button>
-            </div>
-        </div>
-
-        <div id="parent-dashboard">
-            <header>
-                <h1 style="color: #0f172a;">Parent Surveillance Hub</h1>
-                <p>Real-time updates, metrics alignment, and live audio-visual verification feed.</p>
-            </header>
-
-            <div class="dashboard-grid">
-                <div class="column" style="background-color: #0f172a; border: 3px solid #ef4444;">
-                    <h2><i class="fa-solid fa-video" style="color:#ef4444;"></i> Live CCTV Stream</h2>
-                    <p style="font-size: 0.85rem; color:#94a3b8;">Automated continuous evaluation stream connection via WebRTC framework.</p>
-                    
-                    <div class="cctv-container">
-                        <div class="cctv-badge"><span></span> LIVE WORKSPACE FEED</div>
-                        <video id="parent-cctv-viewport" class="cctv-video" autoplay muted playsinline></video>
-                    </div>
-                    
-                    <div class="white-card" style="background: rgba(255,255,255,0.05); color:#94a3b8; font-size:0.85rem;">
-                        <i class="fa-solid fa-circle-info"></i> Streams activate instantly when student enters dashboard environment.
-                    </div>
-                </div>
-
-                <div class="column blue-column">
-                    <h2><i class="fa-solid fa-list-check"></i> Student Tasks & Focus</h2>
-                    <div class="streak-card">
-                        <div>
-                            <span style="font-size:0.85rem; display:block; opacity:0.9;">🔥 Focus Streak</span>
-                            <strong id="p-badge-label" style="font-size:0.95rem; color:#67e8f9;">Novice Learner</strong>
-                        </div>
-                        <div class="streak-num" id="p-streak-counter-ui">0 Days</div>
-                    </div>
-                    <h3 style="font-size:1.1rem; margin-top:10px;">Pending Action Items</h3>
-                    <ul id="p-todo-list" class="item-list"></ul>
-                    <h3 style="font-size:1.1rem; margin-top:10px;">Completed Milestones</h3>
-                    <ul id="p-task-list" class="item-list"></ul>
-                </div>
-
-                <div class="column red-column">
-                    <h2><i class="fa-solid fa-chart-pie"></i> Academic Performance Analytics</h2>
-                    <div class="white-card"><div style="position: relative; height: 160px; width: 100%;"><canvas id="pPerformanceChart"></canvas></div></div>
-                    <div class="white-card"><div style="position: relative; height: 150px; width: 100%;"><canvas id="pPieChart"></canvas></div></div>
-                    <div class="white-card" style="padding: 10px;">
-                        <div class="table-wrapper">
-                            <table class="score-table">
-                                <thead>
-                                    <tr>
-                                        <th>Test Metric</th>
-                                        <th>Breakdown</th>
-                                        <th>Sum</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="p-score-table-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <button class="action-btn" style="padding: 10px 20px; font-size: 0.9rem; background: #334155; color: white;" onclick="rotateFormula()">Next Formula</button>
             </div>
         </div>
     </div>
@@ -761,8 +573,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -778,13 +590,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Global Application Context Definitions
+        // Force browser session persistence so logins do not accidentally stick across wrong tabs
+        setPersistence(auth, browserSessionPersistence).catch(console.error);
+
+        // Global Application Context
         window.isSignUpMode = false;
         window.activeUserMeta = null;
         window.state = { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 };
-        
-        let localStream = null;
-        let peerConnection = null;
 
         const MASTER_SYLLABUS = {
             "NEET": {
@@ -814,22 +626,6 @@
                 }
             }
         };
-
-        // DESK ROUTER CONTROLLER
-        window.switchDesk = function(target) {
-            document.getElementById('btn-student-desk').classList.remove('active');
-            document.getElementById('btn-parent-desk').classList.remove('active');
-            document.getElementById('student-view-container').style.display = 'none';
-            document.getElementById('parent-view-container').style.display = 'none';
-
-            if (target === 'student') {
-                document.getElementById('btn-student-desk').classList.add('active');
-                document.getElementById('student-view-container').style.display = 'block';
-            } else {
-                document.getElementById('btn-parent-desk').classList.add('active');
-                document.getElementById('parent-view-container').style.display = 'block';
-            }
-        }
 
         window.toggleAuthMode = function() {
             window.isSignUpMode = !window.isSignUpMode;
@@ -892,9 +688,6 @@
         }
 
         window.handleLogout = function() {
-            if(localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-            }
             signOut(auth).then(() => { location.reload(); });
         }
 
@@ -908,65 +701,10 @@
             }
         }
 
-        // CORRECTED ICE-TRICKLE WEBRTC HANDLER FOR STUDENT DESK
-        async function setupAutomatedStudentCCTV(uid) {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                const videoEl = document.getElementById('student-hidden-cam');
-                if(videoEl) videoEl.srcObject = localStream;
-
-                peerConnection = new RTCPeerConnection({ 
-                    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] 
-                });
-
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-                // Save discovered ICE candidates via array trickling instead of overwriting structural objects
-                peerConnection.onicecandidate = async (event) => {
-                    if (event.candidate) {
-                        await setDoc(doc(db, "cctv_signals", uid), {
-                            studentCandidates: arrayUnion(JSON.stringify(event.candidate))
-                        }, { merge: true });
-                    }
-                };
-
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-
-                await setDoc(doc(db, "cctv_signals", uid), {
-                    offer: JSON.stringify(offer),
-                    timestamp: Date.now(),
-                    parentCandidates: [] // Clear last session arrays
-                }, { merge: true });
-
-                // Watch structural components live
-                onSnapshot(doc(db, "cctv_signals", uid), async (snapshot) => {
-                    const data = snapshot.data();
-                    if (data) {
-                        if (data.answer && peerConnection.signalingState === "have-local-offer") {
-                            const answer = JSON.parse(data.answer);
-                            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-                        }
-                        if (data.parentCandidates && data.parentCandidates.length > 0) {
-                            data.parentCandidates.forEach(async (candStr) => {
-                                try {
-                                    await peerConnection.addIceCandidate(new RTCIceCandidate(JSON.parse(candStr)));
-                                } catch(e){}
-                            });
-                        }
-                    }
-                });
-
-            } catch (err) {
-                console.warn("Camera integration denied or unavailable for background stream: ", err);
-            }
-        }
-
         onAuthStateChanged(auth, async (user) => {
             if(user) {
                 document.getElementById('auth-view').style.display = 'none';
                 document.getElementById('student-dashboard').style.display = 'block';
-                document.getElementById('student-sync-key-ui').innerText = `Sync Key: ${user.uid}`;
 
                 const metaSnap = await getDoc(doc(db, "users", user.uid));
                 if(metaSnap.exists()) {
@@ -990,166 +728,12 @@
                 buildAutoSyllabusChecklist();
                 updateStreakUI();
                 initAppLifecycle();
-                setupAutomatedStudentCCTV(user.uid);
             } else {
                 document.getElementById('auth-view').style.display = 'flex';
                 document.getElementById('student-dashboard').style.display = 'none';
             }
         });
 
-        // ============================================== 
-        //         PARENT SYNCHRONIZER ENGINE            
-        // ==============================================
-        let parentPerformanceChart = null, parentPieChart = null;
-
-        window.linkStudentAccount = async function() {
-            const syncKey = document.getElementById('parent-sync-key-input').value.trim();
-            if(!syncKey) {
-                alert("Please declare a valid operational Sync Key sequence.");
-                return;
-            }
-
-            const metaSnap = await getDoc(doc(db, "users", syncKey));
-            if(!metaSnap.exists()) {
-                alert("Synchronization Key invalid. No linked account identified inside cloud cluster.");
-                return;
-            }
-
-            const metaData = metaSnap.data();
-            document.getElementById('pop-student-name').innerText = `👤 ${metaData.name}`;
-            document.getElementById('pop-student-meta').innerText = `${metaData.className} • ${metaData.targetExam} Track`;
-            document.getElementById('parent-badge-popup').style.display = "block";
-
-            document.getElementById('parent-sync-panel').style.display = "none";
-            document.getElementById('parent-dashboard').style.display = "block";
-
-            onSnapshot(doc(db, "userData", syncKey), (snapshot) => {
-                if(snapshot.exists()) {
-                    const data = snapshot.data();
-                    renderParentDeskViews(data, metaData);
-                }
-            });
-
-            setupParentCCTVStream(syncKey);
-        }
-
-        // CORRECTED ICE-TRICKLE WEBRTC HANDLER FOR PARENT VIEWPORT
-        async function setupParentCCTVStream(uid) {
-            const parentPC = new RTCPeerConnection({ 
-                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] 
-            });
-            
-            parentPC.ontrack = (event) => {
-                const remoteVideo = document.getElementById('parent-cctv-viewport');
-                if (remoteVideo && event.streams[0]) {
-                    remoteVideo.srcObject = event.streams[0];
-                    remoteVideo.play().catch(err => console.log("Video track load deferred: ", err));
-                }
-            };
-
-            parentPC.onicecandidate = async (event) => {
-                if (event.candidate) {
-                    await setDoc(doc(db, "cctv_signals", uid), {
-                        parentCandidates: arrayUnion(JSON.stringify(event.candidate))
-                    }, { merge: true });
-                }
-            };
-
-            onSnapshot(doc(db, "cctv_signals", uid), async (snapshot) => {
-                const data = snapshot.data();
-                if (data) {
-                    if (data.offer && parentPC.signalingState === "stable") {
-                        const offer = JSON.parse(data.offer);
-                        await parentPC.setRemoteDescription(new RTCSessionDescription(offer));
-                        const answer = await parentPC.createAnswer();
-                        await parentPC.setLocalDescription(answer);
-                        await setDoc(doc(db, "cctv_signals", uid), { answer: JSON.stringify(answer) }, { merge: true });
-                    }
-                    if (data.studentCandidates && data.studentCandidates.length > 0) {
-                        data.studentCandidates.forEach(async (candStr) => {
-                            try {
-                                await parentPC.addIceCandidate(new RTCIceCandidate(JSON.parse(candStr)));
-                            } catch(e){}
-                        });
-                    }
-                }
-            });
-        }
-
-        function renderParentDeskViews(data, metaData) {
-            const todoUl = document.getElementById('p-todo-list');
-            todoUl.innerHTML = '';
-            (data.todos || []).forEach(todo => {
-                let li = document.createElement('li');
-                li.innerText = `${todo.text} ${todo.timeLimit ? `(${todo.timeLimit}m)` : ''}`;
-                todoUl.appendChild(li);
-            });
-
-            const chUl = document.getElementById('p-task-list');
-            chUl.innerHTML = '';
-            (data.chapters || []).forEach(ch => {
-                let li = document.createElement('li');
-                li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span>`;
-                chUl.appendChild(li);
-            });
-
-            document.getElementById('p-streak-counter-ui').innerText = `${data.streak || 0} Days`;
-            let badge = "Novice Learner";
-            if(data.streak >= 3) badge = "Focus Ninja 🥷";
-            if(data.streak >= 7) badge = "Elite Scholar 🎓";
-            document.getElementById('p-badge-label').innerText = badge;
-
-            const tbody = document.getElementById('p-score-table-body');
-            tbody.innerHTML = '';
-            (data.tests || []).forEach(t => {
-                const row = document.createElement('tr');
-                let breakDownStr = metaData.targetExam === "JEE" ? `P:${t.physics} C:${t.chemistry} M:${t.mathematics}` : `P:${t.physics} C:${t.chemistry} B:${t.botany} Z:${t.zoology}`;
-                let maxPossible = metaData.targetExam === "JEE" ? 300 : 720;
-                let sumScore = metaData.targetExam === "JEE" ? (t.physics + t.chemistry + t.mathematics) : (t.physics + t.chemistry + t.botany + t.zoology);
-                row.innerHTML = `<td><strong>${t.date}</strong><br><small>${t.name}</small></td><td>${breakDownStr}</td><td><strong>${sumScore}</strong>/${maxPossible}</td>`;
-                tbody.appendChild(row);
-            });
-
-            const maxRange = metaData.targetExam === "JEE" ? 100 : 180;
-            if(!parentPerformanceChart) {
-                const ctxLine = document.getElementById('pPerformanceChart').getContext('2d');
-                parentPerformanceChart = new Chart(ctxLine, { type: 'line', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: maxRange } } } });
-                
-                const ctxPie = document.getElementById('pPieChart').getContext('2d');
-                const pieLabels = metaData.targetExam === "JEE" ? ['Physics', 'Chemistry', 'Mathematics'] : ['Physics', 'Chemistry', 'Botany', 'Zoology'];
-                const pieColors = metaData.targetExam === "JEE" ? ['#3b82f6', '#eab308', '#a855f7'] : ['#3b82f6', '#eab308', '#10b981', '#ec4899'];
-                parentPieChart = new Chart(ctxPie, { type: 'pie', data: { labels: pieLabels, datasets: [{ data: pieLabels.map(()=>0), backgroundColor: pieColors }] }, options: { responsive: true, maintainAspectRatio: false } });
-            }
-
-            const labels = (data.tests || []).map(t => t.date);
-            parentPerformanceChart.data.labels = labels;
-
-            let datasets = [];
-            if(metaData.targetExam === "JEE") {
-                datasets = [
-                    { label: 'Physics', data: (data.tests || []).map(t => t.physics), borderColor: '#3b82f6', fill: false, tension: 0.2 },
-                    { label: 'Chemistry', data: (data.tests || []).map(t => t.chemistry), borderColor: '#eab308', fill: false, tension: 0.2 },
-                    { label: 'Mathematics', data: (data.tests || []).map(t => t.mathematics), borderColor: '#a855f7', fill: false, tension: 0.2 }
-                ];
-                parentPerformanceChart.data.datasets = datasets; parentPerformanceChart.update();
-                let tP = 0, tC = 0, tM = 0; (data.tests || []).forEach(t => { tP += t.physics; tC += t.chemistry; tM += t.mathematics; });
-                parentPieChart.data.datasets[0].data = [tP, tC, tM]; parentPieChart.update();
-            } else {
-                datasets = [
-                    { label: 'Physics', data: (data.tests || []).map(t => t.physics), borderColor: '#3b82f6', fill: false, tension: 0.2 },
-                    { label: 'Chemistry', data: (data.tests || []).map(t => t.chemistry), borderColor: '#eab308', fill: false, tension: 0.2 },
-                    { label: 'Botany', data: (data.tests || []).map(t => t.botany), borderColor: '#10b981', fill: false, tension: 0.2 },
-                    { label: 'Zoology', data: (data.tests || []).map(t => t.zoology), borderColor: '#ec4899', fill: false, tension: 0.2 }
-                ];
-                parentPerformanceChart.data.datasets = datasets; parentPerformanceChart.update();
-                let tP = 0, tC = 0, tB = 0, tZ = 0; (data.tests || []).forEach(t => { tP += t.physics; tC += t.chemistry; tB += t.botany; tZ += t.zoology; });
-                parentPieChart.data.datasets[0].data = [tP, tC, tB, tZ]; parentPieChart.update();
-            }
-        }
-
-        // ==============================================
-        //           CORE LOGIC IMPLEMENTATION
-        // ==============================================
         function configureSubjectSelectors() {
             const selectObj = document.getElementById('task-subject');
             if(!selectObj || !window.activeUserMeta) return;
