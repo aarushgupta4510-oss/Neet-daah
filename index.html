@@ -291,40 +291,6 @@
             margin-top: 10px;
         }
 
-        .syllabus-scroll-box {
-            background: rgba(255, 255, 255, 0.95);
-            color: #334155;
-            padding: 15px;
-            border-radius: 12px;
-            max-height: 250px;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-
-        .subject-header {
-            font-weight: 800;
-            color: #1e3a8a;
-            margin-top: 10px;
-            margin-bottom: 5px;
-            font-size: 0.95rem;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 2px;
-        }
-
-        .syllabus-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            font-size: 0.85rem;
-            margin-bottom: 6px;
-            cursor: pointer;
-        }
-
-        .syllabus-item input {
-            width: auto;
-            margin-top: 3px;
-        }
-
         /* GREEN SECTION VIDEO HUB STYLING */
         .video-hub-container {
             background: rgba(255, 255, 255, 0.12);
@@ -461,14 +427,6 @@
             gap: 20px;
         }
 
-        .phase-box {
-            border-left: 4px solid #2563EB;
-            padding: 8px;
-            margin-top: 8px;
-            background: #f8fafc;
-            border-radius: 6px;
-        }
-
         .badge-clock-btn {
             background: white;
             color: #2563EB;
@@ -509,6 +467,24 @@
             font-size: 1.8rem;
             font-weight: 800;
             color: #fdba74;
+        }
+
+        /* Time lapse UI */
+        .camera-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        #cam-preview {
+            width: 100%;
+            height: 140px;
+            background: #0f172a;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-bottom: 10px;
         }
 
         @media (min-width: 600px) {
@@ -574,7 +550,7 @@
                         <h2><i class="fa-solid fa-list-check"></i> Daily Tasks</h2>
                         <div class="streak-card">
                             <div>
-                                <span style="font-size:0.85rem; display:block; opacity:0.9;">🔥 Focus Streak</span>
+                                <span style="font-size:0.85rem; display:block; opacity:0.9;">🔥 True Daily Streak</span>
                                 <strong id="badge-label" style="font-size:0.95rem; color:#67e8f9;">Novice Learner</strong>
                             </div>
                             <div class="streak-num" id="streak-counter-ui">0 Days</div>
@@ -590,7 +566,7 @@
                     </div>
                     <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2); margin: 5px 0;">
                     <div>
-                        <h2><i class="fa-solid fa-square-poll-vertical"></i> Test Syllabus Tracker</h2>
+                        <h2><i class="fa-solid fa-square-poll-vertical"></i> Custom Chapter Tracker</h2>
                         <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
                             <input type="text" id="task-title" placeholder="Topic details...">
                             <select id="task-subject"></select>
@@ -608,17 +584,32 @@
                         <p id="clock-status-text" style="opacity: 0.8; font-size: 0.85rem;">Mode: Free Flow Stopwatch</p>
                     </div>
 
-                    <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px;">
-                        <h3 style="font-size: 1.15rem; margin-bottom: 5px;"><i class="fa-solid fa-graduation-cap"></i> AI Auto-Syllabus Test Planner</h3>
-                        <p style="font-size: 0.75rem; opacity: 0.9; margin-bottom: 10px;">Select chapters below to generate a phase strategy blueprint.</p>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <input type="text" id="planner-test-title" placeholder="Test Name (e.g., Major Mock Test-1)">
-                            <input type="date" id="planner-test-date">
-                            <label style="font-size: 0.8rem; font-weight: bold; margin-top: 5px; display: block;">Select Chapters to Include:</label>
-                            <div class="syllabus-scroll-box" id="syllabus-checklist-container"></div>
-                            <button class="action-btn" style="margin-top: 10px;" onclick="calculateDynamicSyllabusPlan()">Generate Live Blueprint</button>
+                    <div class="camera-box">
+                        <h3 style="font-size: 1rem; margin-bottom: 8px;"><i class="fa-solid fa-video"></i> 60x Study Time-Lapse</h3>
+                        <video id="cam-preview" autoplay playsinline muted></video>
+                        <div style="display: flex; gap: 8px; justify-content: center;">
+                            <button class="action-btn" id="cam-btn" style="padding: 8px 12px; font-size: 0.8rem; background: #22c55e; color: white;" onclick="toggleLapseRecorder()">Enable Camera</button>
+                            <a id="lapse-dl-link" style="display:none;" download="study-lapse.webm">
+                                <button class="action-btn" style="padding: 8px 12px; font-size: 0.8rem; background: #38bdf8; color: white;">Download Video</button>
+                            </a>
                         </div>
-                        <div id="planner-output-card" class="white-card" style="display: none; font-size: 0.85rem; color:#334155;"></div>
+                        <p id="lapse-status" style="font-size: 0.75rem; margin-top: 6px; opacity: 0.8;">Camera offline</p>
+                    </div>
+
+                    <div style="background: rgba(255, 255, 255, 0.15); padding: 15px; border-radius: 16px;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 10px;"><i class="fa-solid fa-chart-line"></i> Daily Task Analytics</h3>
+                        <div class="white-card" style="padding: 10px;">
+                            <p style="font-size: 0.8rem; font-weight: bold; text-align: center; color: #475569;">Completion Rate Ratio</p>
+                            <div style="position: relative; height: 130px; width: 100%;">
+                                <canvas id="taskRatioPieChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="white-card" style="padding: 10px; margin-top: 10px;">
+                            <p style="font-size: 0.8rem; font-weight: bold; text-align: center; color: #475569;">Tasks Completed History</p>
+                            <div style="position: relative; height: 130px; width: 100%;">
+                                <canvas id="taskHistoryLineChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -683,6 +674,8 @@
         </div>
     </div>
 
+    <canvas id="hidden-lapse-canvas" style="display:none;" width="640" height="480"></canvas>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -708,7 +701,14 @@
         // Global Application Context
         window.isSignUpMode = false;
         window.activeUserMeta = null;
-        window.state = { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 };
+        window.state = { 
+            todos: [], 
+            chapters: [], 
+            tests: [], 
+            streak: 0, 
+            lastActiveDate: null,
+            taskStats: { completed: 0, failed: 0, history: {} } 
+        };
         window.activeClockTaskIndex = null;
 
         const MASTER_SYLLABUS = {
@@ -786,7 +786,7 @@
                     const res = await createUserWithEmailAndPassword(auth, email, password);
                     const userMeta = { name, className, targetExam, email };
                     await setDoc(doc(db, "users", res.user.uid), userMeta);
-                    await setDoc(doc(db, "userData", res.user.uid), { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 });
+                    await setDoc(doc(db, "userData", res.user.uid), { todos: [], chapters: [], tests: [], streak: 0, lastActiveDate: null, taskStats: { completed: 0, failed: 0, history: {} } });
                     alert("Account Created successfully!");
                 } catch (err) {
                     alert("Registration Error: " + err.message);
@@ -832,21 +832,55 @@
                     window.state.todos = cloudData.todos || [];
                     window.state.chapters = cloudData.chapters || [];
                     window.state.tests = cloudData.tests || [];
-                    window.state.activeStrategicPlan = cloudData.activeStrategicPlan || null;
                     window.state.streak = cloudData.streak || 0;
+                    window.state.lastActiveDate = cloudData.lastActiveDate || null;
+                    window.state.taskStats = cloudData.taskStats || { completed: 0, failed: 0, history: {} };
                 }
 
+                checkAndUpdateDailyStreak();
                 configureSubjectSelectors();
                 configureScoreInputsLayout();
-                buildAutoSyllabusChecklist();
                 renderVideoHub(); 
-                updateStreakUI();
                 initAppLifecycle();
             } else {
                 document.getElementById('auth-view').style.display = 'flex';
                 document.getElementById('student-dashboard').style.display = 'none';
             }
         });
+
+        // Dynamic True Calendar Daily Streak Calculation
+        function checkAndUpdateDailyStreak() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if(window.state.lastActiveDate) {
+                const lastDate = new Date(window.state.lastActiveDate);
+                const today = new Date(todayStr);
+                const diffTime = Math.abs(today - lastDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if(diffDays > 1) {
+                    // Missed more than a day, reset streak!
+                    window.state.streak = 0;
+                }
+            }
+            updateStreakUI();
+        }
+
+        function triggerDailyActivity() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if(window.state.lastActiveDate !== todayStr) {
+                window.state.streak = (window.state.streak || 0) + 1;
+                window.state.lastActiveDate = todayStr;
+            }
+            updateStreakUI();
+        }
+
+        function updateStreakUI() {
+            document.getElementById('streak-counter-ui').innerText = `${window.state.streak || 0} Days`;
+            let badge = "Novice Learner";
+            if(window.state.streak >= 3) badge = "Focus Ninja 🥷";
+            if(window.state.streak >= 7) badge = "Elite Scholar 🎓";
+            document.getElementById('badge-label').innerText = badge;
+        }
 
         function configureSubjectSelectors() {
             const selectObj = document.getElementById('task-subject');
@@ -882,34 +916,6 @@
             container.innerHTML = currentStr;
         }
 
-        function buildAutoSyllabusChecklist() {
-            const box = document.getElementById('syllabus-checklist-container');
-            if(!box || !window.activeUserMeta) return;
-            box.innerHTML = '';
-            const exam = window.activeUserMeta.targetExam;
-            const targetClass = window.activeUserMeta.className;
-            const syllabusData = MASTER_SYLLABUS[exam] ? MASTER_SYLLABUS[exam][targetClass] : null;
-
-            if(!syllabusData) return;
-            for(let subject in syllabusData) {
-                const subHead = document.createElement('div');
-                subHead.className = 'subject-header';
-                subHead.innerText = `■ ${subject} (${targetClass})`;
-                box.appendChild(subHead);
-
-                syllabusData[subject].forEach((chapter) => {
-                    const label = document.createElement('label');
-                    label.className = 'syllabus-item';
-                    label.innerHTML = `
-                        <input type="checkbox" class="plan-chapter-checkbox" data-subject="${subject}" value="${chapter}">
-                        <span>${chapter}</span>
-                    `;
-                    box.appendChild(label);
-                });
-            }
-        }
-
-        // Renders Green Video Lectures Hub with direct YouTube search queries & clock loader
         function renderVideoHub() {
             const container = document.getElementById('video-hub-list');
             if(!container || !window.activeUserMeta) return;
@@ -930,7 +936,6 @@
 
                 syllabusData[subject].forEach((chapterName) => {
                     idCounter++;
-                    // Dynamic accurate YouTube Search URL for exact chapter
                     const searchQuery = encodeURIComponent(`${subject} ${chapterName} ${targetClass} ${exam} full chapter`);
                     const ytSearchLink = `https://www.youtube.com/results?search_query=${searchQuery}`;
                     
@@ -959,7 +964,6 @@
             const timeInput = document.getElementById(inputId);
             const minutes = timeInput && timeInput.value ? parseInt(timeInput.value) : 45;
             
-            // 1. Add as a task in Daily Tasks
             const taskText = `Watch Chapter: ${chapterTitle}`;
             const existingIdx = window.state.todos.findIndex(t => t.text === taskText);
             
@@ -975,17 +979,8 @@
             await saveStateToCloud();
             renderTodos();
 
-            // 2. Load directly into clock and open overlay
             window.activeClockTaskIndex = taskIdx;
             loadTaskToClock(taskIdx);
-        }
-
-        function updateStreakUI() {
-            document.getElementById('streak-counter-ui').innerText = `${window.state.streak || 0} Days`;
-            let badge = "Novice Learner";
-            if(window.state.streak >= 3) badge = "Focus Ninja 🥷";
-            if(window.state.streak >= 7) badge = "Elite Scholar 🎓";
-            document.getElementById('badge-label').innerText = badge;
         }
 
         window.addTodo = async function() {
@@ -1000,10 +995,26 @@
 
         window.completeTask = async function(idx) {
             window.state.todos.splice(idx, 1);
-            window.state.streak = (window.state.streak || 0) + 1;
+            
+            // Mark daily streak progress
+            triggerDailyActivity();
+
+            // Record Task Analytics
+            const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            window.state.taskStats.completed = (window.state.taskStats.completed || 0) + 1;
+            window.state.taskStats.history[todayStr] = (window.state.taskStats.history[todayStr] || 0) + 1;
+
             await saveStateToCloud(); 
             renderTodos(); 
-            updateStreakUI();
+            updateTaskAnalyticsCharts();
+        }
+
+        window.failTask = async function(idx) {
+            window.state.todos.splice(idx, 1);
+            window.state.taskStats.failed = (window.state.taskStats.failed || 0) + 1;
+            await saveStateToCloud();
+            renderTodos();
+            updateTaskAnalyticsCharts();
         }
 
         window.addTask = async function() {
@@ -1020,38 +1031,6 @@
             window.state.chapters.splice(idx, 1); 
             await saveStateToCloud(); 
             renderChapters();
-        }
-
-        window.calculateDynamicSyllabusPlan = async function() {
-            const title = document.getElementById('planner-test-title').value || "Mock Evaluation Framework";
-            const dateVal = document.getElementById('planner-test-date').value;
-            const checkboxes = document.querySelectorAll('.plan-chapter-checkbox:checked');
-            let selectedChapters = [];
-            checkboxes.forEach(cb => { selectedChapters.push({ subject: cb.getAttribute('data-subject'), title: cb.value }); });
-
-            if(!dateVal || selectedChapters.length === 0) {
-                alert("Please select a Target Date and at least one Chapter checklist.");
-                return;
-            }
-
-            const today = new Date();
-            const examDate = new Date(dateVal);
-            const diffDays = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24));
-            if(diffDays < 0) { alert("Target test date has already passed."); return; }
-
-            const p1Days = Math.max(1, Math.floor(diffDays * 0.60));
-            const p2Days = Math.max(1, Math.floor(diffDays * 0.25));
-            const p3Days = Math.max(1, diffDays - (p1Days + p2Days));
-
-            window.state.activeStrategicPlan = { title, diffDays, count: selectedChapters.length, p1Days, p2Days, p3Days };
-            await saveStateToCloud(); 
-            renderStrategicPlan();
-        }
-
-        window.clearStrategicPlan = async function() {
-            window.state.activeStrategicPlan = null; 
-            await saveStateToCloud(); 
-            renderStrategicPlan();
         }
 
         window.addScore = async function() {
@@ -1099,9 +1078,10 @@
                 const timeStr = todo.timeLimit ? ` (${todo.timeLimit}m)` : '';
                 li.innerHTML = `
                     <div><span>${todo.text}${timeStr}</span></div>
-                    <div>
+                    <div style="display:flex; align-items:center;">
                         ${todo.timeLimit ? `<button class="badge-clock-btn" onclick="loadTaskToClock(${idx})"><i class="fa-solid fa-clock"></i> Load</button>` : ''}
-                        <button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="completeTask(${idx})"><i class="fa-solid fa-check"></i></button>
+                        <button class="delete-btn" style="background:#22c55e; margin-right:4px;" onclick="completeTask(${idx})" title="Mark Done"><i class="fa-solid fa-check"></i></button>
+                        <button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="failTask(${idx})" title="Discard/Failed"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 `;
                 ul.appendChild(li);
@@ -1116,32 +1096,6 @@
                 li.innerHTML = `<span><strong>[${ch.subject}]</strong> ${ch.title}</span> <button class="delete-btn" style="background:rgba(255,255,255,0.25);" onclick="deleteChapter(${idx})"><i class="fa-solid fa-check"></i></button>`;
                 ul.appendChild(li);
             });
-        }
-
-        function renderStrategicPlan() {
-            const targetBox = document.getElementById('planner-output-card');
-            if(!window.state.activeStrategicPlan) { targetBox.style.display = 'none'; return; }
-            targetBox.style.display = 'block';
-            const plan = window.state.activeStrategicPlan;
-            targetBox.innerHTML = `
-                <div style="display:flex; justify-content:between; align-items:center; margin-bottom: 8px;">
-                    <strong style="color:#1e3a8a;">🎯 Strategy: ${plan.title}</strong>
-                    <i class="fa-solid fa-square-xmark" style="cursor:pointer; color:#ef4444; margin-left:auto; font-size:1.15rem;" onclick="clearStrategicPlan()"></i>
-                </div>
-                <p style="font-weight:bold; margin-bottom:5px;">⏳ ${plan.diffDays} Days Remaining for ${plan.count} Selected Topics</p>
-                <div class="phase-box" style="border-left-color: #2563eb;">
-                    <strong>Phase 1: Deep Core Study (${plan.p1Days} Days)</strong><br>
-                    Load: ~${(plan.count / plan.p1Days).toFixed(1)} chapters/day.
-                </div>
-                <div class="phase-box" style="border-left-color: #eab308;">
-                    <strong>Phase 2: High Yield Review (${plan.p2Days} Days)</strong><br>
-                    Speed run through formulas.
-                </div>
-                <div class="phase-box" style="border-left-color: #dc2626;">
-                    <strong>Phase 3: Grand Mock Drills (${plan.p3Days} Days)</strong><br>
-                    Time-bound papers and error logs.
-                </div>
-            `;
         }
 
         function renderTable() {
@@ -1168,9 +1122,13 @@
             });
         }
 
-        let performanceChart = null, pieChart = null;
+        // Charts
+        let performanceChart = null, pieChart = null, taskRatioPieChart = null, taskHistoryLineChart = null;
+        
         function initCharts() {
             const maxRange = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? 100 : 180;
+            
+            // Score Line Chart
             const ctxLine = document.getElementById('performanceChart').getContext('2d');
             if(performanceChart) performanceChart.destroy();
             performanceChart = new Chart(ctxLine, {
@@ -1179,6 +1137,7 @@
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: maxRange } } }
             });
 
+            // Score Pie Chart
             const ctxPie = document.getElementById('pieChart').getContext('2d');
             if(pieChart) pieChart.destroy();
             const pieLabels = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? ['Physics', 'Chemistry', 'Mathematics'] : ['Physics', 'Chemistry', 'Botany', 'Zoology'];
@@ -1188,6 +1147,30 @@
                 type: 'pie',
                 data: { labels: pieLabels, datasets: [{ data: pieLabels.map(()=>0), backgroundColor: pieColors }] },
                 options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Task Ratio Pie Chart
+            const ctxTaskPie = document.getElementById('taskRatioPieChart').getContext('2d');
+            if(taskRatioPieChart) taskRatioPieChart.destroy();
+            taskRatioPieChart = new Chart(ctxTaskPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Failed/Dropped'],
+                    datasets: [{ data: [0, 0], backgroundColor: ['#22c55e', '#ef4444'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // Task Completion History Line Chart
+            const ctxTaskLine = document.getElementById('taskHistoryLineChart').getContext('2d');
+            if(taskHistoryLineChart) taskHistoryLineChart.destroy();
+            taskHistoryLineChart = new Chart(ctxTaskLine, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{ label: 'Tasks Done', data: [], borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.2)', fill: true, tension: 0.3 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
             });
         }
 
@@ -1225,6 +1208,26 @@
                 pieChart.data.datasets[0].data = [tP, tC, tB, tZ];
                 pieChart.update();
             }
+
+            updateTaskAnalyticsCharts();
+        }
+
+        function updateTaskAnalyticsCharts() {
+            if(!taskRatioPieChart || !taskHistoryLineChart || !window.state.taskStats) return;
+
+            const completed = window.state.taskStats.completed || 0;
+            const failed = window.state.taskStats.failed || 0;
+
+            taskRatioPieChart.data.datasets[0].data = [completed, failed];
+            taskRatioPieChart.update();
+
+            const history = window.state.taskStats.history || {};
+            const dates = Object.keys(history);
+            const counts = Object.values(history);
+
+            taskHistoryLineChart.data.labels = dates;
+            taskHistoryLineChart.data.datasets[0].data = counts;
+            taskHistoryLineChart.update();
         }
 
         function initAppLifecycle() {
@@ -1234,7 +1237,6 @@
             renderTable();
             updateChartsData();
             rotateFormula();
-            renderStrategicPlan();
         }
 
         // Clock Mappings
@@ -1294,6 +1296,73 @@
             document.getElementById('flip-hr').innerText = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
             document.getElementById('flip-min').innerText = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
             document.getElementById('flip-sec').innerText = String(totalSeconds % 60).padStart(2, '0');
+        }
+
+        // --- 60x CAMERA TIME-LAPSE ENGINE ---
+        let mediaStream = null;
+        let recordingInterval = null;
+        let lapseMediaRecorder = null;
+        let recordedChunks = [];
+
+        window.toggleLapseRecorder = async function() {
+            const btn = document.getElementById('cam-btn');
+            const status = document.getElementById('lapse-status');
+            const videoEl = document.getElementById('cam-preview');
+
+            if(!mediaStream) {
+                try {
+                    // Request camera permission
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    videoEl.srcObject = mediaStream;
+                    
+                    // Setup hidden canvas stream to build 60 FPS fast playback video
+                    const canvas = document.getElementById('hidden-lapse-canvas');
+                    const ctx = canvas.getContext('2d');
+                    const canvasStream = canvas.captureStream(60); // 60 FPS stream speed
+
+                    lapseMediaRecorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm' });
+                    recordedChunks = [];
+                    lapseMediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                    
+                    lapseMediaRecorder.onstop = () => {
+                        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                        const url = URL.createObjectURL(blob);
+                        const dlLink = document.getElementById('lapse-dl-link');
+                        dlLink.href = url;
+                        dlLink.style.display = 'inline-block';
+                        status.innerText = "Time-lapse ready for download!";
+                    };
+
+                    lapseMediaRecorder.start();
+
+                    // Capture snapshot 1 time every 1 second (1sec frame rate = 60x speed at 60fps playback)
+                    recordingInterval = setInterval(() => {
+                        if (videoEl.readyState === videoEl.HAVE_ENOUGH_DATA) {
+                            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+                        }
+                    }, 1000);
+
+                    btn.innerText = "Stop & Save Lapse";
+                    btn.style.backgroundColor = "#ef4444";
+                    status.innerText = "🔴 Recording 60x Time-Lapse...";
+                } catch(err) {
+                    alert("Camera access denied or unfulfilled: " + err.message);
+                }
+            } else {
+                // Stop Recording
+                clearInterval(recordingInterval);
+                if(lapseMediaRecorder && lapseMediaRecorder.state !== 'inactive') {
+                    lapseMediaRecorder.stop();
+                }
+                if(mediaStream) {
+                    mediaStream.getTracks().forEach(track => track.stop());
+                    mediaStream = null;
+                }
+                videoEl.srcObject = null;
+                btn.innerText = "Enable Camera";
+                btn.style.backgroundColor = "#22c55e";
+                status.innerText = "Processing lapse video...";
+            }
         }
 
         const formulas = [
