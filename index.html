@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Premium Study Workspace (JEE / NEET)</title>
+    <title>Prep Pad - JEE & NEET Workspace</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -111,7 +111,6 @@
             white-space: nowrap;
         }
 
-        /* Updated to 4 columns for large screens */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -144,7 +143,7 @@
         .blue-column { background-color: #2563EB; }
         .yellow-column { background-color: #EAB308; }
         .red-column { background-color: #DC2626; }
-        .green-column { background-color: #16A34A; } /* New Green Section */
+        .green-column { background-color: #16A34A; }
 
         h2 {
             font-size: 1.5rem;
@@ -353,15 +352,36 @@
             border-radius: 10px;
             margin-bottom: 10px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
             gap: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        .video-chapter-card span {
+        .video-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-card-top span {
             font-size: 0.85rem;
             font-weight: 700;
+        }
+
+        .video-card-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .chapter-time-input {
+            width: 80px !important;
+            padding: 6px !important;
+            font-size: 0.75rem !important;
+            color: #1e293b !important;
+            border: 1px solid #cbd5e1 !important;
+            background: #f8fafc !important;
+            border-radius: 6px !important;
         }
 
         .yt-btn {
@@ -381,6 +401,26 @@
 
         .yt-btn:hover {
             background-color: #990000;
+        }
+
+        .load-clock-btn {
+            background-color: #2563eb;
+            color: white !important;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .load-clock-btn:hover {
+            background-color: #1d4ed8;
         }
 
         .table-wrapper {
@@ -524,7 +564,7 @@
         <div id="student-dashboard">
             <header>
                 <h1 id="welcome-heading">Hello User! 👋</h1>
-                <p id="class-tagline">Strategic Study Focus Workspace</p>
+                <p id="class-tagline">Prep Pad • Strategic Focus Workspace</p>
                 <button class="logout-link" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Lock Screen</button>
             </header>
 
@@ -584,9 +624,9 @@
 
                 <div class="column green-column">
                     <h2><i class="fa-solid fa-circle-play"></i> Video Lectures Hub</h2>
-                    <p style="font-size: 0.8rem; opacity: 0.9; margin-top: -15px;">Curated multi-part YouTube playlists for every chapter based on your target stream.</p>
+                    <p style="font-size: 0.8rem; opacity: 0.9; margin-top: -15px;">Targeted video tutorials and timer study integration for every chapter.</p>
                     <div class="video-hub-container" id="video-hub-list">
-                        </div>
+                    </div>
                 </div>
 
                 <div class="column red-column">
@@ -669,6 +709,7 @@
         window.isSignUpMode = false;
         window.activeUserMeta = null;
         window.state = { todos: [], chapters: [], tests: [], activeStrategicPlan: null, streak: 0 };
+        window.activeClockTaskIndex = null;
 
         const MASTER_SYLLABUS = {
             "NEET": {
@@ -698,33 +739,6 @@
                 }
             }
         };
-
-        // Curated Multi-part Playlist Links Repository
-        const CHAPTER_VIDEO_LINKS = {
-            "Units and Measurements": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
-            "Units & Measurements": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
-            "Motion in a Straight Line": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
-            "Kinematics 1D & 2D": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
-            "Motion in a Plane": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
-            "Laws of Motion": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
-            "Laws of Motion & Friction": "https://www.youtube.com/playlist?list=PL3E1525792F0174A5",
-            "Work, Energy and Power": "https://www.youtube.com/watch?v=5sA9uo8qtUs",
-            "Work, Energy & Power": "https://www.youtube.com/watch?v=5sA9uo8qtUs",
-            "Basic Concepts of Chemistry": "https://www.youtube.com/watch?v=Qy0Q_AYs63Y",
-            "Mole Concept & Basic Concepts": "https://www.youtube.com/watch?v=Qy0Q_AYs63Y",
-            "Structure of Atom": "https://www.youtube.com/@PhysicsWallah",
-            "Atomic Structure": "https://www.youtube.com/@PhysicsWallah",
-            "Chemical Bonding": "https://www.youtube.com/@PhysicsWallah",
-            "Classification of Elements": "https://www.youtube.com/@PhysicsWallah",
-            "Sets, Relations & Functions": "https://www.youtube.com/watch?v=XYJyV48ijms",
-            "Trigonometric Functions": "https://www.youtube.com/@MohitTyagi",
-            "Complex Numbers": "https://www.youtube.com/@MohitTyagi",
-            "Cell: The Unit of Life": "https://www.youtube.com/watch?v=-x45iqiZUn0",
-            "Biological Classification": "https://www.youtube.com/watch?v=YXL0SxV1NFw",
-            "Plant Kingdom": "https://www.youtube.com/watch?v=AgHila9T1fo"
-        };
-
-        const DEFAULT_VIDEO_LINK = "https://www.youtube.com/@PhysicsWallah";
 
         window.toggleAuthMode = function() {
             window.isSignUpMode = !window.isSignUpMode;
@@ -809,7 +823,7 @@
                 if(metaSnap.exists()) {
                     window.activeUserMeta = metaSnap.data();
                     document.getElementById('welcome-heading').innerText = `Hello ${window.activeUserMeta.name}! 👋`;
-                    document.getElementById('class-tagline').innerText = `Strategic Cloud Hub • Exam: ${window.activeUserMeta.targetExam} • Class Status: ${window.activeUserMeta.className}`;
+                    document.getElementById('class-tagline').innerText = `Prep Pad • Exam: ${window.activeUserMeta.targetExam} • Class: ${window.activeUserMeta.className}`;
                 }
 
                 const dataSnap = await getDoc(doc(db, "userData", user.uid));
@@ -825,7 +839,7 @@
                 configureSubjectSelectors();
                 configureScoreInputsLayout();
                 buildAutoSyllabusChecklist();
-                renderVideoHub(); // Populate Green Section
+                renderVideoHub(); 
                 updateStreakUI();
                 initAppLifecycle();
             } else {
@@ -895,7 +909,7 @@
             }
         }
 
-        // Renders Green Video Lectures Hub
+        // Renders Green Video Lectures Hub with direct YouTube search queries & clock loader
         function renderVideoHub() {
             const container = document.getElementById('video-hub-list');
             if(!container || !window.activeUserMeta) return;
@@ -907,6 +921,7 @@
 
             if(!syllabusData) return;
 
+            let idCounter = 0;
             for(let subject in syllabusData) {
                 const titleDiv = document.createElement('div');
                 titleDiv.className = 'video-subject-title';
@@ -914,18 +929,55 @@
                 container.appendChild(titleDiv);
 
                 syllabusData[subject].forEach((chapterName) => {
-                    const link = CHAPTER_VIDEO_LINKS[chapterName] || DEFAULT_VIDEO_LINK;
+                    idCounter++;
+                    // Dynamic accurate YouTube Search URL for exact chapter
+                    const searchQuery = encodeURIComponent(`${subject} ${chapterName} ${targetClass} ${exam} full chapter`);
+                    const ytSearchLink = `https://www.youtube.com/results?search_query=${searchQuery}`;
+                    
                     const card = document.createElement('div');
                     card.className = 'video-chapter-card';
                     card.innerHTML = `
-                        <span>${chapterName}</span>
-                        <a href="${link}" target="_blank" class="yt-btn">
-                            <i class="fa-brands fa-youtube"></i> Watch
-                        </a>
+                        <div class="video-card-top">
+                            <span>${chapterName}</span>
+                            <a href="${ytSearchLink}" target="_blank" class="yt-btn">
+                                <i class="fa-brands fa-youtube"></i> Watch
+                            </a>
+                        </div>
+                        <div class="video-card-actions">
+                            <input type="number" id="v-time-${idCounter}" class="chapter-time-input" placeholder="Mins" value="45" min="1">
+                            <button class="load-clock-btn" onclick="loadChapterToClock('${chapterName.replace(/'/g, "\\'")}', 'v-time-${idCounter}')">
+                                <i class="fa-solid fa-bolt"></i> Load to Clock
+                            </button>
+                        </div>
                     `;
                     container.appendChild(card);
                 });
             }
+        }
+
+        window.loadChapterToClock = async function(chapterTitle, inputId) {
+            const timeInput = document.getElementById(inputId);
+            const minutes = timeInput && timeInput.value ? parseInt(timeInput.value) : 45;
+            
+            // 1. Add as a task in Daily Tasks
+            const taskText = `Watch Chapter: ${chapterTitle}`;
+            const existingIdx = window.state.todos.findIndex(t => t.text === taskText);
+            
+            let taskIdx;
+            if(existingIdx !== -1) {
+                taskIdx = existingIdx;
+                window.state.todos[existingIdx].timeLimit = minutes;
+            } else {
+                window.state.todos.push({ text: taskText, timeLimit: minutes });
+                taskIdx = window.state.todos.length - 1;
+            }
+            
+            await saveStateToCloud();
+            renderTodos();
+
+            // 2. Load directly into clock and open overlay
+            window.activeClockTaskIndex = taskIdx;
+            loadTaskToClock(taskIdx);
         }
 
         function updateStreakUI() {
@@ -1193,10 +1245,12 @@
         window.loadTaskToClock = function(idx) {
             const task = window.state.todos[idx];
             if(task && task.timeLimit) {
+                window.activeClockTaskIndex = idx;
                 isCountdownMode = true; totalSeconds = task.timeLimit * 60;
                 document.getElementById('clock-status-text').innerText = `Target: ${task.text} (${task.timeLimit} mins)`;
                 document.getElementById('clock-overlay-title').innerHTML = `<i class="fa-solid fa-bullseye"></i> TARGET: ${task.text.toUpperCase()}`;
-                updateFlipDisplay(); window.openClockOverlay();
+                updateFlipDisplay(); 
+                window.openClockOverlay();
             }
         }
 
@@ -1209,7 +1263,13 @@
                         if(totalSeconds > 0) { totalSeconds--; }
                         else {
                             clearInterval(clockInterval); running = false;
-                            alert("Time Target Achieved!"); window.resetClock(); return;
+                            alert("Time Target Achieved! Great job!"); 
+                            if(window.activeClockTaskIndex !== null && window.state.todos[window.activeClockTaskIndex]) {
+                                window.completeTask(window.activeClockTaskIndex);
+                                window.activeClockTaskIndex = null;
+                            }
+                            window.resetClock(); 
+                            return;
                         }
                     } else { totalSeconds++; }
                     updateFlipDisplay(); 
@@ -1222,6 +1282,7 @@
 
         window.resetClock = function() {
             running = false; clearInterval(clockInterval); totalSeconds = 0; isCountdownMode = false;
+            window.activeClockTaskIndex = null;
             updateFlipDisplay();
             document.getElementById('clock-status-text').innerText = `Mode: Free Flow Stopwatch`;
             document.getElementById('clock-overlay-title').innerHTML = `<i class="fa-solid fa-brain"></i> DEEP STUDY STREAM`;
