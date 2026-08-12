@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prep Pad - JEE & NEET Workspace</title>
-    <link rel="icon" type="1785866133319 (1).png" href="logo.png">
+    <link rel="icon" type="image/png" href="logo.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -470,6 +470,75 @@
             color: #fdba74;
         }
 
+        /* CUSTOM POPUP / DIALOG UI */
+        .custom-popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .custom-popup-card {
+            background: #1e293b;
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .custom-popup-icon {
+            font-size: 2.5rem;
+            color: #38bdf8;
+            margin-bottom: 15px;
+        }
+
+        /* TIMETABLE WIDGET STYLING */
+        .tt-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.82rem;
+            color: #1e293b;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tt-table th {
+            background: rgba(0,0,0,0.08);
+            padding: 8px 10px;
+            font-weight: 700;
+            text-align: left;
+            color: #1a1a1a;
+        }
+
+        .tt-table td {
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.9);
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .tt-att-btn {
+            border: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tt-att-present { background: #22c55e; color: white; }
+        .tt-att-absent { background: #ef4444; color: white; }
+        .tt-att-pending { background: #cbd5e1; color: #334155; }
+
         @media (min-width: 600px) {
             header { padding-top: 0; }
             .logout-link { top: 0; right: 20px; transform: none; }
@@ -568,6 +637,28 @@
                     </div>
 
                     <div style="background: rgba(255, 255, 255, 0.15); padding: 15px; border-radius: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h3 style="font-size: 1.1rem;"><i class="fa-solid fa-calendar-days"></i> Class Schedule</h3>
+                            <button class="badge-clock-btn" onclick="openTimetableEditor()"><i class="fa-solid fa-pen-to-square"></i> Edit Schedule</button>
+                        </div>
+                        <div class="white-card" style="padding: 10px;">
+                            <div class="table-wrapper" style="max-height:180px;">
+                                <table class="tt-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Subject</th>
+                                            <th>Topic/Exercise</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="timetable-widget-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(255, 255, 255, 0.15); padding: 15px; border-radius: 16px;">
                         <h3 style="font-size: 1.1rem; margin-bottom: 10px;"><i class="fa-solid fa-chart-line"></i> Daily Task Analytics</h3>
                         <div class="white-card" style="padding: 10px;">
                             <p style="font-size: 0.8rem; font-weight: bold; text-align: center; color: #475569;">Completion Rate Ratio</p>
@@ -587,8 +678,7 @@
                 <div class="column green-column">
                     <h2><i class="fa-solid fa-circle-play"></i> Video Lectures Hub</h2>
                     <p style="font-size: 0.8rem; opacity: 0.9; margin-top: -15px;">Targeted video tutorials and timer study integration for every chapter.</p>
-                    <div class="video-hub-container" id="video-hub-list">
-                    </div>
+                    <div class="video-hub-container" id="video-hub-list"></div>
                 </div>
 
                 <div class="column red-column">
@@ -645,6 +735,35 @@
         </div>
     </div>
 
+    <div id="custom-popup" class="custom-popup-overlay">
+        <div class="custom-popup-card">
+            <div class="custom-popup-icon"><i class="fa-solid fa-bell"></i></div>
+            <h3 id="popup-title" style="margin-bottom:10px;">Notice</h3>
+            <p id="popup-message" style="color:#cbd5e1; font-size:0.95rem; margin-bottom:20px;"></p>
+            <button class="action-btn" style="background:#38bdf8; color:white; width:100%;" onclick="closeCustomAlert()">Acknowledge</button>
+        </div>
+    </div>
+
+    <div id="tt-editor-modal" class="custom-popup-overlay">
+        <div class="custom-popup-card" style="max-width:550px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3><i class="fa-solid fa-calendar-pen"></i> Schedule Management</h3>
+                <button class="delete-btn" onclick="closeTimetableEditor()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px; text-align:left;">
+                <input type="text" id="tt-time" placeholder="Time Slot (e.g. 11:00 AM - 12:20 PM)">
+                <input type="text" id="tt-subject" placeholder="Subject (e.g. Physics / Botany)">
+                <input type="text" id="tt-topic" placeholder="Topic/Exercise (e.g. Mechanics Ch 4 Ex 2.1)">
+                <button class="action-btn" style="background:#22c55e; color:white;" onclick="addTimetableEntry()">Add Class to Timetable</button>
+                <hr style="border-color:rgba(255,255,255,0.1); margin:5px 0;">
+                <p style="font-size:0.8rem; color:#94a3b8;">Current Daily Schedule Items:</p>
+                <div class="table-wrapper" style="max-height:150px;">
+                    <ul id="tt-edit-list" class="item-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -674,11 +793,37 @@
             todos: [], 
             chapters: [], 
             tests: [], 
+            timetable: [
+                { time: "11:00 AM - 12:20 PM", subject: "Physics", topic: "Kinematics Ch 2", status: "Pending" },
+                { time: "01:00 PM - 02:20 PM", subject: "Chemistry", topic: "Thermodynamics Ex 1", status: "Pending" }
+            ],
             streak: 0, 
             lastActiveDate: null,
             taskStats: { completed: 0, failed: 0, history: {} } 
         };
         window.activeClockTaskIndex = null;
+
+        // BROWSER NOTIFICATION SYSTEM
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
+        window.sendNotification = function(title, body) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(title, { body: body, icon: "logo.png" });
+            }
+        }
+
+        // CUSTOM MATCHING POPUP DIALOGS
+        window.showCustomAlert = function(title, msg) {
+            document.getElementById('popup-title').innerText = title;
+            document.getElementById('popup-message').innerText = msg;
+            document.getElementById('custom-popup').style.display = 'flex';
+        }
+
+        window.closeCustomAlert = function() {
+            document.getElementById('custom-popup').style.display = 'none';
+        }
 
         const MASTER_SYLLABUS = {
             "NEET": {
@@ -737,7 +882,7 @@
             const password = document.getElementById('auth-password').value;
 
             if(!email || !password) {
-                alert("Please fill all required Email and Password inputs.");
+                showCustomAlert("Input Missing", "Please fill all required Email and Password fields.");
                 return;
             }
 
@@ -747,7 +892,7 @@
                 const targetExam = document.getElementById('auth-exam').value;
 
                 if(!name || !className || !targetExam) {
-                    alert("Registration requires Name, Class, and Target Exam setups.");
+                    showCustomAlert("Form Incomplete", "Registration requires Name, Class, and Target Exam setups.");
                     return;
                 }
 
@@ -755,16 +900,16 @@
                     const res = await createUserWithEmailAndPassword(auth, email, password);
                     const userMeta = { name, className, targetExam, email };
                     await setDoc(doc(db, "users", res.user.uid), userMeta);
-                    await setDoc(doc(db, "userData", res.user.uid), { todos: [], chapters: [], tests: [], streak: 0, lastActiveDate: null, taskStats: { completed: 0, failed: 0, history: {} } });
-                    alert("Account Created successfully!");
+                    await setDoc(doc(db, "userData", res.user.uid), { todos: [], chapters: [], tests: [], timetable: [], streak: 0, lastActiveDate: null, taskStats: { completed: 0, failed: 0, history: {} } });
+                    showCustomAlert("Account Created", "Welcome to Prep Pad! Your account has been registered.");
                 } catch (err) {
-                    alert("Registration Error: " + err.message);
+                    showCustomAlert("Registration Error", err.message);
                 }
             } else {
                 try {
                     await signInWithEmailAndPassword(auth, email, password);
                 } catch (err) {
-                    alert("Login Failed: Invalid Email or Password configuration.");
+                    showCustomAlert("Authentication Failed", "Invalid Email or Password configuration.");
                 }
             }
         }
@@ -801,6 +946,7 @@
                     window.state.todos = cloudData.todos || [];
                     window.state.chapters = cloudData.chapters || [];
                     window.state.tests = cloudData.tests || [];
+                    window.state.timetable = cloudData.timetable || window.state.timetable;
                     window.state.streak = cloudData.streak || 0;
                     window.state.lastActiveDate = cloudData.lastActiveDate || null;
                     window.state.taskStats = cloudData.taskStats || { completed: 0, failed: 0, history: {} };
@@ -817,7 +963,88 @@
             }
         });
 
-        // Dynamic True Calendar Daily Streak Calculation
+        // TIMETABLE RENDERING & EDITING LOGIC
+        function renderTimetableWidget() {
+            const tbody = document.getElementById('timetable-widget-body');
+            if(!tbody) return; tbody.innerHTML = '';
+            
+            if(!window.state.timetable || window.state.timetable.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#64748b;">No classes added to timetable.</td></tr>`;
+                return;
+            }
+
+            window.state.timetable.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                const badgeClass = item.status === 'Present' ? 'tt-att-present' : item.status === 'Absent' ? 'tt-att-absent' : 'tt-att-pending';
+                tr.innerHTML = `
+                    <td><strong>${item.time}</strong></td>
+                    <td>${item.subject}</td>
+                    <td>${item.topic}</td>
+                    <td>
+                        <button class="tt-att-btn ${badgeClass}" onclick="toggleTimetableStatus(${idx})">${item.status}</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.toggleTimetableStatus = async function(idx) {
+            const current = window.state.timetable[idx].status;
+            window.state.timetable[idx].status = current === 'Pending' ? 'Present' : current === 'Present' ? 'Absent' : 'Pending';
+            await saveStateToCloud();
+            renderTimetableWidget();
+        }
+
+        window.openTimetableEditor = function() {
+            renderTimetableEditorList();
+            document.getElementById('tt-editor-modal').style.display = 'flex';
+        }
+
+        window.closeTimetableEditor = function() {
+            document.getElementById('tt-editor-modal').style.display = 'none';
+        }
+
+        function renderTimetableEditorList() {
+            const ul = document.getElementById('tt-edit-list');
+            if(!ul) return; ul.innerHTML = '';
+            window.state.timetable.forEach((item, idx) => {
+                const li = document.createElement('li');
+                li.style.color = '#1e293b';
+                li.innerHTML = `
+                    <span><strong>[${item.time}]</strong> ${item.subject} - ${item.topic}</span>
+                    <button class="delete-btn" onclick="removeTimetableEntry(${idx})"><i class="fa-solid fa-trash"></i></button>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        window.addTimetableEntry = async function() {
+            const time = document.getElementById('tt-time').value.trim();
+            const subject = document.getElementById('tt-subject').value.trim();
+            const topic = document.getElementById('tt-topic').value.trim();
+
+            if(!time || !subject) {
+                showCustomAlert("Validation Error", "Please provide at least Time Slot and Subject.");
+                return;
+            }
+
+            window.state.timetable.push({ time, subject, topic: topic || 'General', status: 'Pending' });
+            await saveStateToCloud();
+            document.getElementById('tt-time').value = '';
+            document.getElementById('tt-subject').value = '';
+            document.getElementById('tt-topic').value = '';
+            renderTimetableEditorList();
+            renderTimetableWidget();
+        }
+
+        window.removeTimetableEntry = async function(idx) {
+            window.state.timetable.splice(idx, 1);
+            await saveStateToCloud();
+            renderTimetableEditorList();
+            renderTimetableWidget();
+        }
+
+        // Daily Streak logic
         function checkAndUpdateDailyStreak() {
             const todayStr = new Date().toISOString().split('T')[0];
             if(window.state.lastActiveDate) {
@@ -827,7 +1054,6 @@
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 
                 if(diffDays > 1) {
-                    // Missed more than a day, reset streak!
                     window.state.streak = 0;
                 }
             }
@@ -959,16 +1185,14 @@
             window.state.todos.push({ text: input.value.trim(), timeLimit: timeInput.value ? parseInt(timeInput.value) : null });
             await saveStateToCloud(); 
             renderTodos();
+            sendNotification("Task Created", `Task: ${input.value.trim()} logged successfully.`);
             input.value = ''; timeInput.value = '';
         }
 
         window.completeTask = async function(idx) {
             window.state.todos.splice(idx, 1);
-            
-            // Mark daily streak progress
             triggerDailyActivity();
 
-            // Record Task Analytics
             const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             window.state.taskStats.completed = (window.state.taskStats.completed || 0) + 1;
             window.state.taskStats.history[todayStr] = (window.state.taskStats.history[todayStr] || 0) + 1;
@@ -1005,7 +1229,7 @@
         window.addScore = async function() {
             const date = document.getElementById('score-date').value;
             const name = document.getElementById('score-name').value || "Test Assessment";
-            if (!date) { alert("Invalid date parameter."); return; }
+            if (!date) { showCustomAlert("Date Missing", "Please pick a valid date."); return; }
 
             let scoreObj = { date, name };
             const maxVal = window.activeUserMeta.targetExam === "JEE" ? 100 : 180;
@@ -1014,14 +1238,14 @@
                 const p = parseInt(document.getElementById('score-sub-physics').value) || 0;
                 const c = parseInt(document.getElementById('score-sub-chemistry').value) || 0;
                 const m = parseInt(document.getElementById('score-sub-mathematics').value) || 0;
-                if (p > maxVal || c > maxVal || m > maxVal) { alert(`Scores cannot exceed ${maxVal}.`); return; }
+                if (p > maxVal || c > maxVal || m > maxVal) { showCustomAlert("Score Out of Range", `Scores cannot exceed ${maxVal}.`); return; }
                 scoreObj.physics = p; scoreObj.chemistry = c; scoreObj.mathematics = m;
             } else {
                 const p = parseInt(document.getElementById('score-sub-physics').value) || 0;
                 const c = parseInt(document.getElementById('score-sub-chemistry').value) || 0;
                 const b = parseInt(document.getElementById('score-sub-botany').value) || 0;
                 const z = parseInt(document.getElementById('score-sub-zoology').value) || 0;
-                if (p > maxVal || c > maxVal || b > maxVal || z > maxVal) { alert(`Scores cannot exceed ${maxVal}.`); return; }
+                if (p > maxVal || c > maxVal || b > maxVal || z > maxVal) { showCustomAlert("Score Out of Range", `Scores cannot exceed ${maxVal}.`); return; }
                 scoreObj.physics = p; scoreObj.chemistry = c; scoreObj.botany = b; scoreObj.zoology = z;
             }
 
@@ -1097,7 +1321,6 @@
         function initCharts() {
             const maxRange = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? 100 : 180;
             
-            // Score Line Chart
             const ctxLine = document.getElementById('performanceChart').getContext('2d');
             if(performanceChart) performanceChart.destroy();
             performanceChart = new Chart(ctxLine, {
@@ -1106,7 +1329,6 @@
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: maxRange } } }
             });
 
-            // Score Pie Chart
             const ctxPie = document.getElementById('pieChart').getContext('2d');
             if(pieChart) pieChart.destroy();
             const pieLabels = window.activeUserMeta && window.activeUserMeta.targetExam === "JEE" ? ['Physics', 'Chemistry', 'Mathematics'] : ['Physics', 'Chemistry', 'Botany', 'Zoology'];
@@ -1118,7 +1340,6 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // Task Ratio Pie Chart
             const ctxTaskPie = document.getElementById('taskRatioPieChart').getContext('2d');
             if(taskRatioPieChart) taskRatioPieChart.destroy();
             taskRatioPieChart = new Chart(ctxTaskPie, {
@@ -1130,7 +1351,6 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
 
-            // Task Completion History Line Chart
             const ctxTaskLine = document.getElementById('taskHistoryLineChart').getContext('2d');
             if(taskHistoryLineChart) taskHistoryLineChart.destroy();
             taskHistoryLineChart = new Chart(ctxTaskLine, {
@@ -1204,6 +1424,7 @@
             renderChapters();
             initCharts();
             renderTable();
+            renderTimetableWidget();
             updateChartsData();
             rotateFormula();
         }
@@ -1234,7 +1455,8 @@
                         if(totalSeconds > 0) { totalSeconds--; }
                         else {
                             clearInterval(clockInterval); running = false;
-                            alert("Time Target Achieved! Great job!"); 
+                            sendNotification("Target Achieved!", "Great job completing your study block.");
+                            showCustomAlert("Time Target Achieved", "Great job! Task complete."); 
                             if(window.activeClockTaskIndex !== null && window.state.todos[window.activeClockTaskIndex]) {
                                 window.completeTask(window.activeClockTaskIndex);
                                 window.activeClockTaskIndex = null;
